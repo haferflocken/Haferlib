@@ -7,6 +7,7 @@ package org.haferlib.slick.gui;
 
 import java.util.ArrayList;
 import java.util.Vector;
+import java.util.Collections;
 import org.newdawn.slick.KeyListener;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Color;
@@ -28,26 +29,22 @@ public class GUIContext implements KeyListener {
 		}
 	}
 
-	//The buffer of key presses that have occured since the last update.
-	private Vector<KeyCharPair> keyBuffer;
+	///////////////////////
+	////INSTANCE FIELDS////
+	///////////////////////
+	private Vector<KeyCharPair> keyBuffer;								//The buffer of key presses that have occurred since the last update.
+	private ArrayList<GUIElement> elements;								//The GUIElements in this GUIContext, sorted by depth.
+	private ElementDepthComparator depthComparator;						//Compares elements by depth.
+	private GUIElement focus;											//The element in focus.
+	private int focusBoxX, focusBoxY, focusBoxWidth, focusBoxHeight;	//The box drawn around the element in focus in debug mode.
+	private ArrayList<GUIElement> addThese;								//The elements to be added on the next update.
+	private ArrayList<GUIElement> removeThese;							//The elements to be removed on the next update.
+	private boolean enabled;											//Is this GUIContext listening to key input?
 
-	//The GUIElements in this GUIContext, sorted by depth
-	private ArrayList<GUIElement> elements;
-
-	//The element in focus
-	private GUIElement focus;
-	private int focusBoxX, focusBoxY, focusBoxWidth, focusBoxHeight;
-
-	//The elements to be added and removed on the next update
-	private ArrayList<GUIElement> addThese;
-	private ArrayList<GUIElement> removeThese;
-
-	//Is this GUIContext listening to key input?
-	private boolean enabled;
-
-	//Constructors
+	//Constructors.
     public GUIContext() {
     	elements = new ArrayList<>();
+    	depthComparator = new ElementDepthComparator();
     	enabled = true;
     	keyBuffer = new Vector<>();
     	addThese = new ArrayList<>();
@@ -74,6 +71,12 @@ public class GUIContext implements KeyListener {
 		//If the mouse was clicked, clear the focus. This allows for unfocusing by clicking nothing.
 		if (leftMousePressed | middleMousePressed | rightMousePressed)
 			clearFocus();
+		
+		//We only want to call events on the top element of a bunch of elements if they overlap, so we keep track of if the event has been consumed yet.
+		boolean clickConsumed = false;
+		boolean mouseDownConsumed = false;
+		boolean hoverConsumed = false;
+		
 		//Loop through the elements and call their methods as they need to be called.
 		//They are looped through backwards to ensure that for overlapping elements, the one clicked is
 		//the one the player saw on top.
@@ -84,51 +87,50 @@ public class GUIContext implements KeyListener {
 			if (e.pointIsWithin(mouseX, mouseY)) {
 				//If we are clicking...
 				if (leftMousePressed | middleMousePressed | rightMousePressed) {
-					//Click the element.
-					if (leftMousePressed)
-						e.click(mouseX, mouseY, Input.MOUSE_LEFT_BUTTON);
-					if (middleMousePressed)
-						e.click(mouseX, mouseY, Input.MOUSE_MIDDLE_BUTTON);
-					if (rightMousePressed)
-						e.click(mouseX, mouseY, Input.MOUSE_RIGHT_BUTTON);
-					//Make it the focus.
-					setFocus(e);
+					//If the click has already been consumed, clickedElsewhere the element.
+					if (clickConsumed) {
+						clickedElementElsewhere(e, leftMousePressed, middleMousePressed, rightMousePressed);
+					}
+					//Otherwise, click the element and make it the focus.
+					else {
+						clickElement(e, mouseX, mouseY, leftMousePressed, middleMousePressed, rightMousePressed);
+						setFocus(e);
+						clickConsumed = true;
+					}
 				}
 				//If we have the mouse down...
-				else if (leftMouseDown | middleMouseDown | rightMouseDown) {
-					//Mousedown the element.
-					if (leftMouseDown)
-						e.mouseDown(mouseX, mouseY, Input.MOUSE_LEFT_BUTTON);
-					if (middleMouseDown)
-						e.mouseDown(mouseX, mouseY, Input.MOUSE_MIDDLE_BUTTON);
-					if (rightMouseDown)
-						e.mouseDown(mouseX, mouseY, Input.MOUSE_RIGHT_BUTTON);
+				else if (mouseDownConsumed | leftMouseDown | middleMouseDown | rightMouseDown) {
+					//If the mouse down has already been consumed, mouseDownElsewhere the element.
+					if (mouseDownConsumed) {
+						mouseDownElementElsewhere(e, leftMousePressed, middleMousePressed, rightMousePressed);
+					}
+					//Otherwise, mouseDown the element.
+					else {
+						mouseDownElement(e, mouseX, mouseY, leftMousePressed, middleMousePressed, rightMousePressed);
+						mouseDownConsumed = true;
+					}
 				}
 				//If we are hovering...
 				else {
-					e.hover(mouseX, mouseY);
+					//If the hover has already been consumed, hoveredElsewhere the element.
+					if (hoverConsumed) {
+						e.hoveredElsewhere();
+					}
+					//Otherwise, hover the element.
+					else {
+						e.hover(mouseX, mouseY);
+						hoverConsumed = true;
+					}
 				}
 			}
 			//If we're not within the area...
 			else {
 				//If we're clicking outside of this element...
-				if (leftMousePressed | middleMousePressed | rightMousePressed) {
-					if (leftMousePressed)
-						e.clickedElsewhere(Input.MOUSE_LEFT_BUTTON);
-					if (middleMousePressed)
-						e.clickedElsewhere(Input.MOUSE_MIDDLE_BUTTON);
-					if (rightMousePressed)
-						e.clickedElsewhere(Input.MOUSE_RIGHT_BUTTON);
-				}
+				if (leftMousePressed | middleMousePressed | rightMousePressed)
+					clickedElementElsewhere(e, leftMousePressed, middleMousePressed, rightMousePressed);
 				//If we're mousing down outside of this element...
-				else if (leftMouseDown | middleMouseDown | rightMouseDown) {
-					if (leftMouseDown)
-						e.mouseDownElsewhere(Input.MOUSE_LEFT_BUTTON);
-					if (middleMouseDown)
-						e.mouseDownElsewhere(Input.MOUSE_MIDDLE_BUTTON);
-					if (rightMouseDown)
-						e.mouseDownElsewhere(Input.MOUSE_RIGHT_BUTTON);
-				}
+				else if (leftMouseDown | middleMouseDown | rightMouseDown)
+					mouseDownElementElsewhere(e, leftMousePressed, middleMousePressed, rightMousePressed);
 				//If we are hovering outside of this element...
 				else
 					e.hoveredElsewhere();
@@ -155,6 +157,14 @@ public class GUIContext implements KeyListener {
 		}
 		//Clear the key buffer now that the focus knows about it.
 		keyBuffer.clear();
+		
+		//See if we need to resort the elements and if we do, do it.
+		for (int i = 1; i < elements.size(); i++) {
+			//If the two elements are out of order, sort that shit.
+			if (elements.get(i - 1).getDepth() > elements.get(i).getDepth()) {
+				Collections.sort(elements, depthComparator);
+			}
+		}
 	}
 
 	private void setFocus(GUIElement e) {
@@ -167,6 +177,42 @@ public class GUIContext implements KeyListener {
 
 	private void clearFocus() {
 		focus = null;
+	}
+	
+	private void clickElement(GUIElement e, int mouseX, int mouseY, boolean lmbPressed, boolean mmbPressed, boolean rmbPressed) {
+		if (lmbPressed)
+			e.click(mouseX, mouseY, Input.MOUSE_LEFT_BUTTON);
+		if (mmbPressed)
+			e.click(mouseX, mouseY, Input.MOUSE_MIDDLE_BUTTON);
+		if (rmbPressed)
+			e.click(mouseX, mouseY, Input.MOUSE_RIGHT_BUTTON);
+	}
+	
+	private void clickedElementElsewhere(GUIElement e, boolean lmbPressed, boolean mmbPressed, boolean rmbPressed) {
+		if (lmbPressed)
+			e.clickedElsewhere(Input.MOUSE_LEFT_BUTTON);
+		if (mmbPressed)
+			e.clickedElsewhere(Input.MOUSE_MIDDLE_BUTTON);
+		if (rmbPressed)
+			e.clickedElsewhere(Input.MOUSE_RIGHT_BUTTON);
+	}
+	
+	private void mouseDownElement(GUIElement e, int mouseX, int mouseY, boolean lmbPressed, boolean mmbPressed, boolean rmbPressed) {
+		if (lmbPressed)
+			e.mouseDown(mouseX, mouseY, Input.MOUSE_LEFT_BUTTON);
+		if (mmbPressed)
+			e.mouseDown(mouseX, mouseY, Input.MOUSE_MIDDLE_BUTTON);
+		if (rmbPressed)
+			e.mouseDown(mouseX, mouseY, Input.MOUSE_RIGHT_BUTTON);
+	}
+	
+	private void mouseDownElementElsewhere(GUIElement e, boolean lmbPressed, boolean mmbPressed, boolean rmbPressed) {
+		if (lmbPressed)
+			e.mouseDownElsewhere(Input.MOUSE_LEFT_BUTTON);
+		if (mmbPressed)
+			e.mouseDownElsewhere(Input.MOUSE_MIDDLE_BUTTON);
+		if (rmbPressed)
+			e.mouseDownElsewhere(Input.MOUSE_RIGHT_BUTTON);
 	}
 
 	private void addAtSortedLoc(GUIElement e) {
