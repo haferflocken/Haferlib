@@ -100,13 +100,16 @@ public class ScrollableFrame extends GUISubcontext {
 
 		//If we will have a scroll bar, adjust the scroll area and scroll bar.
 		hasScrollBar = true;
+		scrollBarY = y1;
 		scrollBarHeight =  height * height / scrollAreaHeight; //Set the scroll bar height to the (percentage of the scroll area that is shown by the frame) * frame height
 		scrollStepSize = (int)Math.ceil((float)(scrollAreaHeight - height) / (height - scrollBarHeight)); //The amount of translation to do for every pixel the scroll bar moves.
 		mouseDragging = false;
 
 		//Scroll back to where we were now that everything is all taken care of.
 		if (amountScrolled != 0) {
-			scroll(amountScrolled);
+			amountScrolled /= scrollStepSize;
+			scrollBarY += amountScrolled;
+			scroll(-amountScrolled);
 		}
 	}
 
