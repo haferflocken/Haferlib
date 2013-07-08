@@ -99,14 +99,14 @@ public class GUIContext implements KeyListener {
 					}
 				}
 				//If we have the mouse down...
-				else if (mouseDownConsumed | leftMouseDown | middleMouseDown | rightMouseDown) {
+				else if (leftMouseDown | middleMouseDown | rightMouseDown) {
 					//If the mouse down has already been consumed, mouseDownElsewhere the element.
 					if (mouseDownConsumed) {
-						mouseDownElementElsewhere(e, leftMousePressed, middleMousePressed, rightMousePressed);
+						mouseDownElementElsewhere(e, leftMouseDown, middleMouseDown, rightMouseDown);
 					}
 					//Otherwise, mouseDown the element.
 					else {
-						mouseDownElement(e, mouseX, mouseY, leftMousePressed, middleMousePressed, rightMousePressed);
+						mouseDownElement(e, mouseX, mouseY, leftMouseDown, middleMouseDown, rightMouseDown);
 						mouseDownConsumed = true;
 					}
 				}
@@ -130,7 +130,7 @@ public class GUIContext implements KeyListener {
 					clickedElementElsewhere(e, leftMousePressed, middleMousePressed, rightMousePressed);
 				//If we're mousing down outside of this element...
 				else if (leftMouseDown | middleMouseDown | rightMouseDown)
-					mouseDownElementElsewhere(e, leftMousePressed, middleMousePressed, rightMousePressed);
+					mouseDownElementElsewhere(e, leftMouseDown, middleMouseDown, rightMouseDown);
 				//If we are hovering outside of this element...
 				else
 					e.hoveredElsewhere();
@@ -197,21 +197,21 @@ public class GUIContext implements KeyListener {
 			e.clickedElsewhere(Input.MOUSE_RIGHT_BUTTON);
 	}
 	
-	private void mouseDownElement(GUIElement e, int mouseX, int mouseY, boolean lmbPressed, boolean mmbPressed, boolean rmbPressed) {
-		if (lmbPressed)
+	private void mouseDownElement(GUIElement e, int mouseX, int mouseY, boolean lmbDown, boolean mmbDown, boolean rmbDown) {
+		if (lmbDown)
 			e.mouseDown(mouseX, mouseY, Input.MOUSE_LEFT_BUTTON);
-		if (mmbPressed)
+		if (mmbDown)
 			e.mouseDown(mouseX, mouseY, Input.MOUSE_MIDDLE_BUTTON);
-		if (rmbPressed)
+		if (rmbDown)
 			e.mouseDown(mouseX, mouseY, Input.MOUSE_RIGHT_BUTTON);
 	}
 	
-	private void mouseDownElementElsewhere(GUIElement e, boolean lmbPressed, boolean mmbPressed, boolean rmbPressed) {
-		if (lmbPressed)
+	private void mouseDownElementElsewhere(GUIElement e, boolean lmbDown, boolean mmbDown, boolean rmbDown) {
+		if (lmbDown)
 			e.mouseDownElsewhere(Input.MOUSE_LEFT_BUTTON);
-		if (mmbPressed)
+		if (mmbDown)
 			e.mouseDownElsewhere(Input.MOUSE_MIDDLE_BUTTON);
-		if (rmbPressed)
+		if (rmbDown)
 			e.mouseDownElsewhere(Input.MOUSE_RIGHT_BUTTON);
 	}
 
