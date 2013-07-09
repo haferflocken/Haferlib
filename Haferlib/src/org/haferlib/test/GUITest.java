@@ -7,8 +7,11 @@ import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.BasicGame;
 import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Color;
+import org.newdawn.slick.Input;
 
 import org.haferlib.slick.gui.*;
+import org.haferlib.util.Paths;
 
 public class GUITest extends BasicGame {
 
@@ -24,11 +27,9 @@ public class GUITest extends BasicGame {
 
 		//MultifieldDialog test.
 		ui.addElement(new MultifieldDialog("MultifieldDialog Test 1", new String[] {"field 1", "field 2", "field 3"}, 128, 64, 400, 100, 18));
-		ui.addElement(new MultifieldDialog("MultifieldDialog Test 2", new String[] {"field 1", "field 2", "field 3", "field 4", "field 5", "field 6"}, 128, 200, 400, 100, 18));
-		ui.addElement(new MultifieldDialog("MultifieldDialog Test 3", new String[] {"field 1", "field 2", "field 3", "field 4", "field 5", "field 6", "field 7", "field 8", "field 9"}, 128, 336, 400, 100, 18));
 
 		//FileBrowser test.
-		//ui.addElement(new FileBrowser("FileBrower Test", new Paths("Google Drive").gamePath, "", container.getGraphics().getFont(), 128, 256, 512, 320, Color.white, Color.black, Color.blue, Input.KEY_ENTER));
+		//ui.addElement(new FileBrowser("FileBrower Test", new Paths("Haferlib").gamePath, "", container.getGraphics().getFont(), 128, 256, 512, 320, Color.white, Color.black, Color.blue, Input.KEY_ENTER));
 	}
 
 	public void update(GameContainer container, int delta) {
