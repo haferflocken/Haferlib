@@ -137,6 +137,10 @@ public class ScrollableFrame extends GUISubcontext {
 		subcontext.addAndRemoveElements();
 		recalculateScrollingFields();
 	}
+	
+	public void clearElements() {
+		subcontext.clear();
+	}
 
 	//Set x and y.
 	public void setX(int x) {
