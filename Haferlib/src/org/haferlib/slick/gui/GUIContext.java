@@ -298,6 +298,17 @@ public class GUIContext implements KeyListener {
 	public void disable() {
 		enabled = false;
 	}
+	
+	//Get the topmost element that contains a point. Return null if no elements contain the point.
+	public GUIElement getElementAtPoint(int x, int y) {
+		GUIElement e;
+		for (int i = elements.size() - 1; i > -1; i--) {
+			e = elements.get(i);
+			if (e.pointIsWithin(x, y))
+				return e;
+		}
+		return null;
+	}
 
 	//Does this contain a given GUIElement?
 	public boolean contains(GUIElement e) {

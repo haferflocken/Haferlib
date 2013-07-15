@@ -7,6 +7,7 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Color;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class ScrollableFrame extends GUISubcontext {
 
@@ -25,7 +26,7 @@ public class ScrollableFrame extends GUISubcontext {
 	private boolean mouseDragging;
 	private int mouseDragDistFromScrollY;
 
-	//Constructors
+	//Constructors.
 	public ScrollableFrame(int x, int y, int width, int height, int depth, int scrollBarWidth, Color scrollBarColor) {
 		super(x, y);
 		setWidth(width);
@@ -118,6 +119,11 @@ public class ScrollableFrame extends GUISubcontext {
 		subcontext.translateY(amount * scrollStepSize);
 	}
 
+	//Get the width of the scroll bar.
+	public int getScrollBarWidth() {
+		return scrollBarWidth;
+	}
+	
 	//Add and remove elements.
 	public void addElement(GUIElement e) {
 		subcontext.addElement(e);
@@ -141,7 +147,54 @@ public class ScrollableFrame extends GUISubcontext {
 	public void clearElements() {
 		subcontext.clear();
 	}
+	
+	//Get the element immediately above the element given.
+	public GUIElement getElementAbove(GUIElement e) {
+		return getElementAbove(e.getY());
+	}
 
+	//Get the element immediately above the given y coordinate.
+	public GUIElement getElementAbove(int y) {
+		//Get a copy of the elements list sorted by Y.
+		ArrayList<GUIElement> elements = new ArrayList<GUIElement>(subcontext.getElements());
+		Collections.sort(elements, new ElementYComparator());
+
+		//Loop through the elements until we find the first element to be below the y.
+		for (int i = 1; i < elements.size(); i++) {
+			if (elements.get(i).getY() > y)
+				return elements.get(i - 1);
+		}
+
+		//Return null if we can't find anything above the y.
+		return null;
+	}
+	
+	//Get the element immediately below the element given.
+	public GUIElement getElementBelow(GUIElement e) {
+		return getElementBelow(e.getY());
+	}
+	
+	//Get the element immediately below the given y coordinate.
+	public GUIElement getElementBelow(int y) {
+		//Get a copy of the elements list sorted by Y.
+		ArrayList<GUIElement> elements = new ArrayList<GUIElement>(subcontext.getElements());
+		Collections.sort(elements, new ElementYComparator());
+
+		//Loop through the elements backwards until we find an element that is above the y.
+		for (int i = elements.size() - 2; i > -1; i--) {
+			if (elements.get(i).getY() < y)
+				return elements.get(i + 1);
+		}
+
+		//Return null if we can't find anything below the y.
+		return null;
+	}
+	
+	//Get the element that contains a point.
+	public GUIElement getElementAtPoint(int x, int y) {
+		return subcontext.getElementAtPoint(x, y);
+	}
+	
 	//Set x and y.
 	public void setX(int x) {
 		super.setX(x);
