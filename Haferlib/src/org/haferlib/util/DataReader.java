@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.TreeMap;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
@@ -243,7 +243,7 @@ public class DataReader {
 		//Maps start and end with <> and contain key-value pairs of the format key : value, .
 		if (value.charAt(0) == '<' && value.charAt(value.length() - 1) == '>') {
 			//Look through the map, parsing each pair as it is seen.
-			HashMap<Object, Object> map = new HashMap<>();
+			Map<Object, Object> map = new LinkedHashMap<>();
 			int subStart = 1;
 			for (int i = 1; i < value.length() - 1; i++) {
 				//If we have found the next pair to parse, parse it.
@@ -285,7 +285,7 @@ public class DataReader {
 					i = endOfBlock;
 				}
 			}
-			//Because the last element doesn't necesarily have a comma after it, parse the value
+			//Because the last element doesn't necessarily have a comma after it, parse the value
 			//of the last element which may not have been grabbed by the loop.
 			String lastPairString = value.substring(subStart, value.length() - 1).trim();
 			if (lastPairString.length() > 0) {
