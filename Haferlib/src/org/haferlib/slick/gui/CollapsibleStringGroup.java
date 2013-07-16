@@ -75,7 +75,10 @@ public class CollapsibleStringGroup implements GUIElement {
 		int titleX = font.getLineHeight();
 		int titleWidth = width - titleX;
 		int titleHeight = gUtil.getWrappedStringHeight(font, title, titleWidth);
-		int stringsX = titleX + 8;
+		int bulletSize = font.getLineHeight() / 3;
+		int bulletX = titleX;
+		int bulletYOffset = bulletSize;
+		int stringsX = bulletX + bulletSize + bulletSize;
 		int stringsWidth = width - stringsX;
 		int stringsHeight = 0;
 		for (String s : strings) {
@@ -107,9 +110,14 @@ public class CollapsibleStringGroup implements GUIElement {
 		//Draw the title.
 		int stringsY = gUtil.drawStringWrapped(g, title, titleX, 0, titleWidth);
 		
+		//Figure out where the bullet goes.
+		
+
 		//Draw the strings.
-		for (String s : strings)
-			stringsY = gUtil.drawStringWrapped(g, s, stringsX, stringsY, stringsWidth);
+		for (String s : strings) {
+			g.fillRect(bulletX, stringsY + bulletYOffset, bulletSize, bulletSize); //The bullet.
+			stringsY = gUtil.drawStringWrapped(g, s, stringsX, stringsY, stringsWidth); //The string.
+		}
 		
 		//Flush the graphics to the image and destroy the graphics context.
 		g.flush();
