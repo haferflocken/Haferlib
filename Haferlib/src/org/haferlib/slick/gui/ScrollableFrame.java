@@ -150,6 +150,11 @@ public class ScrollableFrame extends GUISubcontext {
 		subcontext.clear();
 	}
 	
+	public void reinitSubcontext() {
+		subcontext.destroy();
+		subcontext = new GUIContext();
+	}
+	
 	//Get the element immediately above the element given.
 	public GUIElement getElementAbove(GUIElement e) {
 		return getElementAbove(e.getY());
