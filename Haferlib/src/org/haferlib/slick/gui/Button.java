@@ -172,13 +172,13 @@ public class Button<V> implements GUIElement, GUIEventGenerator {
 		return 2;
 	}
 
-	//@see UIElement.keyInputDone()
+	//@see GUIElement.keyInputDone()
 	public void keyPressed(int key, char c) {
 		if (key == buttonKey)
 			press();
 	}
 
-	//@see UIElement.keyInputDone()
+	//@see GUIElement.keyInputDone()
 	public void keyInputDone() {
 	}
 
@@ -198,9 +198,15 @@ public class Button<V> implements GUIElement, GUIEventGenerator {
 		listeners.remove(l);
 	}
 
-	//@see UIElement.dead()
+	//@see GUIElement.dead()
 	public boolean dead() {
 		return false;
+	}
+	
+	//@see GUIElement.destroy()
+	public void destroy() {
+		listeners.clear();
+		listeners = null;
 	}
 
 	public String toString() {

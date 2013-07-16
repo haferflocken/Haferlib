@@ -138,8 +138,12 @@ public class GUIContext implements KeyListener {
 			//Update the element after all the other stuff happens
 			e.update(delta);
 			//Check to see if the element is dead now, and if so, remove it
-			if (e.dead())
+			if (e.dead()) {
+				e.destroy();
 				removeElement(e);
+				if (focus == e) 
+					clearFocus();
+			}
 		}
 		//Only the element with input focus gets key input.
 		if (focus != null) {
@@ -151,8 +155,10 @@ public class GUIContext implements KeyListener {
 				}
 				focus.keyInputDone();
 				//Then check again if the focus is dead because new stuff happened to it.
-				if (focus.dead())
+				if (focus.dead()) {
+					focus.destroy();
 					removeElement(focus);
+				}
 			}
 		}
 		//Clear the key buffer now that the focus knows about it.
@@ -338,6 +344,26 @@ public class GUIContext implements KeyListener {
 		}
 	}
 
+	//Force elements to release their resources and release any resources this has.
+	public void destroy() {
+		//Destroy the elements.
+		addAndRemoveElements();
+		for (GUIElement e : elements) {
+			e.destroy();
+		}
+		elements.clear();
+		elements = null;
+		
+		//Destroy the key buffer.
+		keyBuffer.clear();
+		keyBuffer = null;
+		
+		//Clear other references.
+		depthComparator = null;
+		focus = null;
+		enabled = false;
+	}
+	
 	//KeyListener methods
 	public void keyPressed(int key, char c) {
 		keyBuffer.add(new KeyCharPair(key, c));

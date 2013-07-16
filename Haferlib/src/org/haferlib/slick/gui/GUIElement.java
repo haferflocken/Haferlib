@@ -65,7 +65,10 @@ public interface GUIElement {
 	//Called when all key inputs have been sent for this update, if there were any.
 	void keyInputDone();
 
-	//A check to see if this element has decided to die
+	//A check to see if this element has decided to die.
 	boolean dead();
+	
+	//Force the element to release any resources it may have accumulated. Called by GUIContext when removing dead elements.
+	void destroy();
 
 }

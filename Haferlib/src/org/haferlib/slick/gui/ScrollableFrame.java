@@ -139,9 +139,11 @@ public class ScrollableFrame extends GUISubcontext {
 	}
 
 	public void removeElement(GUIElement e) {
-		subcontext.removeElement(e);
-		subcontext.addAndRemoveElements();
-		recalculateScrollingFields();
+		if (subcontext.contains(e)) {
+			subcontext.removeElement(e);
+			subcontext.addAndRemoveElements();
+			recalculateScrollingFields();
+		}
 	}
 	
 	public void clearElements() {
@@ -155,18 +157,19 @@ public class ScrollableFrame extends GUISubcontext {
 
 	//Get the element immediately above the given y coordinate.
 	public GUIElement getElementAbove(int y) {
-		//Get a copy of the elements list sorted by Y.
-		ArrayList<GUIElement> elements = new ArrayList<GUIElement>(subcontext.getElements());
-		Collections.sort(elements, new ElementYComparator());
+		GUIElement out = null;
+		int dY = Integer.MAX_VALUE;
 
-		//Loop through the elements until we find the first element to be below the y.
-		for (int i = 1; i < elements.size(); i++) {
-			if (elements.get(i).getY() > y)
-				return elements.get(i - 1);
+		//Loop through the elements to find the one closest to the y.
+		for (GUIElement e : subcontext.getElements()) {
+			int newDY = y - e.getY();
+			if (newDY < dY && newDY > 0) {
+				dY = newDY;
+				out = e;
+			}
 		}
 
-		//Return null if we can't find anything above the y.
-		return null;
+		return out;
 	}
 	
 	//Get the element immediately below the element given.

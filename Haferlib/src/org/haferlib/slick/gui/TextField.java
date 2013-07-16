@@ -148,7 +148,7 @@ public class TextField implements GUIElement {
 	public void mouseDownElsewhere(int button) {
 	}
 
-	//@see UIElement.hoveredElsewhere()
+	//@see GUIElement.hoveredElsewhere()
 	public void hoveredElsewhere() {
 	}
 
@@ -175,7 +175,7 @@ public class TextField implements GUIElement {
 		}
 	}
 
-	//@see UIElement.keyInputDone()
+	//@see GUIElement.keyInputDone()
 	public void keyInputDone() {
 		textAsString = text.toString();
 	}
@@ -191,8 +191,12 @@ public class TextField implements GUIElement {
 		textAsString = "";
 	}
 
-	//@see UIElement.dead()
+	//@see GUIElement.dead()
 	public boolean dead() {
 		return false;
+	}
+	
+	//@see GUIElement.destroy()
+	public void destroy() {
 	}
 }

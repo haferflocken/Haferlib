@@ -33,6 +33,11 @@ public abstract class GUISubcontext implements GUIElement {
 		mmbDown = false;
 		rmbDown = false;
 	}
+	
+	//See if the subcontext contains an element.
+	public boolean contains(GUIElement e) {
+		return subcontext.contains(e);
+	}
 
 	//If setX(n) is called, getX() should return n. setX(n) is expected to move the element so that its
 	//bounding box's left edge is on n.
@@ -125,6 +130,11 @@ public abstract class GUISubcontext implements GUIElement {
 
 	//Called when all key inputs have been sent for this update, if there were any.
 	public void keyInputDone() {
+	}
+	
+	//Called when this is removed from being dead.
+	public void destroy() {
+		subcontext.destroy();
 	}
 
 }

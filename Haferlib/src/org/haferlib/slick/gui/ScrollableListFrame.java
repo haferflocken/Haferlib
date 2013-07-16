@@ -73,16 +73,37 @@ public class ScrollableListFrame extends ScrollableFrame {
 	
 	@Override
 	public void removeElement(GUIElement e) {
-		//Remove the element.
-		subcontext.removeElement(e);
+		if (subcontext.contains(e)) {
+			//Remove the element.
+			subcontext.removeElement(e);
+			subcontext.addAndRemoveElements();
+			
+			//Realign the others.
+			GUIElement realignAnchor = getElementAbove(e);
+			if (realignAnchor == null)
+				realignAllElements();
+			else
+				realignFromElement(realignAnchor);
+		}
+	}
+	
+	//Add an element at a specific y, shifting elements down to make room.
+	public void addElement(GUIElement e, int y) {
+		alignElementX(e, getAlignedXAnchor());
+		GUIElement above = getElementAbove(y);
+		if (above == null) {
+			e.setY(Integer.MIN_VALUE);
+		}
+		else if (above.getY() + above.getHeight() >= y) {
+			e.setY(above.getY());
+			above.setY(y);
+		}
+		else {
+			e.setY(above.getY() + above.getHeight() + ySpacing);
+		}
+		subcontext.addElement(e);
 		subcontext.addAndRemoveElements();
-		
-		//Realign the others.
-		GUIElement realignAnchor = getElementAbove(e);
-		if (realignAnchor == null)
-			realignAllElements();
-		else
-			realignFromElement(realignAnchor);
+		realignFromElement(e);
 	}
 	
 	//Get the x coordinate that we are aligning to.
