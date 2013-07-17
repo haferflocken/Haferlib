@@ -108,15 +108,12 @@ public class CollapsibleStringGroup implements GUIElement {
 		g.fillRect(toggleButtonPos, toggleButtonCenter - 1, toggleButtonSize, 2); //Horizontal bar.
 		
 		//Draw the title.
-		int stringsY = gUtil.drawStringWrapped(g, title, titleX, 0, titleWidth);
-		
-		//Figure out where the bullet goes.
-		
+		int stringsY = gUtil.drawStringWrapped(g, title, titleX, 0, titleWidth).y + font.getLineHeight();
 
 		//Draw the strings.
 		for (String s : strings) {
 			g.fillRect(bulletX, stringsY + bulletYOffset, bulletSize, bulletSize); //The bullet.
-			stringsY = gUtil.drawStringWrapped(g, s, stringsX, stringsY, stringsWidth); //The string.
+			stringsY = gUtil.drawStringWrapped(g, s, stringsX, stringsY, stringsWidth).y + font.getLineHeight(); //The string.
 		}
 		
 		//Flush the graphics to the image and destroy the graphics context.

@@ -9,6 +9,10 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 
+import org.haferlib.slick.GraphicsUtils;
+
+import java.awt.Point;
+
 public class OutputFrame extends GUISubcontext {
 	
 	public static final int MAX_IMAGE_HEIGHT = 512; //Textures in OpenGL only like to be so big. This helps keep the size down.
@@ -23,7 +27,8 @@ public class OutputFrame extends GUISubcontext {
 	private StringBuilder currentLine;			//A string builder to build the current line.
 	private ImageFrame currentImageFrame;		//The image frame currently being drawn to.
 	private Graphics imageG;					//The graphics for drawing to the image frame.
-	private int drawX, drawY;					//The position we are drawing to on the current image frame.
+	private GraphicsUtils gUtils;				//The graphics utils class for word wrapping.
+	private Point drawPoint;					//The position we are drawing to on the current image frame.
 	
 	//Constructor.
 	public OutputFrame(int x, int y, int width, int height, int depth, Font font, Color textColor, int scrollBarWidth, Color scrollBarColor) throws SlickException {
@@ -38,6 +43,7 @@ public class OutputFrame extends GUISubcontext {
 		scrollFrame = new ScrollableListFrame(x1, y1, this.width, this.height, 0, scrollBarWidth, scrollBarColor);
 		subcontext.addElement(scrollFrame);
 		makeNewCurrentImageFrame();
+		gUtils = new GraphicsUtils();
 		currentLine = new StringBuilder();
 	}
 	
@@ -157,9 +163,9 @@ public class OutputFrame extends GUISubcontext {
 	//Make a new line happen.
 	private void newLine() {
 		//Move the draw position and resize the current image frame.
-		drawX = 0;
+		drawPoint.x = 0;
 		int dY = imageG.getFont().getLineHeight();
-		drawY += dY;
+		drawPoint.y += dY;
 		currentImageFrame.setHeight(currentImageFrame.getHeight() + dY);
 		//If the current image frame has gotten too tall, make a new one.
 		if (currentImageFrame.getHeight() >= MAX_IMAGE_HEIGHT) {
@@ -185,8 +191,7 @@ public class OutputFrame extends GUISubcontext {
 		String line = currentLine.toString(); //Get the line.
 		currentLine.delete(0, currentLine.length()); //Clear the string builder.
 
-		imageG.drawString(line, drawX, drawY); //Draw the string.
-		drawX += imageG.getFont().getWidth(line); //Move the draw x over.
+		drawPoint = gUtils.drawStringWrapped(imageG, line, drawPoint.x, drawPoint.y, width - drawPoint.x); //Draw the string.
 		
 		imageG.flush(); //Flush the graphics.
 	}
@@ -199,8 +204,7 @@ public class OutputFrame extends GUISubcontext {
 		imageG.setColor(textColor);
 		imageG.setAntiAlias(false);
 		currentImageFrame = new ImageFrame(frameImage, 0, 0, width, 0, 0);
-		drawX = 0;
-		drawY = 0;
+		drawPoint = new Point();
 		scrollFrame.addElement(currentImageFrame);
 	}
 
