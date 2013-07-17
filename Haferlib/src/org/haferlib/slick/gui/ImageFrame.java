@@ -33,6 +33,8 @@ public class ImageFrame implements GUIElement {
 	@Override
 	public void render(Graphics g) {
 		g.drawImage(image, x1, y1, x2, y2, 0, 0, width, height);
+		g.setColor(org.newdawn.slick.Color.red);
+		g.drawRect(x1, y1, width, height);
 	}
 
 	@Override
@@ -59,6 +61,8 @@ public class ImageFrame implements GUIElement {
 
 	@Override
 	public void setWidth(int w) {
+		if (w > image.getWidth())
+			w = image.getWidth();
 		width = w;
 		x2 = x1 + width;
 	}
@@ -70,6 +74,8 @@ public class ImageFrame implements GUIElement {
 
 	@Override
 	public void setHeight(int h) {
+		if (h > image.getHeight())
+			h = image.getHeight();
 		height = h;
 		y2 = y1 + height;
 	}

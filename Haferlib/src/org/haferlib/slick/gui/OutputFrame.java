@@ -164,22 +164,9 @@ public class OutputFrame extends GUISubcontext {
 	private void newLine() {
 		//Move the draw position and resize the current image frame.
 		drawPoint.x = 0;
-		int dY = imageG.getFont().getLineHeight();
+		int dY = font.getLineHeight();
 		drawPoint.y += dY;
-		currentImageFrame.setHeight(currentImageFrame.getHeight() + dY);
-		//If the current image frame has gotten too tall, make a new one.
-		if (currentImageFrame.getHeight() >= MAX_IMAGE_HEIGHT) {
-			imageG.destroy();
-			try {
-				makeNewCurrentImageFrame();
-			}
-			catch (SlickException e) {
-				//If this exception is thrown, the frame stops accepting input and marks itself for death.
-				e.printStackTrace();
-				imageG = null;
-				dead = true;
-			}
-		}
+		expandCurrentImageFrame(dY);
 	}
 	
 	//Flush the current line to the image.
@@ -191,19 +178,51 @@ public class OutputFrame extends GUISubcontext {
 		String line = currentLine.toString(); //Get the line.
 		currentLine.delete(0, currentLine.length()); //Clear the string builder.
 
-		drawPoint = gUtils.drawStringWrapped(imageG, line, drawPoint.x, drawPoint.y, width - drawPoint.x); //Draw the string.
-		
-		imageG.flush(); //Flush the graphics.
+		Point lastDrawPoint = drawPoint;
+		drawPoint = gUtils.drawStringWrapped(imageG, line, drawPoint.x, drawPoint.y, currentImageFrame.getWidth() - drawPoint.x); //Draw the string.
+		imageG.flush(); //Flush the graphics;
+		//Expand the frame.
+		int expandAmount = drawPoint.y - ((lastDrawPoint.y < 0)? 0 : lastDrawPoint.y);
+		boolean newFrame = expandCurrentImageFrame(expandAmount);
+		//Draw any bits that got cut off.
+		if (newFrame) {
+			drawPoint = lastDrawPoint;
+			drawPoint.y -= MAX_IMAGE_HEIGHT;
+			currentLine.append(line);
+			flush();
+		}
+	}
+	
+	//Expand the current image frame by some amount, creating a new one if necessary.
+	private boolean expandCurrentImageFrame(int amount) {
+		currentImageFrame.setHeight(currentImageFrame.getHeight() + amount);
+		//If the current image frame has gotten too tall, make a new one.
+		if (currentImageFrame.getHeight() >= MAX_IMAGE_HEIGHT) {
+			imageG.destroy();
+			try {
+				makeNewCurrentImageFrame();
+				return true;
+			}
+			catch (SlickException e) {
+				//If this exception is thrown, the frame stops accepting input and marks itself for death.
+				e.printStackTrace();
+				imageG = null;
+				dead = true;
+				return false;
+			}
+		}
+		scrollFrame.recalculateScrollingFields();
+		return false;
 	}
 	
 	//Create a new current image frame.
 	private void makeNewCurrentImageFrame() throws SlickException {
-		Image frameImage = Image.createOffscreenImage(width, MAX_IMAGE_HEIGHT);
+		Image frameImage = Image.createOffscreenImage(width - scrollFrame.getScrollBarWidth(), MAX_IMAGE_HEIGHT);
 		imageG = frameImage.getGraphics();
 		imageG.setFont(font);
 		imageG.setColor(textColor);
 		imageG.setAntiAlias(false);
-		currentImageFrame = new ImageFrame(frameImage, 0, 0, width, 0, 0);
+		currentImageFrame = new ImageFrame(frameImage, 0, 0, frameImage.getWidth(), font.getLineHeight(), 0);
 		drawPoint = new Point();
 		scrollFrame.addElement(currentImageFrame);
 	}
