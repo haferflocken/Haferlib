@@ -10,9 +10,10 @@ import java.util.regex.Pattern;
 
 public class NAryTree<V> implements Iterable<V> {
 
-	private class NAryTreeIterator<E> implements Iterator<E> {
+	//The iterator class.
+	private static class NAryTreeIterator<E> implements Iterator<E> {
 
-		private ArrayDeque<Node> deque;
+		private ArrayDeque<Node<E>> deque;
 
 		private NAryTreeIterator(NAryTree<E> tree) {
 			deque = new ArrayDeque<>();
@@ -28,12 +29,12 @@ public class NAryTree<V> implements Iterable<V> {
 		}
 
 		public E next() {
-			Node current = deque.pop();
+			Node<E> current = deque.pop();
 			for (int i = 0; i < current.getNumChildren(); i++) {
-				deque.push((Node)current.getChildren().get(i));
+				deque.push(current.getChildren().get(i));
 			}
 
-			return (E)current.getValue();
+			return current.getValue();
 		}
 
 		//Do nothing with remove.
@@ -41,14 +42,15 @@ public class NAryTree<V> implements Iterable<V> {
 		}
 	}
 
-	public class Node<V> implements Comparable<Node<V>> {
+	//The class of nodes in the tree.
+	public static class Node<E> implements Comparable<Node<E>> {
 
 		private String key; //The identifier of this node
-		private V value; //The value of this node
-		private ArrayList<Node<V>> children; //The sorted children.
+		private E value; //The value of this node
+		private ArrayList<Node<E>> children; //The sorted children.
 		private int depth; //How many parents this node has. This isn't used by anything in this file, but may be useful by other classes.
 
-		private Node(String key, V value, ArrayList<Node<V>> children, int depth) {
+		private Node(String key, E value, ArrayList<Node<E>> children, int depth) {
 			this.key = key;
 			this.value = value;
 			this.children = children;
@@ -56,7 +58,7 @@ public class NAryTree<V> implements Iterable<V> {
 			this.depth = depth;
 		}
 
-		private void addChild(Node<V> child) {
+		private void addChild(Node<E> child) {
 			//Place the node in sorted order.
 			if (children.size() > 0) {
 				for (int i = 0; i < children.size(); i++) {
@@ -72,7 +74,7 @@ public class NAryTree<V> implements Iterable<V> {
 			}
 		}
 
-		private boolean removeChild(Node<V> child) {
+		public boolean removeChild(Node<E> child) {
 			return children.remove(child);
 		}
 
@@ -82,12 +84,12 @@ public class NAryTree<V> implements Iterable<V> {
 			return false;
 		}
 
-		public int compareTo(Node<V> other) {
+		public int compareTo(Node<E> other) {
 			return key.compareTo(other.key);
 		}
 
 		//Get a value from this by key. Since it is sorted, we can quicksearch.
-		public Node<V> get(String key) {
+		public Node<E> get(String key) {
 			//System.out.println("Searching for " + key);
 
 			for (int i = 0; i < children.size(); i++) {
@@ -118,11 +120,11 @@ public class NAryTree<V> implements Iterable<V> {
 			return key;
 		}
 
-		public V getValue() {
+		public E getValue() {
 			return value;
 		}
 
-		public ArrayList<Node<V>> getChildren() {
+		public ArrayList<Node<E>> getChildren() {
 			return children;
 		}
 
