@@ -281,6 +281,8 @@ public class GUIContext implements KeyListener {
 		//Render the elements that are in the render area.
 		g.setClip(leftX, topY, rightX - leftX, bottomY - topY);
 		for (GUIElement e : elements) {
+			if (e.dead())
+				continue;
 			if (e.getX() + e.getWidth() > leftX && e.getY() + e.getHeight() > topY && e.getX() < rightX && e.getY() < bottomY)
 				e.render(g);
 		}

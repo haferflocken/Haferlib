@@ -341,11 +341,17 @@ public class ListBag<E> implements List<E> {
 	// MODIFIES: this
 	// EFFECTS:  Subtracts one from the count of the given element, removing it entirely if its count hits 0.
 	public boolean remove(Object o) {
+		return remove(o, 1);
+	}
+	
+	// MODIFIES: this
+	// EFFECTS:  Subtracts amount from the count of the given element, removing it entirely if its count hits 0.
+	public boolean remove(Object o, int amount) {
 		int index = indexOf(o);
 		if (index == -1)
 			return false;
 		BagElement<E> e = contents.get(index);
-		e.count--;
+		e.count -= amount;
 		if (e.count < 1)
 			contents.remove(index);
 		return true;
@@ -401,6 +407,20 @@ public class ListBag<E> implements List<E> {
 			contents.set(index, elementBagElement);
 		}
 		return oldVal;
+	}
+	
+	// MODIFIES: this
+	// EFFECTS:  Sets the count at the specified index.
+	public void setCount(int index, int count) {
+		contents.get(index).count = count;
+	}
+	
+	// MODIFIES: this
+	// EFFECTS:  Sets the count of the given element.
+	public void setCount(E element, int count) {
+		int index = indexOf(element);
+		if (index != -1)
+			setCount(index, count);
 	}
 	
 	// EFFECTS:  Returns the number of elements in this.

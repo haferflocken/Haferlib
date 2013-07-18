@@ -3,6 +3,8 @@
 
 package org.haferlib.slick.gui;
 
+import java.util.ArrayList;
+
 import org.newdawn.slick.Input;
 
 public abstract class GUISubcontext implements GUIElement {
@@ -22,6 +24,16 @@ public abstract class GUISubcontext implements GUIElement {
 		x1 = x;
 		y1 = y;
 	}
+	
+	//Get the elements in the subcontext.
+	public ArrayList<GUIElement> getElements() {
+		return subcontext.getElements();
+	}
+	
+	//See if the subcontext contains an element.
+	public boolean contains(GUIElement e) {
+		return subcontext.contains(e);
+	}
 
 	//Called every frame so that the element can think or update sprites
 	public void update(int delta) {
@@ -34,11 +46,6 @@ public abstract class GUISubcontext implements GUIElement {
 		rmbDown = false;
 	}
 	
-	//See if the subcontext contains an element.
-	public boolean contains(GUIElement e) {
-		return subcontext.contains(e);
-	}
-
 	//If setX(n) is called, getX() should return n. setX(n) is expected to move the element so that its
 	//bounding box's left edge is on n.
 	public void setX(int x) {

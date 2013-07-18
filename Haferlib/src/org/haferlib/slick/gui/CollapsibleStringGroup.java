@@ -61,6 +61,10 @@ public class CollapsibleStringGroup implements GUIElement {
 		return textColor;
 	}
 	
+	public boolean isExpanded() {
+		return expanded;
+	}
+	
 	//Set the container.
 	public void setContainer(ScrollableListFrame c) {
 		container = c;
