@@ -137,13 +137,6 @@ public class GUIContext implements KeyListener {
 			}
 			//Update the element after all the other stuff happens
 			e.update(delta);
-			//Check to see if the element is dead now, and if so, remove it
-			if (e.dead()) {
-				e.destroy();
-				removeElement(e);
-				if (focus == e) 
-					clearFocus();
-			}
 		}
 		//Only the element with input focus gets key input.
 		if (focus != null) {
@@ -154,15 +147,13 @@ public class GUIContext implements KeyListener {
 					focus.keyPressed(k.key, k.c);
 				}
 				focus.keyInputDone();
-				//Then check again if the focus is dead because new stuff happened to it.
-				if (focus.dead()) {
-					focus.destroy();
-					removeElement(focus);
-				}
 			}
 		}
 		//Clear the key buffer now that the focus knows about it.
 		keyBuffer.clear();
+		
+		//Look for dead elements and remove them.
+		removeDeadElements();
 		
 		//See if we need to resort the elements and if we do, do it.
 		for (int i = 1; i < elements.size(); i++) {
@@ -244,7 +235,7 @@ public class GUIContext implements KeyListener {
 	}
 
 	//Add and remove everything that has asked to be added or removed.
-	protected void addAndRemoveElements() {
+	public void addAndRemoveElements() {
 		//Remove anything that wants to be removed. Removal is done first to make adding faster.
 		if (removeThese.size() > 0) {
 			elements.removeAll(removeThese);
@@ -263,9 +254,26 @@ public class GUIContext implements KeyListener {
 		}
 	}
 
+	//Remove dead elements.
+	public void removeDeadElements() {
+		GUIElement e;
+		for (int i = 0; i < elements.size(); i++) {
+			e = elements.get(i);
+			if (e.dead()) {
+				e.destroy();
+				removeElement(e);
+			}
+		}
+	}
+	
 	//Get the elements.
 	public ArrayList<GUIElement> getElements() {
 		return elements;
+	}
+	
+	//Get the number of elements.
+	public int getNumElements() {
+		return elements.size();
 	}
 
 	//Clear this GUIManager of elements.

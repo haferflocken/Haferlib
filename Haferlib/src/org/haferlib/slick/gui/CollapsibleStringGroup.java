@@ -91,16 +91,22 @@ public class CollapsibleStringGroup implements GUIElement {
 		expandedHeight = titleHeight + stringsHeight;
 		collapsedHeight = titleHeight;
 		
-		//Create the offscreen image to draw to.
-		image = Image.createOffscreenImage(width, expandedHeight);
+		//Only create a new image if the new height is larger or the current image is null.
+		//if (image == null || image.isDestroyed() || image.getHeight() < expandedHeight) {
+			//Release old resources.
+			if (image != null) {
+				//image.getGraphics().destroy();
+				image.destroy();
+			}
+			image = Image.createOffscreenImage(width, expandedHeight);
+		//}
+		
+		//Get the graphics to draw with.
 		Graphics g = image.getGraphics();
+		g.clear();
 		
 		//Give the image a transparent background.
-		Color transparency = new Color(0, 0, 0, 0);
-		g.setDrawMode(Graphics.MODE_ALPHA_MAP);
-		g.setColor(transparency);
-		g.fillRect(0, 0, width, expandedHeight);
-		g.setDrawMode(Graphics.MODE_NORMAL);
+		g.clearAlphaMap();
 		
 		//Figure out the size of the toggle button and draw it.
 		toggleButtonSize = font.getLineHeight() * 2 / 3;
@@ -120,7 +126,7 @@ public class CollapsibleStringGroup implements GUIElement {
 			stringsY = gUtil.drawStringWrapped(g, s, stringsX, stringsY, stringsWidth).y + font.getLineHeight(); //The string.
 		}
 		
-		//Flush the graphics to the image and destroy the graphics context.
+		//Flush the graphics to the image.
 		g.flush();
 		g.destroy();
 	}
@@ -258,12 +264,15 @@ public class CollapsibleStringGroup implements GUIElement {
 	
 	@Override
 	public void destroy() {
-		try {
-			image.destroy();
+		if (image != null) {
+			try {
+				image.getGraphics().destroy();
+				image.destroy();
+			}
+			catch (SlickException e) {
+				e.printStackTrace();
+			}
+			image = null;
 		}
-		catch (SlickException e) {
-			e.printStackTrace();
-		}
-		image = null;
 	}
 }

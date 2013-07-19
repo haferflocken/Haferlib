@@ -14,6 +14,7 @@ public class ScrollableListFrame extends ScrollableFrame {
 	private byte xAlign;
 	private int xAlignOffset;
 	private int ySpacing;
+	private int lastSize; // Keeps track of the number of elements in this list so if any die the elements can be realigned.
 	
 	//Constructors.
 	public ScrollableListFrame(int x, int y, int width, int height, int depth, int scrollBarWidth, Color scrollBarColor, byte xAlign, int xAlignOffset, int ySpacing) {
@@ -24,6 +25,7 @@ public class ScrollableListFrame extends ScrollableFrame {
 			this.xAlign = XALIGN_LEFT;
 		this.xAlignOffset = xAlignOffset;
 		this.ySpacing = ySpacing;
+		lastSize = 0;
 	}
 	
 	public ScrollableListFrame(int x, int y, int width, int height, int depth, int scrollBarWidth, Color scrollBarColor) {
@@ -40,6 +42,15 @@ public class ScrollableListFrame extends ScrollableFrame {
 	}
 	
 	@Override
+	public void update(int delta) {
+		super.update(delta);
+		if (lastSize != subcontext.getNumElements()) {
+			realignAllElements();
+			lastSize = subcontext.getNumElements();
+		}
+	}
+	
+	@Override
 	public void addElement(GUIElement e) {
 		//Find the bottom y to align to. 
 		int yPos = getBottomY() + ySpacing;
@@ -50,6 +61,7 @@ public class ScrollableListFrame extends ScrollableFrame {
 		
 		//Add the element.
 		super.addElement(e);
+		lastSize++;
 	}
 	
 	@Override
@@ -69,6 +81,7 @@ public class ScrollableListFrame extends ScrollableFrame {
 		
 		//Add the elements.
 		super.addElements(es);
+		lastSize += es.length;
 	}
 	
 	@Override
@@ -77,6 +90,7 @@ public class ScrollableListFrame extends ScrollableFrame {
 			//Remove the element.
 			subcontext.removeElement(e);
 			subcontext.addAndRemoveElements();
+			lastSize--;
 			
 			//Realign the others.
 			GUIElement realignAnchor = getElementAbove(e);
@@ -103,6 +117,7 @@ public class ScrollableListFrame extends ScrollableFrame {
 		}
 		subcontext.addElement(e);
 		subcontext.addAndRemoveElements();
+		lastSize++;
 		realignFromElement(e);
 	}
 	
