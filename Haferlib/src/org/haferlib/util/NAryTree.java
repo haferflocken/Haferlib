@@ -39,6 +39,7 @@ public class NAryTree<V> implements Iterable<V> {
 
 		//Do nothing with remove.
 		public void remove() {
+			throw new UnsupportedOperationException();
 		}
 	}
 
@@ -141,12 +142,14 @@ public class NAryTree<V> implements Iterable<V> {
 	private String rootPath;		//This is removed from the start of keys before put and get operations.
 	private Node<V> rootNode;		//The top node of this tree.
 
+	// Constructor.
 	public NAryTree(String rootPath) {
 		keySplitter = Pattern.compile("\\\\");
 		this.rootPath = rootPath;
 		clear();
 	}
 
+	// Get the value for a key.
 	public V get(String key) {
 		//Get the node for that key.
 		Node<V> node = getNode(key);
@@ -158,6 +161,7 @@ public class NAryTree<V> implements Iterable<V> {
 		return null;
 	}
 	
+	// Get the node for a key.
 	public Node<V> getNode(String key) {
 		//First, the key is compared to the root path and dealt with appropriately.
 		if (rootPath.equals(key))
@@ -184,8 +188,9 @@ public class NAryTree<V> implements Iterable<V> {
 		return current;
 	}
 
+	// Put a value at a key.
 	public void put(String key, V value) {
-		//First, the key is compared to the root path and dealth with appropriately
+		//First, the key is compared to the root path and dealt with appropriately
 		if (key.equals(rootPath)) {
 			rootNode.value = value;
 			return;
@@ -217,11 +222,18 @@ public class NAryTree<V> implements Iterable<V> {
 		//Once we are here, the nodes have been created and current should hold the node to place the value in
 		current.value = value;
 	}
-
+	
+	// Get the root node.
 	public Node<V> getRoot() {
 		return rootNode;
 	}
+	
+	// Get the root path.
+	public String getRootPath() {
+		return rootPath;
+	}
 
+	// Get the child nodes of a key.
 	public ArrayList<Node<V>> getChildren(String key) {
 		//Find the node.
 		Node<V> node = getNode(key);
@@ -232,14 +244,17 @@ public class NAryTree<V> implements Iterable<V> {
 		return null;
 	}
 
+	// Clear the contents of the tree.
 	public void clear() {
 		rootNode = new Node<V>(null, null, new ArrayList<Node<V>>(), 0);
 	}
 
+	// Set the root path of the tree.
 	protected void setRootPath(String path) {
 		rootPath = path;
 	}
 
+	// Get an iterator for this tree.
 	public Iterator<V> iterator() {
 		return new NAryTreeIterator<V>(this);
 	}
