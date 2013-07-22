@@ -9,13 +9,29 @@ import java.util.Map;
 public class VariableExpression implements Expression {
 
 	private Token[] tokens; // An array of the tokens in the expression.
+	private VariableToken[] varTokens; // The variable tokens.
 	private ArrayDeque<Float> evaluateStack; // The stack the expression does work with.
 	private float lastResult; // The last result of this expression.
 	
 	// Constructor.
 	public VariableExpression(Token[] tokens) {
-		this.tokens = tokens;
-		evaluateStack = new ArrayDeque<>();
+		this.tokens = tokens; // Set the tokens.
+		
+		// Count the number of variables.
+		int numVars = 0;
+		for (int i = 0; i < tokens.length; i++) {
+			if (tokens[i] instanceof VariableToken)
+				numVars++;
+		}
+
+		// Initialize varTokens and put the variables in it.
+		varTokens = new VariableToken[numVars];
+		for (int q = 0, i = 0; i < tokens.length; i++) {
+			if (tokens[i] instanceof VariableToken)
+				varTokens[q++] = (VariableToken) tokens[i];
+		}
+
+		evaluateStack = new ArrayDeque<>(); // Make the stack to evaluate with.
 	}
 	
 	// Evaluate the expression.
@@ -53,6 +69,11 @@ public class VariableExpression implements Expression {
 		lastResult = evaluateStack.pop();
 	}
 
+	// Get the variables this expression references.
+	public VariableToken[] getVariables() {
+		return varTokens;
+	}
+	
 	@Override
 	public float getValue() {
 		return lastResult;

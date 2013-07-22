@@ -78,9 +78,6 @@ public interface Expression {
 		}
 	}
 	
-	// Compares expressions to see which should be evaluated first.
-	// TODO Determine if I need this.
-	
 	public static final String POWER = "^";
 	public static final String ROOT = "^1/";
 	public static final String MULTIPLY = "*";
