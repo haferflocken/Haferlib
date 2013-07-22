@@ -44,6 +44,8 @@ public class VariableExpression implements Expression {
 				Expression e = varMap.get(varName);
 				if (e != null)
 					evaluateStack.push(new Float(e.getValue()));
+				else
+					evaluateStack.push(new Float(0));
 			}
 		}
 
