@@ -75,7 +75,7 @@ public class VariableExpression implements Expression {
 		
 		Token[] outTokens = Arrays.copyOf(tokens, tokens.length + otherTokens.length + 1);
 		for (int i = 0; i < otherTokens.length; i++)
-			outTokens[i] = otherTokens[tokens.length + i];
+			outTokens[tokens.length + i] = otherTokens[i];
 		outTokens[outTokens.length - 1] = new OperatorToken((byte)0);
 		
 		return new VariableExpression(outTokens);

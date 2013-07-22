@@ -21,13 +21,11 @@ public class ExpressionBuilder {
 			VARIABLE_REGEX + '|' + OPERATOR_REGEX + '|' + PARENTHESIS_REGEX;
 
 	private Matcher numberMatcher;
-	private Matcher operatorMatcher;
 	private Matcher tokenMatcher;
 	
 	// Constructor.
 	public ExpressionBuilder() {
 		numberMatcher = Pattern.compile(NUMBER_REGEX).matcher("");
-		operatorMatcher = Pattern.compile(OPERATOR_REGEX).matcher("");
 		tokenMatcher = Pattern.compile(TOKEN_REGEX).matcher("");
 	}
 	
@@ -53,8 +51,7 @@ public class ExpressionBuilder {
 		int numOperatorlessParens = 0;
 		for (int i = 1; i < rawTokens.length; i++) {
 			if (rawTokens[i].equals(LEFT_PAREN)) {
-				operatorMatcher.reset(rawTokens[i - 1]);
-				if (!operatorMatcher.matches()) {
+				if (!rawTokens[i].equals(LEFT_PAREN) && operatorType(rawTokens[i - 1]) == -1) {
 					numOperatorlessParens++;
 				}
 			}
@@ -72,8 +69,7 @@ public class ExpressionBuilder {
 			// Loop through the rest, adding MULTIPLY.
 			for (int offset = 0, i = 1; i < oldInfixTokens.length; i++) {
 				if (oldInfixTokens[i].equals(LEFT_PAREN)) {
-					operatorMatcher.reset(oldInfixTokens[i - 1]);
-					if (!operatorMatcher.matches()) {
+					if (operatorType(oldInfixTokens[i - 1]) == -1) {
 						rawTokens[i + offset] = MULTIPLY;
 						offset++;
 					}
@@ -105,22 +101,18 @@ public class ExpressionBuilder {
 		// Loop through the tokens to shunting yard them.
 		int q = 0;
 		for (int i = 0; i < infixTokens.length; i++) {
-			// Get the matchers ready.
-			numberMatcher.reset(infixTokens[i]);
-			operatorMatcher.reset(infixTokens[i]);
-			// If the token is a number or a variable, add it to rpnTokens.
-			if (numberMatcher.matches() || !operatorMatcher.matches()) {
-				rpnTokens[q] = infixTokens[i];
-				q++;
-			}
+			// Get the operator type.
+			byte opType = operatorType(infixTokens[i]);
+			
 			// If the token is an operator, just look at Wikipedia.
-			else if (operatorMatcher.matches()) {
+			if (opType != -1) {
 				while (operatorStack.size() > 0) {
 					String operator = operatorStack.peek();
 					if (precedence(infixTokens[i], operator) <= 0) {
 						rpnTokens[q] = operatorStack.pop();
 						q++;
-					} else {
+					}
+					else {
 						break;
 					}
 				}
@@ -130,17 +122,24 @@ public class ExpressionBuilder {
 			else if (infixTokens[i].equals(LEFT_PAREN)) {
 				operatorStack.push(infixTokens[i]);
 			}
-			// If the token is a right parenthesis...
+			// If the token is a right parenthesis, pop tokens off the stack until
+			// we reach a left parenthesis.
 			else if (infixTokens[i].equals(RIGHT_PAREN)) {
 				while (operatorStack.size() > 0) {
 					String operator = operatorStack.pop();
-					if (!operator.equals(LEFT_PAREN)) {
-						rpnTokens[q] = operator;
-						q++;
-					} else {
+					if (operator.equals(LEFT_PAREN)) {
 						break;
 					}
+					else {
+						rpnTokens[q] = operator;
+						q++;
+					}
 				}
+			}
+			// If the token is a number or a variable, add it to rpnTokens.
+			else {
+				rpnTokens[q] = infixTokens[i];
+				q++;
 			}
 		}
 
@@ -257,11 +256,14 @@ public class ExpressionBuilder {
 		}
 		// op1 equals MAX or MIN
 		else {
-			if (op2.equals(MAX) || op2.equals(MIN)) {
+			if (op2.equals(POWER) || op2.equals(ROOT) || op2.equals(MULTIPLY) || op2.equals(DIVIDE) || op2.equals(MODULUS) || op2.equals(ADD) || op2.equals(SUBTRACT)) {
+				return -1;
+			}
+			else if (op2.equals(MAX) || op2.equals(MIN)) {
 				return 0;
 			}
 			else {
-				return -1;
+				return 1;
 			}
 		}
 	}
