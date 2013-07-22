@@ -96,7 +96,7 @@ public interface Expression {
 	public static final String LEFT_PAREN = "(";
 	public static final String RIGHT_PAREN = ")";
 
-	int getValue();
+	float getValue();
 	
 	Expression copy();
 	

@@ -5,14 +5,14 @@ package org.haferlib.util.expression;
 
 public class ConstantExpression implements Expression {
 	
-	private int value;
+	private float value;
 	
-	public ConstantExpression(int value) {
+	public ConstantExpression(float value) {
 		this.value = value;
 	}
 
 	@Override
-	public int getValue() {
+	public float getValue() {
 		return value;
 	}
 	

@@ -10,7 +10,7 @@ public class VariableExpression implements Expression {
 
 	private Token[] tokens; // An array of the tokens in the expression.
 	private ArrayDeque<Float> evaluateStack; // The stack the expression does work with.
-	private int lastResult; // The last result of this expression.
+	private float lastResult; // The last result of this expression.
 	
 	// Constructor.
 	public VariableExpression(Token[] tokens) {
@@ -48,11 +48,11 @@ public class VariableExpression implements Expression {
 		}
 
 		// The last thing in the stack should be the result.
-		lastResult = evaluateStack.pop().intValue();
+		lastResult = evaluateStack.pop();
 	}
 
 	@Override
-	public int getValue() {
+	public float getValue() {
 		return lastResult;
 	}
 	
