@@ -1,3 +1,5 @@
+// TODO: A big overhaul of this class.
+
 //A dialog is basically a window. It is a box with a title bar.
 //A MultifieldDialog is a dialog with two buttons (Submit and Cancel) and some number of fields contained in a scrollable frame.
 
@@ -51,8 +53,8 @@ public class MultifieldDialog extends GUISubcontext implements GUIEventGenerator
 		titleY = y1 + fieldHeight / 2;
 
 		//Make the submit and cancel buttons.
-		submitButton = new Button<Object>(SUBMIT_NAME, textColor, x1 + width / 2, y2 - fieldHeight, width / 2, fieldHeight, backgroundColor, highlightColor, Input.KEY_ENTER);
-		cancelButton = new Button<Object>(CANCEL_NAME, textColor, x1, y2 - fieldHeight, width / 2 - 1, fieldHeight, backgroundColor, highlightColor, Input.KEY_ESCAPE);
+		submitButton = new Button<Object>(SUBMIT_NAME, textColor, x1 + width / 2, y2 - fieldHeight, width / 2, fieldHeight, 0, backgroundColor, highlightColor, Input.KEY_ENTER);
+		cancelButton = new Button<Object>(CANCEL_NAME, textColor, x1, y2 - fieldHeight, width / 2 - 1, fieldHeight, 0, backgroundColor, highlightColor, Input.KEY_ESCAPE);
 		submitButton.addListener(this);
 		cancelButton.addListener(this);
 
@@ -88,7 +90,7 @@ public class MultifieldDialog extends GUISubcontext implements GUIEventGenerator
 		g.fillRect(x1, y1, width, height);
 
 		//Draw the subcontext.
-		subcontext.render(g, x1, y1, x2, y2);
+		renderSubcontext(g, x1, y1, x2, y2);
 
 		//Render the title bar and frame border.
 		g.setColor(textColor);

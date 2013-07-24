@@ -1,6 +1,8 @@
-//A collapsible group of strings that can update its position in a ScrollableListFrame when it changes size.
+// A collapsible group of strings that can update its position in a ScrollableListFrame when it changes size.
 
 package org.haferlib.slick.gui;
+
+import java.util.HashSet;
 
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
@@ -8,27 +10,25 @@ import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Font;
-
 import org.haferlib.slick.GraphicsUtils;
 
-public class CollapsibleStringGroup implements GUIElement {
+public class CollapsibleStringGroup implements GUIElement, GUIEventGenerator {
 	
-	protected ScrollableListFrame container;						//The scrollable list frame that is updated when this expands/contracts.
-	protected String title;											//The title of the group.
-	protected String[] strings;										//The strings within the group.
-	protected Color textColor;										//The color of the text.
-	protected Font font;											//The font of the text.
-	protected int x1, y1, x2, y2;									//The position.
-	protected int width, expandedHeight, collapsedHeight;			//The dimensions.
-	protected int toggleButtonX1, toggleButtonY1,					//The toggle button position.
+	private HashSet<GUIEventListener> listeners;					// The listeners to be notified if this changes size.
+	private String title;											// The title of the group.
+	private String[] strings;										// The strings within the group.
+	private Color textColor;										// The color of the text.
+	private Font font;												// The font of the text.
+	private int x1, y1, x2, y2;										// The position.
+	private int width, expandedHeight, collapsedHeight;				// The dimensions.
+	private int toggleButtonX1, toggleButtonY1,						// The toggle button position.
 					toggleButtonX2, toggleButtonY2, toggleButtonCX;
-	protected int toggleButtonPos, toggleButtonSize;				//The toggle button offset and side length.
-	protected boolean expanded;										//Is this expanded?
-	protected Image image;											//The image that this is drawn to offscreen.
+	private int toggleButtonPos, toggleButtonSize;					// The toggle button offset and side length.
+	private boolean expanded;										// Is this expanded?
+	private Image image;											// The image that this is drawn to offscreen.
 	
-	//Constructors.
-	public CollapsibleStringGroup(ScrollableListFrame container, String title, String[] strings, Color textColor, int x, int y, int width, Font font, boolean expanded) {
-		this.container = container;
+	// Constructor.
+	public CollapsibleStringGroup(String title, String[] strings, Color textColor, int x, int y, int width, Font font, boolean expanded) {
 		this.title = title;
 		this.strings = strings;
 		this.textColor = textColor;
@@ -44,11 +44,7 @@ public class CollapsibleStringGroup implements GUIElement {
 		setY(y);
 	}
 	
-	public CollapsibleStringGroup(String title, String[] strings, Color textColor, int x, int y, int width, Font font, boolean expanded) {
-		this(null, title, strings, textColor, x, y, width, font, expanded);
-	}
-	
-	//Accessors.
+	// Accessors.
 	public String getTitle() {
 		return title;
 	}
@@ -65,12 +61,7 @@ public class CollapsibleStringGroup implements GUIElement {
 		return expanded;
 	}
 	
-	//Set the container.
-	public void setContainer(ScrollableListFrame c) {
-		container = c;
-	}
-	
-	//Draw the predrawn image.
+	// Draw the predrawn image.
 	public void redraw() throws SlickException {
 		//Make a GraphicsUtil to help out.
 		GraphicsUtils gUtil = new GraphicsUtils();
@@ -91,9 +82,9 @@ public class CollapsibleStringGroup implements GUIElement {
 		expandedHeight = titleHeight + stringsHeight;
 		collapsedHeight = titleHeight;
 		
-		//Only create a new image if the new height is larger or the current image is null.
+		// Only create a new image if the new height is larger or the current image is null.
 		//if (image == null || image.isDestroyed() || image.getHeight() < expandedHeight) {
-			//Release old resources.
+			// Release old resources.
 			if (image != null) {
 				//image.getGraphics().destroy();
 				image.destroy();
@@ -101,14 +92,14 @@ public class CollapsibleStringGroup implements GUIElement {
 			image = Image.createOffscreenImage(width, expandedHeight);
 		//}
 		
-		//Get the graphics to draw with.
+		// Get the graphics to draw with.
 		Graphics g = image.getGraphics();
 		g.clear();
 		
-		//Give the image a transparent background.
+		// Give the image a transparent background.
 		g.clearAlphaMap();
 		
-		//Figure out the size of the toggle button and draw it.
+		// Figure out the size of the toggle button and draw it.
 		toggleButtonSize = font.getLineHeight() * 2 / 3;
 		int toggleButtonCenter = font.getLineHeight() / 2;
 		toggleButtonPos = font.getLineHeight() / 6;
@@ -117,18 +108,36 @@ public class CollapsibleStringGroup implements GUIElement {
 		g.drawRect(toggleButtonPos, toggleButtonPos, toggleButtonSize, toggleButtonSize); //Button outline.
 		g.fillRect(toggleButtonPos, toggleButtonCenter - 1, toggleButtonSize, 2); //Horizontal bar.
 		
-		//Draw the title.
+		// Draw the title.
 		int stringsY = gUtil.drawStringWrapped(g, title, titleX, 0, titleWidth).y + font.getLineHeight();
 
-		//Draw the strings.
+		// Draw the strings.
 		for (String s : strings) {
 			g.fillRect(bulletX, stringsY + bulletYOffset, bulletSize, bulletSize); //The bullet.
 			stringsY = gUtil.drawStringWrapped(g, s, stringsX, stringsY, stringsWidth).y + font.getLineHeight(); //The string.
 		}
 		
-		//Flush the graphics to the image.
+		// Flush the graphics to the image.
 		g.flush();
 		g.destroy();
+	}
+	
+	// Set if this is expanded or now.
+	private void setExpanded(boolean e) {
+		expanded = e;
+		if (expanded) {
+			y2 = y1 + expandedHeight;
+		}
+		else {
+			y2 = y1 + collapsedHeight;
+		}
+		notifyListeners();
+	}
+	
+	// Notify the listeners of expanding/collapsing.
+	private void notifyListeners() {
+		for (GUIEventListener l : listeners)
+			l.guiEvent(new GUIEvent<Object>(this, GUIEvent.RESIZE_EVENT));
 	}
 	
 	@Override
@@ -137,10 +146,10 @@ public class CollapsibleStringGroup implements GUIElement {
 	
 	@Override
 	public void render(Graphics g) {
-		//If expanded, just draw the whole image.
+		// If expanded, just draw the whole image.
 		if (expanded)
 			g.drawImage(image, x1, y1);
-		//If collapsed, draw the title of the image as well as a vertical bar to make the minus sign into a plus sign.
+		// If collapsed, draw the title of the image as well as a vertical bar to make the minus sign into a plus sign.
 		else {
 			g.drawImage(image, x1, y1, x2, y2, 0, 0, width, collapsedHeight);
 			g.setColor(textColor);
@@ -199,22 +208,10 @@ public class CollapsibleStringGroup implements GUIElement {
 			return expandedHeight;
 		return collapsedHeight;
 	}
-	
-	public void setExpanded(boolean e) {
-		expanded = e;
-		if (expanded) {
-			y2 = y1 + expandedHeight;
-		}
-		else {
-			y2 = y1 + collapsedHeight;
-		}
-		if (container != null)
-			container.realignFromElement(this);
-	}
 
 	@Override
 	public void click(int x, int y, int button) {
-		//Collapse or expand if we click the button.
+		// Collapse or expand if we click the button.
 		if (button == Input.MOUSE_LEFT_BUTTON && x >= toggleButtonX1 && y >= toggleButtonY1 && x <= toggleButtonX2 && y <= toggleButtonY2)
 			setExpanded(!expanded);
 	}
@@ -274,5 +271,15 @@ public class CollapsibleStringGroup implements GUIElement {
 			}
 			image = null;
 		}
+	}
+
+	@Override
+	public void addListener(GUIEventListener l) {
+		listeners.add(l);
+	}
+
+	@Override
+	public void removeListener(GUIEventListener l) {
+		listeners.add(l);
 	}
 }

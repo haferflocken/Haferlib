@@ -1,11 +1,11 @@
-package org.haferlib.slick.gui;
+ package org.haferlib.slick.gui;
 
 import org.newdawn.slick.Color;
 
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class ScrollableListFrame extends ScrollableFrame {
+public class ScrollableListFrame extends ScrollableFrame implements GUIEventListener {
 	
 	public static final byte XALIGN_LEFT = 0;
 	public static final byte XALIGN_CENTER = 1;
@@ -16,7 +16,7 @@ public class ScrollableListFrame extends ScrollableFrame {
 	private int ySpacing;
 	private int lastSize; // Keeps track of the number of elements in this list so if any die the elements can be realigned.
 	
-	//Constructors.
+	// Constructors.
 	public ScrollableListFrame(int x, int y, int width, int height, int depth, int scrollBarWidth, Color scrollBarColor, byte xAlign, int xAlignOffset, int ySpacing) {
 		super(x, y, width, height, depth, scrollBarWidth, scrollBarColor);
 		if (xAlign == XALIGN_LEFT || xAlign == XALIGN_CENTER || xAlign == XALIGN_RIGHT)
@@ -52,34 +52,41 @@ public class ScrollableListFrame extends ScrollableFrame {
 	
 	@Override
 	public void addElement(GUIElement e) {
-		//Find the bottom y to align to. 
+		// Find the bottom y to align to. 
 		int yPos = getBottomY() + ySpacing;
 		
-		//Align the element.
+		// Align the element.
 		alignElementX(e, getAlignedXAnchor());
 		e.setY(yPos);
 		
-		//Add the element.
+		// Listen to it, if possible.
+		if (e instanceof GUIEventGenerator)
+			((GUIEventGenerator)e).addListener(this);
+		
+		// Add the element.
 		super.addElement(e);
 		lastSize++;
 	}
 	
 	@Override
 	public void addElements(GUIElement[] es) {
-		//Find the bottom y to align to. 
+		// Find the bottom y to align to. 
 		int yPos = getBottomY() + ySpacing;
 		
-		//Figure out the x position we're aligning to.
+		// Figure out the x position we're aligning to.
 		int xAnchor = getAlignedXAnchor();
 		
-		//Align the elements.
+		// Align the elements and listen to them.
 		for (int i = 0; i < es.length; i++) {
 			alignElementX(es[i], xAnchor);
 			es[i].setY(yPos);
 			yPos += es[i].getHeight() + ySpacing;
+			
+			if (es[i] instanceof GUIEventGenerator)
+				((GUIEventGenerator)es[i]).addListener(this);
 		}
 		
-		//Add the elements.
+		// Add the elements.
 		super.addElements(es);
 		lastSize += es.length;
 	}
@@ -87,12 +94,12 @@ public class ScrollableListFrame extends ScrollableFrame {
 	@Override
 	public void removeElement(GUIElement e) {
 		if (subcontext.contains(e)) {
-			//Remove the element.
+			// Remove the element.
 			subcontext.removeElement(e);
 			subcontext.addAndRemoveElements();
 			lastSize--;
 			
-			//Realign the others.
+			// Realign the others.
 			GUIElement realignAnchor = getElementAbove(e);
 			if (realignAnchor == null)
 				realignAllElements();
@@ -101,7 +108,7 @@ public class ScrollableListFrame extends ScrollableFrame {
 		}
 	}
 	
-	//Add an element at a specific y, shifting elements down to make room.
+	// Add an element at a specific y, shifting elements down to make room.
 	public void addElement(GUIElement e, int y) {
 		alignElementX(e, getAlignedXAnchor());
 		GUIElement above = getElementAbove(y);
@@ -121,7 +128,7 @@ public class ScrollableListFrame extends ScrollableFrame {
 		realignFromElement(e);
 	}
 	
-	//Get the x coordinate that we are aligning to.
+	// Get the x coordinate that we are aligning to.
 	protected int getAlignedXAnchor() {
 		switch (xAlign) {
 			case XALIGN_LEFT: return x1 + xAlignOffset;
@@ -130,7 +137,7 @@ public class ScrollableListFrame extends ScrollableFrame {
 		}
 	}
 	
-	//X align an element to an x anchor.
+	// X align an element to an x anchor.
 	protected void alignElementX(GUIElement e, int xAnchor) {
 		switch (xAlign) {
 			case XALIGN_LEFT: e.setX(xAnchor); break;
@@ -139,9 +146,9 @@ public class ScrollableListFrame extends ScrollableFrame {
 		}
 	}
 	
-	//Find the bottom y of the bottom element in this frame.
+	// Find the bottom y of the bottom element in this frame.
 	public int getBottomY() {
-		//Get the elements and loop through them to find which is on bottom.
+		// Get the elements and loop through them to find which is on bottom.
 		ArrayList<GUIElement> elements = subcontext.getElements();
 		int bottomY = y1;
 		for (GUIElement e : elements) {
@@ -152,13 +159,13 @@ public class ScrollableListFrame extends ScrollableFrame {
 		return bottomY;
 	}
 	
-	//Realign all the elements.
+	// Realign all the elements.
 	public void realignAllElements() {
-		//Get a copy of the elements list sorted by Y.
+		// Get a copy of the elements list sorted by Y.
 		ArrayList<GUIElement> elements = new ArrayList<GUIElement>(subcontext.getElements());
 		Collections.sort(elements, new ElementYComparator());
 		
-		//Reposition the elements below the index.
+		// Reposition the elements below the index.
 		int xAnchor = getAlignedXAnchor();
 		int yPos = 0;
 		for (int i = 0; i < elements.size(); i++) {
@@ -168,22 +175,22 @@ public class ScrollableListFrame extends ScrollableFrame {
 			yPos += e.getHeight() + ySpacing;
 		}
 
-		//Recalculate the scrolling fields.
+		// Recalculate the scrolling fields.
 		recalculateScrollingFields();
 	}
 	
-	//Realign the elements below the element given.
+	// Realign the elements below the element given.
 	public void realignFromElement(GUIElement e) {
-		//Get a copy of the elements list sorted by Y.
+		// Get a copy of the elements list sorted by Y.
 		ArrayList<GUIElement> elements = new ArrayList<GUIElement>(subcontext.getElements());
 		Collections.sort(elements, new ElementYComparator());
 		
-		//Get the index of the element, returning if we can't find it.
+		// Get the index of the element, returning if we can't find it.
 		int i = elements.indexOf(e);
 		if (i == -1)
 			return;
 		
-		//Reposition the elements below the index.
+		// Reposition the elements below the index.
 		int xAnchor = getAlignedXAnchor();
 		int yPos = e.getY() + e.getHeight();
 		for (i += 1; i < elements.size(); i++) {
@@ -193,7 +200,21 @@ public class ScrollableListFrame extends ScrollableFrame {
 			yPos += e.getHeight() + ySpacing;
 		}
 		
-		//Recalculate the scrolling fields.
+		// Recalculate the scrolling fields.
 		recalculateScrollingFields();
+	}
+
+	@Override
+	public void guiEvent(GUIEvent<?> event) {
+		// Upon receiving a GUIEvent, see if its data indicates it resized.
+		Object eventData = event.getData();
+		if (eventData == null)
+			return;
+		if (eventData.equals(GUIEvent.RESIZE_EVENT)) {
+			// If it was a resize, realign from the generator.
+			GUIEventGenerator generator = event.getGenerator();
+			if (generator instanceof GUIElement)
+				realignFromElement((GUIElement)generator);
+		}
 	}
 }

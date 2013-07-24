@@ -5,7 +5,9 @@ package org.haferlib.slick.gui;
 
 import java.util.ArrayList;
 
+import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
+import org.newdawn.slick.geom.Rectangle;
 
 public abstract class GUISubcontext implements GUIElement {
 
@@ -14,7 +16,9 @@ public abstract class GUISubcontext implements GUIElement {
 	protected boolean lmbPressed, mmbPressed, rmbPressed;
 	protected boolean lmbDown, mmbDown, rmbDown;
 	protected int mouseX, mouseY;
+	private Rectangle gClip;
 
+	// Constructors.
 	protected GUISubcontext() {
 		this(0, 0);
 	}
@@ -23,19 +27,49 @@ public abstract class GUISubcontext implements GUIElement {
 		subcontext = new GUIContext();
 		x1 = x;
 		y1 = y;
+		gClip = new Rectangle(0, 0, 0, 0);
 	}
 	
-	//Get the elements in the subcontext.
+	// EFFECTS:  Get the elements in the subcontext.
 	public ArrayList<GUIElement> getElements() {
 		return subcontext.getElements();
 	}
 	
-	//See if the subcontext contains an element.
+	// EFFECTS:  See if the subcontext contains an element.
 	public boolean contains(GUIElement e) {
 		return subcontext.contains(e);
 	}
+	
+	// REQUIRES: g != null
+	// EFFECTS:  Render the subcontext within the already defined clip area. Returns g.getClip()
+	//			 to its state when this method was called by the end so as not to interfere with
+	//			 other rendering.
+	protected void renderSubcontext(Graphics g, int leftX, int topY, int rightX, int bottomY) {
+		// Copy the old clipping.
+		gClip.setBounds(g.getClip());
+		
+		// Only make the clip area smaller. Don't increase its size.
+		if (leftX < gClip.getX())
+			leftX = (int)gClip.getX();
+		
+		if (topY < gClip.getY())
+			topY = (int)gClip.getY();
+		
+		if (rightX > gClip.getX() + gClip.getWidth())
+			rightX = (int)(gClip.getX() + gClip.getWidth());
+		
+		if (bottomY > gClip.getY() + gClip.getHeight());
+			bottomY = (int)(gClip.getY() + gClip.getHeight());
+		
+		// Render the subcontext.
+		subcontext.render(g, leftX, topY, rightX, bottomY);
+		
+		// Set the clip to what it was.
+		g.setClip(gClip);
+	}
 
-	//Called every frame so that the element can think or update sprites
+	// Update the subcontext.
+	@Override
 	public void update(int delta) {
 		subcontext.update(mouseX, mouseY, lmbPressed, mmbPressed, rmbPressed, lmbDown, mmbDown, rmbDown, delta);
 		lmbPressed = false;
@@ -46,31 +80,32 @@ public abstract class GUISubcontext implements GUIElement {
 		rmbDown = false;
 	}
 	
-	//If setX(n) is called, getX() should return n. setX(n) is expected to move the element so that its
-	//bounding box's left edge is on n.
+	@Override
 	public void setX(int x) {
 		int dX = x - x1;
 		x1 = x;
 		subcontext.translateX(dX);
 	}
 
+	@Override
 	public int getX() {
 		return x1;
 	}
 
-	//If setY(n) is called, getY() should return n. setY(n) is expected to move the element so that its
-	//bounding box's top edge is on n.
+	@Override
 	public void setY(int y) {
 		int dY = y - y1;
 		y1 = y;
 		subcontext.translateY(dY);
 	}
 
+	@Override
 	public int getY() {
 		return y1;
 	}
 
-	//Called when this is clicked on.
+	// Track mouse clicks.
+	@Override
 	public void click(int x, int y, int button) {
 		mouseX = x;
 		mouseY = y;
@@ -82,7 +117,8 @@ public abstract class GUISubcontext implements GUIElement {
 			rmbPressed = true;
 	}
 
-	//Called when a mouse button is down on this.
+	// Track mouseDowns.
+	@Override
 	public void mouseDown(int x, int y, int button) {
 		mouseX = x;
 		mouseY = y;
@@ -94,13 +130,15 @@ public abstract class GUISubcontext implements GUIElement {
 			rmbDown = true;
 	}
 
-	//Called when the mouse is hovering over, but not clicking this element.
+	// Track mouse position.
+	@Override
 	public void hover(int x, int y) {
 		mouseX = x;
 		mouseY = y;
 	}
 
-	//Called when a click happens that doesn't click this.
+	// Track clicks and mouse position.
+	@Override
 	public void clickedElsewhere(int button) {
 		mouseX = Integer.MIN_VALUE;
 		mouseY = Integer.MIN_VALUE;
@@ -112,7 +150,8 @@ public abstract class GUISubcontext implements GUIElement {
 			rmbPressed = true;
 	}
 
-	//Called when a mouse down happens that isn't over this.
+	// Track mouseDowns and mouse position.
+	@Override
 	public void mouseDownElsewhere(int button) {
 		mouseX = Integer.MIN_VALUE;
 		mouseY = Integer.MIN_VALUE;
@@ -124,22 +163,25 @@ public abstract class GUISubcontext implements GUIElement {
 			rmbDown = true;
 	}
 
-	//Called when the mouse is not hovering over this element and not clicking
+	// Track mouse position.
+	@Override
 	public void hoveredElsewhere() {
 		mouseX = Integer.MIN_VALUE;
 		mouseY = Integer.MIN_VALUE;
 	}
 
-	//Called when a key press happens.
+	// Tell the subcontext about key presses.
+	@Override
 	public void keyPressed(int key, char c) {
 		subcontext.keyPressed(key, c);
 	}
 
-	//Called when all key inputs have been sent for this update, if there were any.
+	@Override
 	public void keyInputDone() {
 	}
 	
-	//Called when this is removed from being dead.
+	// Destroy the subcontext.
+	@Override
 	public void destroy() {
 		subcontext.destroy();
 	}

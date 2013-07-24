@@ -230,7 +230,7 @@ public class OutputFrame extends GUISubcontext {
 	@Override
 	public void render(Graphics g) {
 		//Render the subcontext.
-		subcontext.render(g, x1, y1, x2, y2);
+		renderSubcontext(g, x1, y1, x2, y2);
 	}
 
 	@Override

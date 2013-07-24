@@ -3,6 +3,8 @@
 package org.haferlib.slick.gui;
 
 import java.util.HashSet;
+
+import org.newdawn.slick.Font;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.Color;
@@ -16,205 +18,221 @@ public class Button<V> implements GUIElement, GUIEventGenerator {
 	private String text;
 	private V data;
 	private Color textColor;
+	private Font font;
 	private byte textAlignment;
 	private int textXOffset;
-	private int x1;
-	private int y1;
-	private int x2;
-	private int y2;
-	private int centerX;
-	private int centerY;
-	private int width;
-	private int height;
+	private int x1, y1, x2, y2;
+	private int centerX, centerY;
+	private int width, height;
+	private int depth;
 	private Color backgroundColor;
 	private boolean highlight;
 	private Color highlightColor;
 	private int buttonKey;
 	private HashSet<GUIEventListener> listeners;
 
-	//Constructors
-	public Button(String t, Color tColor, int x, int y, int w, int h, Color bgColor, Color hColor, int key) {
-		this(t, null, tColor, CENTER, 0, x, y, w, h, bgColor, hColor, key);
+	// Constructors.
+	public Button(String text, Color textColor, Font font, int x, int y, int width, int height,
+			int depth, Color backgroundColor, Color highlightColor, int key) {
+		this(text, null, textColor, font, CENTER, 0, x, y, width, height, depth, backgroundColor, highlightColor, key);
 	}
 
-	public Button(String t, Color tColor, byte tAlign, int tXOffset, int x, int y, int w, int h, Color bgColor, Color hColor, int key) {
-		this(t, null, tColor, tAlign, tXOffset, x, y, w, h, bgColor, hColor, key);
+	public Button(String text, Color textColor, Font font, byte tAlign, int tXOffset, int x, int y, int width, int height,
+			int depth, Color backgroundColor, Color highlightColor, int key) {
+		this(text, null, textColor, font, tAlign, tXOffset, x, y, width, height, depth, backgroundColor, highlightColor, key);
 	}
 
-	public Button(String t, V d, Color tColor, int x, int y, int w, int h, Color bgColor, Color hColor, int key) {
-		this(t, d, tColor, CENTER, 0, x, y, w, h, bgColor, hColor, key);
+	public Button(String text, V data, Color textColor, Font font, int x, int y, int width, int height,
+			int depth, Color backgroundColor, Color highlightColor, int key) {
+		this(text, data, textColor, font, CENTER, 0, x, y, width, height, depth, backgroundColor, highlightColor, key);
 	}
 
-	public Button(String t, V d, Color tColor, byte tAlign, int tXOffset, int x, int y, int w, int h, Color bgColor, Color hColor, int key) {
-		text = t;
-		data = d;
-		textColor = tColor;
+	public Button(String text, V data, Color textColor, Font font, byte tAlign, int tXOffset, int x, int y, int width, int height,
+			int depth, Color backgroundColor, Color highlightColor, int key) {
+		this.text = text;
+		this.data = data;
+		this.textColor = textColor;
+		this.font = font;
 		textAlignment = tAlign;
 		textXOffset = tXOffset;
-		width = w;
-		height = h;
 		setX(x);
 		setY(y);
-		backgroundColor = bgColor;
+		setWidth(width);
+		setHeight(height);
+		this.depth = depth;
+		this.backgroundColor = backgroundColor;
+		this.highlightColor = highlightColor;
 		highlight = false;
-		highlightColor = hColor;
 		listeners = new HashSet<>();
 		buttonKey = key;
 	}
+	
+	// Press this button.
+	public void press() {
+		for (GUIEventListener l : listeners)
+			l.guiEvent(new GUIEvent<V>(this, data));
+	}
 
-	//@see UIElement.update(int)
+	// Return the text.
+	public String toString() {
+		return text;
+	}
+
+	// Get the data.
+	public V getData() {
+		return data;
+	}
+
+	@Override
 	public void update(int delta) {
 	}
 
-	//@see UIElement.render(Graphics g)
+	@Override
 	public void render(Graphics g) {
-		//Draw the background
+		// Draw the background
 		g.setColor(backgroundColor);
 		g.fillRect(x1, y1, width, height);
 
-		//Draw the text
+		// Draw the text
 		g.setColor(textColor);
+		g.setFont(font);
 		if (textAlignment == LEFT)
-			g.drawString(text, x1 + textXOffset, centerY - g.getFont().getLineHeight()/2);
+			g.drawString(text, x1 + textXOffset,
+					centerY - font.getLineHeight() / 2);
 		else if (textAlignment == CENTER)
-			g.drawString(text, centerX - g.getFont().getWidth(text)/2 + textXOffset, centerY - g.getFont().getLineHeight()/2);
+			g.drawString(text, centerX - g.getFont().getWidth(text) / 2 + textXOffset,
+					centerY - font.getLineHeight() / 2);
 		else
-			g.drawString(text, x2 - g.getFont().getWidth(text) + textXOffset, centerY - g.getFont().getLineHeight()/2);
+			g.drawString(text, x2 - g.getFont().getWidth(text) + textXOffset,
+					centerY - font.getLineHeight() / 2);
 
-		//Highlight
+		// Highlight.
 		if (highlight) {
 			g.setColor(highlightColor);
 			g.drawRect(x1, y1, width, height);
 		}
-		//Border
+		// Border.
 		else {
 			g.drawRect(x1, y1, width, height);
 		}
 	}
 
-	//@see UIElement.setX(int x)
+	@Override
 	public void setX(int x) {
 		x1 = x;
 		x2 = x + width;
-		centerX = x1 + width/2;
+		centerX = x1 + width / 2;
 	}
 
 	public int getX() {
 		return x1;
 	}
 
-	//@see UIElement.setY(int y)
+	@Override
 	public void setY(int y) {
 		y1 = y;
 		y2 = y + height;
-		centerY = y1 + height/2;
+		centerY = y1 + height / 2;
 	}
 
+	@Override
 	public int getY() {
 		return y1;
 	}
 
-	//Set and get the width
+	@Override
 	public void setWidth(int w) {
 		width = w;
 		x2 = x1 + width;
+		centerX = x1 + width / 2;
 	}
 
+	@Override
 	public int getWidth() {
 		return width;
 	}
 
-	//Set and get the height
-	public void setHeight(int h)  {
+	@Override
+	public void setHeight(int h) {
 		height = h;
 		y2 = y1 + height;
+		centerY = y1 + height / 2;
 	}
 
+	@Override
 	public int getHeight() {
 		return height;
 	}
 
-	//@see UIElement.pointIsWithin(int x, int y)
+	@Override
 	public boolean pointIsWithin(int x, int y) {
 		return (x >= x1 && x <= x2 && y >= y1 && y <= y2);
 	}
 
-	//@see GUIElement.click(int, int, int)
+	@Override
 	public void click(int x, int y, int button) {
 		if (button == Input.MOUSE_LEFT_BUTTON)
 			press();
 	}
 
-	//@see GUIElement.mouseDown(int, int, int)
+	@Override
 	public void mouseDown(int x, int y, int button) {
 	}
 
-	//@see GUIElement.hover(int x, int y)
+	@Override
 	public void hover(int x, int y) {
 		highlight = true;
 	}
 
-	//@see GUIElement.clickedElsewhere(int)
+	@Override
 	public void clickedElsewhere(int button) {
 	}
 
-	//@see GUIElement.mouseDownElsewhere(int)
+	@Override
 	public void mouseDownElsewhere(int button) {
 	}
 
-	//@see GUIElement.hoveredElsewhere()
+	@Override
 	public void hoveredElsewhere() {
 		highlight = false;
 	}
 
-	//@see GUIElement.getDepth()
+	@Override
 	public int getDepth() {
-		return 2;
+		return depth;
 	}
 
-	//@see GUIElement.keyInputDone()
+	@Override
 	public void keyPressed(int key, char c) {
 		if (key == buttonKey)
 			press();
 	}
 
-	//@see GUIElement.keyInputDone()
+	@Override
 	public void keyInputDone() {
 	}
 
-	//Press this button
-	public void press() {
-		for (GUIEventListener l : listeners)
-			l.guiEvent(new GUIEvent<V>(this, data));
-	}
-
-	//Adds a button listener to be notified when this button is clicked
+	@Override
 	public void addListener(GUIEventListener l) {
 		listeners.add(l);
 	}
 
-	//Remove a button listener from this button
+	@Override
 	public void removeListener(GUIEventListener l) {
 		listeners.remove(l);
 	}
 
-	//@see GUIElement.dead()
+	@Override
 	public boolean dead() {
 		return false;
 	}
-	
-	//@see GUIElement.destroy()
+
+	@Override
 	public void destroy() {
 		listeners.clear();
 		listeners = null;
 	}
 
-	public String toString() {
-		return text;
-	}
-
-	public V getData() {
-		return data;
-	}
+	
 
 }

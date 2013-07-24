@@ -5,7 +5,6 @@ package org.haferlib.slick.gui;
 public interface GUIEventListener {
 
 	//Is called by the element that this is listening to.
-	@SuppressWarnings("rawtypes")
-	void guiEvent(GUIEvent event);
+	void guiEvent(GUIEvent<?> event);
 
 }
