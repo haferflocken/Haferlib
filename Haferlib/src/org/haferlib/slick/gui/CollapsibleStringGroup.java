@@ -15,7 +15,7 @@ import org.haferlib.slick.GraphicsUtils;
 public class CollapsibleStringGroup implements GUIElement, GUIEventGenerator {
 	
 	private HashSet<GUIEventListener> listeners;					// The listeners to be notified if this changes size.
-	private String title;											// The title of the group.
+	protected String title;											// The title of the group.
 	private String[] strings;										// The strings within the group.
 	private Color textColor;										// The color of the text.
 	private Font font;												// The font of the text.
@@ -29,6 +29,7 @@ public class CollapsibleStringGroup implements GUIElement, GUIEventGenerator {
 	
 	// Constructor.
 	public CollapsibleStringGroup(String title, String[] strings, Color textColor, int x, int y, int width, Font font, boolean expanded) {
+		listeners = new HashSet<>();
 		this.title = title;
 		this.strings = strings;
 		this.textColor = textColor;

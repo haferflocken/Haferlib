@@ -16,19 +16,20 @@ import org.newdawn.slick.SlickException;
 
 public class CollapsibleFrame extends GUISubcontext implements GUIEventGenerator {
 	
-	private int x2, y2;									// The location of the bottom right corner.
-	private int width, collapsedHeight, expandedHeight;	// The dimensions.
-	private int depth;
-	private boolean dead;
-	private HashSet<GUIEventListener> listeners;		// The listeners listening to this. They are notified of collapsing/expanding.
-	private String title;								// The title of this element.
-	private Color textColor;							// The color of the title.
-	private Font font;									// The font of the title.
-	private int toggleButtonX1, toggleButtonY1,			// The toggle button position.
+	protected int x2, y2;									// The location of the bottom right corner.
+	protected int width, collapsedHeight, expandedHeight;	// The dimensions.
+	protected int subcontextY1;								// The top of the subcontext render area.
+	protected int depth;
+	protected boolean dead;
+	protected HashSet<GUIEventListener> listeners;			// The listeners listening to this. They are notified of collapsing/expanding.
+	protected String title;									// The title of this element.
+	protected Color textColor;								// The color of the title.
+	protected Font font;									// The font of the title.
+	protected int toggleButtonX1, toggleButtonY1,			// The toggle button position.
 		toggleButtonX2, toggleButtonY2, toggleButtonCX;
-	private int toggleButtonPos, toggleButtonSize;		// The toggle button offset and side length.
-	private boolean expanded;							// Is this expanded?
-	private Image titleImage;							// The predrawn title.
+	protected int toggleButtonPos, toggleButtonSize;		// The toggle button offset and side length.
+	protected boolean expanded;								// Is this expanded?
+	protected Image titleImage;								// The predrawn title.
 	
 	// Constructor.
 	public CollapsibleFrame(String title, Color textColor, Font font, int x, int y, int width, int height, boolean expanded) {
@@ -38,20 +39,20 @@ public class CollapsibleFrame extends GUISubcontext implements GUIEventGenerator
 		this.title = title;
 		this.textColor = textColor;
 		this.font = font;
-		setX(x);
-		setY(y);
 		setWidth(width);
 		setHeight(height);
-		setExpanded(expanded);
 		redrawTitle();
+		setX(x);
+		setY(y);
+		setExpanded(expanded);
 	}
 	
-	// Add an element to this.
+	// EFFECTS:  Add an element to this.
 	public void addElement(GUIElement e) {
 		subcontext.addElement(e);
 	}
 	
-	// Add several elements to this.
+	// EFFECTS:  Add several elements to this.
 	public void addElements(GUIElement[] es) {
 		for (GUIElement e : es) {
 			subcontext.addElement(e);
@@ -63,20 +64,20 @@ public class CollapsibleFrame extends GUISubcontext implements GUIEventGenerator
 		subcontext.removeElement(e);
 	}
 	
-	// Remove several elements from this.
+	// EFFECTS:  Remove several elements from this.
 	public void removeElements(GUIElement[] es) {
 		for (GUIElement e : es) {
 			subcontext.removeElement(e);
 		}
 	}
 	
-	// Remove all elements from the subcontext.
+	// EFFECTS:  Remove all elements from this.
 	public void clearElements() {
 		subcontext.clear();
 	}
 	
 	// Set if this is expanded or not.
-	private void setExpanded(boolean e) {
+	protected void setExpanded(boolean e) {
 		expanded = e;
 		if (expanded) {
 			y2 = y1 + expandedHeight;
@@ -88,7 +89,7 @@ public class CollapsibleFrame extends GUISubcontext implements GUIEventGenerator
 	}
 	
 	// Notify the listeners of expanding/collapsing.
-	private void notifyListeners() {
+	protected void notifyListeners() {
 		for (GUIEventListener l : listeners)
 			l.guiEvent(new GUIEvent<Object>(this, GUIEvent.RESIZE_EVENT));
 	}
@@ -106,7 +107,7 @@ public class CollapsibleFrame extends GUISubcontext implements GUIEventGenerator
 
 		try {
 			// Create a new image to draw to.
-			titleImage = Image.createOffscreenImage(width, expandedHeight);
+			titleImage = Image.createOffscreenImage(width, collapsedHeight);
 	
 			// Get the graphics to draw with.
 			Graphics g = titleImage.getGraphics();
@@ -153,7 +154,7 @@ public class CollapsibleFrame extends GUISubcontext implements GUIEventGenerator
 		
 		// Draw the subcontext if this is expanded.
 		if (expanded) {
-			renderSubcontext(g, x1, y1, x2, y2);
+			renderSubcontext(g, x1, subcontextY1, x2, y2);
 		}
 		// If collapsed, draw the vertical bar on top of the title image to make the minus sign into a plus sign.
 		else {
@@ -180,6 +181,7 @@ public class CollapsibleFrame extends GUISubcontext implements GUIEventGenerator
 			y2 = y1 + collapsedHeight;
 		toggleButtonY1 = y1 + toggleButtonPos;
 		toggleButtonY2 = toggleButtonY1 + toggleButtonSize;
+		subcontextY1 = y1 + collapsedHeight;
 	}
 
 	@Override
@@ -193,8 +195,8 @@ public class CollapsibleFrame extends GUISubcontext implements GUIEventGenerator
 		return width;
 	}
 
-	// setHeight sets the expanded height.
 	@Override
+	// EFFECTS:  setHeight sets the expanded height.
 	public void setHeight(int h) {
 		expandedHeight = h;
 		if (expanded)

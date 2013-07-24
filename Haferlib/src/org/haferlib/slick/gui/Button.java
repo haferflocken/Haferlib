@@ -89,11 +89,22 @@ public class Button<V> implements GUIElement, GUIEventGenerator {
 
 	@Override
 	public void render(Graphics g) {
-		// Draw the background
-		g.setColor(backgroundColor);
-		g.fillRect(x1, y1, width, height);
+		// If this is being moused over, highlight the background.
+		if (highlight) {
+			if (highlightColor != null) {
+				g.setColor(highlightColor);
+				g.fillRect(x1, y1, width, height);
+			}
+		}
+		// Otherwise, draw the non-hightled background.
+		else {
+			if (backgroundColor != null) {
+				g.setColor(backgroundColor);
+				g.fillRect(x1, y1, width, height);
+			}
+		}
 
-		// Draw the text
+		// Draw the text.
 		g.setColor(textColor);
 		g.setFont(font);
 		if (textAlignment == LEFT)
@@ -105,16 +116,6 @@ public class Button<V> implements GUIElement, GUIEventGenerator {
 		else
 			g.drawString(text, x2 - g.getFont().getWidth(text) + textXOffset,
 					centerY - font.getLineHeight() / 2);
-
-		// Highlight.
-		if (highlight) {
-			g.setColor(highlightColor);
-			g.drawRect(x1, y1, width, height);
-		}
-		// Border.
-		else {
-			g.drawRect(x1, y1, width, height);
-		}
 	}
 
 	@Override

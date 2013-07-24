@@ -4,6 +4,7 @@
 package org.haferlib.slick.gui;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
@@ -38,6 +39,59 @@ public abstract class GUISubcontext implements GUIElement {
 	// EFFECTS:  See if the subcontext contains an element.
 	public boolean contains(GUIElement e) {
 		return subcontext.contains(e);
+	}
+	
+	// EFFECTS:  Get the element immediately above the element given,
+	//			 or null if one could not be found.
+	public GUIElement getElementAbove(GUIElement e) {
+		return getElementAbove(e.getY());
+	}
+
+	// EFFECTS:  Get the element immediately above the given y coordinate,
+	//			 or null if one could not be found.
+	public GUIElement getElementAbove(int y) {
+		GUIElement out = null;
+		int dY = Integer.MAX_VALUE;
+
+		// Loop through the elements to find the one closest to the y.
+		for (GUIElement e : subcontext.getElements()) {
+			int newDY = y - e.getY();
+			if (newDY < dY && newDY > 0) {
+				dY = newDY;
+				out = e;
+			}
+		}
+
+		return out;
+	}
+
+	// EFFECTS:  Get the element immediately below the element given,
+	//			 or null if one could not be found.
+	public GUIElement getElementBelow(GUIElement e) {
+		return getElementBelow(e.getY());
+	}
+
+	// EFFECTS:  Get the element immediately below the given y coordinate,
+	//			 or null if one could not be found.
+	public GUIElement getElementBelow(int y) {
+		// Get a copy of the elements list sorted by Y.
+		ArrayList<GUIElement> elements = new ArrayList<GUIElement>(subcontext.getElements());
+		Collections.sort(elements, new ElementYComparator());
+
+		// Loop through the elements backwards until we find an element that is above the y.
+		for (int i = elements.size() - 2; i > -1; i--) {
+			if (elements.get(i).getY() < y)
+				return elements.get(i + 1);
+		}
+
+		// Return null if we can't find anything below the y.
+		return null;
+	}
+
+	// EFFECTS:  Get the element that contains a point,
+	//			 or null if one could not be found.
+	public GUIElement getElementAtPoint(int x, int y) {
+		return subcontext.getElementAtPoint(x, y);
 	}
 	
 	// REQUIRES: g != null
