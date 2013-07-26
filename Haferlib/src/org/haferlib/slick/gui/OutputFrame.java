@@ -271,6 +271,11 @@ public class OutputFrame extends GUISubcontext {
 	public boolean pointIsWithin(int x, int y) {
 		return (x >= x1 && y >= y1 && x <= x2 && y <= y2);
 	}
+	
+	@Override
+	public void setDepth(int d) {
+		depth = d;
+	}
 
 	@Override
 	public int getDepth() {

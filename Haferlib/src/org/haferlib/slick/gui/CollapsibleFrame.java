@@ -32,7 +32,7 @@ public class CollapsibleFrame extends GUISubcontext implements GUIEventGenerator
 	protected Image titleImage;								// The predrawn title.
 	
 	// Constructor.
-	public CollapsibleFrame(String title, Color textColor, Font font, int x, int y, int width, int height, boolean expanded) {
+	public CollapsibleFrame(String title, Color textColor, Font font, int x, int y, int width, int height, int depth, boolean expanded) {
 		super();
 		listeners = new HashSet<>();
 		dead = false;
@@ -41,6 +41,7 @@ public class CollapsibleFrame extends GUISubcontext implements GUIEventGenerator
 		this.font = font;
 		setWidth(width);
 		setHeight(height);
+		setDepth(depth);
 		redrawTitle();
 		setX(x);
 		setY(y);
@@ -223,6 +224,11 @@ public class CollapsibleFrame extends GUISubcontext implements GUIEventGenerator
 	@Override
 	public boolean pointIsWithin(int x, int y) {
 		return (x >= x1 && y >= y1 && x <= x2 && y <= y2);
+	}
+	
+	@Override
+	public void setDepth(int d) {
+		depth = d;
 	}
 
 	@Override

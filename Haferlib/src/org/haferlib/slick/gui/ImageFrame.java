@@ -19,7 +19,7 @@ public class ImageFrame implements GUIElement {
 		setY(y);
 		setWidth(width);
 		setHeight(height);
-		this.depth = depth;
+		setDepth(depth);
 	}
 	
 	//Get the image.
@@ -100,13 +100,18 @@ public class ImageFrame implements GUIElement {
 	public void hover(int x, int y) { }
 
 	@Override
-	public void clickedElsewhere(int button) { }
+	public void clickedElsewhere(GUIElement target, int button) { }
 
 	@Override
-	public void mouseDownElsewhere(int button) { }
+	public void mouseDownElsewhere(GUIElement target, int button) { }
 
 	@Override
-	public void hoveredElsewhere() { }
+	public void hoveredElsewhere(GUIElement target) { }
+	
+	@Override
+	public void setDepth(int d) {
+		depth = d;
+	}
 
 	@Override
 	public int getDepth() {

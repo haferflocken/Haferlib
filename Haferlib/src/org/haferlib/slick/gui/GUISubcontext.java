@@ -193,7 +193,7 @@ public abstract class GUISubcontext implements GUIElement {
 
 	// Track clicks and mouse position.
 	@Override
-	public void clickedElsewhere(int button) {
+	public void clickedElsewhere(GUIElement target, int button) {
 		mouseX = Integer.MIN_VALUE;
 		mouseY = Integer.MIN_VALUE;
 		if (button == Input.MOUSE_LEFT_BUTTON)
@@ -206,7 +206,7 @@ public abstract class GUISubcontext implements GUIElement {
 
 	// Track mouseDowns and mouse position.
 	@Override
-	public void mouseDownElsewhere(int button) {
+	public void mouseDownElsewhere(GUIElement target, int button) {
 		mouseX = Integer.MIN_VALUE;
 		mouseY = Integer.MIN_VALUE;
 		if (button == Input.MOUSE_LEFT_BUTTON)
@@ -219,7 +219,7 @@ public abstract class GUISubcontext implements GUIElement {
 
 	// Track mouse position.
 	@Override
-	public void hoveredElsewhere() {
+	public void hoveredElsewhere(GUIElement target) {
 		mouseX = Integer.MIN_VALUE;
 		mouseY = Integer.MIN_VALUE;
 	}

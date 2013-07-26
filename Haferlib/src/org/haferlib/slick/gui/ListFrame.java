@@ -27,7 +27,7 @@ public class ListFrame extends GUISubcontext implements GUIEventGenerator, GUIEv
 		listeners = new HashSet<>();
 		setWidth(width);
 		recalculateHeight();
-		this.depth = depth;
+		setDepth(depth);
 		if (xAlign == XALIGN_LEFT || xAlign == XALIGN_CENTER || xAlign == XALIGN_RIGHT)
 			this.xAlign = xAlign;
 		else
@@ -310,6 +310,11 @@ public class ListFrame extends GUISubcontext implements GUIEventGenerator, GUIEv
 	@Override
 	public boolean pointIsWithin(int x, int y) {
 		return (x >= x1 && y >= y1 && x <= x2 && y <= y2);
+	}
+	
+	@Override
+	public void setDepth(int d) {
+		depth = d;
 	}
 
 	@Override

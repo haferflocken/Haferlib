@@ -9,8 +9,8 @@ public class CollapsibleListFrame extends CollapsibleFrame implements GUIEventLi
 
 	// Constructor.
 	public CollapsibleListFrame(String title, Color textColor, Font font,
-			int x, int y, int width, boolean expanded) {
-		super(title, textColor, font, x, y, width, font.getLineHeight(), expanded);
+			int x, int y, int width, int depth, boolean expanded) {
+		super(title, textColor, font, x, y, width, font.getLineHeight(), depth, expanded);
 		
 		// Make the list frame.
 		int listFrameX = x1 + font.getLineHeight();

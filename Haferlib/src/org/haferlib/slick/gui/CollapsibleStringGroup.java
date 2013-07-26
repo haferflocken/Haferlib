@@ -24,17 +24,20 @@ public class CollapsibleStringGroup implements GUIElement, GUIEventGenerator {
 	private int toggleButtonX1, toggleButtonY1,						// The toggle button position.
 					toggleButtonX2, toggleButtonY2, toggleButtonCX;
 	private int toggleButtonPos, toggleButtonSize;					// The toggle button offset and side length.
+	private int depth;
 	private boolean expanded;										// Is this expanded?
 	private Image image;											// The image that this is drawn to offscreen.
 	
 	// Constructor.
-	public CollapsibleStringGroup(String title, String[] strings, Color textColor, int x, int y, int width, Font font, boolean expanded) {
+	public CollapsibleStringGroup(String title, String[] strings, Color textColor,
+			int x, int y, int width, int depth, Font font, boolean expanded) {
 		listeners = new HashSet<>();
 		this.title = title;
 		this.strings = strings;
 		this.textColor = textColor;
 		this.font = font;
 		setWidth(width);
+		setDepth(depth);
 		try {
 			redraw();
 		}
@@ -226,25 +229,30 @@ public class CollapsibleStringGroup implements GUIElement, GUIEventGenerator {
 	}
 
 	@Override
-	public void clickedElsewhere(int button) {
+	public void clickedElsewhere(GUIElement target, int button) {
 	}
 	
 	@Override
-	public void mouseDownElsewhere(int button) {
+	public void mouseDownElsewhere(GUIElement target, int button) {
 	}
 	
 	@Override
-	public void hoveredElsewhere() {
+	public void hoveredElsewhere(GUIElement target) {
 	}
 	
 	@Override
 	public boolean pointIsWithin(int x, int y) {
 		return (x >= x1 && y >= y1 && x <= x2 && y <= y2);
 	}
+	
+	@Override
+	public void setDepth(int d) {
+		depth = d;
+	}
 
 	@Override
 	public int getDepth() {
-		return 0;
+		return depth;
 	}
 
 	@Override

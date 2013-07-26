@@ -59,7 +59,7 @@ public class Button<V> implements GUIElement, GUIEventGenerator {
 		setY(y);
 		setWidth(width);
 		setHeight(height);
-		this.depth = depth;
+		setDepth(depth);
 		this.backgroundColor = backgroundColor;
 		this.highlightColor = highlightColor;
 		highlight = false;
@@ -186,16 +186,21 @@ public class Button<V> implements GUIElement, GUIEventGenerator {
 	}
 
 	@Override
-	public void clickedElsewhere(int button) {
+	public void clickedElsewhere(GUIElement target, int button) {
 	}
 
 	@Override
-	public void mouseDownElsewhere(int button) {
+	public void mouseDownElsewhere(GUIElement target, int button) {
 	}
 
 	@Override
-	public void hoveredElsewhere() {
+	public void hoveredElsewhere(GUIElement target) {
 		highlight = false;
+	}
+	
+	@Override
+	public void setDepth(int d) {
+		depth = d;
 	}
 
 	@Override
@@ -214,16 +219,6 @@ public class Button<V> implements GUIElement, GUIEventGenerator {
 	}
 
 	@Override
-	public void addListener(GUIEventListener l) {
-		listeners.add(l);
-	}
-
-	@Override
-	public void removeListener(GUIEventListener l) {
-		listeners.remove(l);
-	}
-
-	@Override
 	public boolean dead() {
 		return false;
 	}
@@ -234,6 +229,14 @@ public class Button<V> implements GUIElement, GUIEventGenerator {
 		listeners = null;
 	}
 
-	
+	@Override
+	public void addListener(GUIEventListener l) {
+		listeners.add(l);
+	}
+
+	@Override
+	public void removeListener(GUIEventListener l) {
+		listeners.remove(l);
+	}
 
 }

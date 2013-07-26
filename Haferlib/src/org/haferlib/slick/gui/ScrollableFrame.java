@@ -30,7 +30,7 @@ public class ScrollableFrame extends GUISubcontext {
 		super(x, y);
 		setWidth(width);
 		setHeight(height);
-		this.depth = depth;
+		setDepth(depth);
 		this.scrollBarWidth = scrollBarWidth;
 		scrollBarCornerRadius = scrollBarWidth / 2;
 		this.scrollBarColor = scrollBarColor;
@@ -213,21 +213,26 @@ public class ScrollableFrame extends GUISubcontext {
 	}
 
 	@Override
-	public void clickedElsewhere(int button) {
-		super.clickedElsewhere(button);
+	public void clickedElsewhere(GUIElement target, int button) {
+		super.clickedElsewhere(target, button);
 		mouseDragging = false;
 	}
 
 	@Override
-	public void mouseDownElsewhere(int button) {
-		super.mouseDownElsewhere(button);
+	public void mouseDownElsewhere(GUIElement target, int button) {
+		super.mouseDownElsewhere(target, button);
 		mouseDragging = false;
 	}
 
 	@Override
-	public void hoveredElsewhere() {
-		super.hoveredElsewhere();
+	public void hoveredElsewhere(GUIElement target) {
+		super.hoveredElsewhere(target);
 		mouseDragging = false;
+	}
+	
+	@Override
+	public void setDepth(int d) {
+		depth = d;
 	}
 
 	@Override
