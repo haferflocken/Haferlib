@@ -59,7 +59,7 @@ public class CollapsibleFrame extends GUISubcontext implements GUIEventGenerator
 		}
 	}
 	
-	// Remove an element from this.
+	// EFFECTS:  Remove an element from this.
 	public void removeElement(GUIElement e) {
 		subcontext.removeElement(e);
 	}
@@ -76,7 +76,7 @@ public class CollapsibleFrame extends GUISubcontext implements GUIEventGenerator
 		subcontext.clear();
 	}
 	
-	// Set if this is expanded or not.
+	// EFFECTS:  Set if this is expanded or not.
 	protected void setExpanded(boolean e) {
 		expanded = e;
 		if (expanded) {

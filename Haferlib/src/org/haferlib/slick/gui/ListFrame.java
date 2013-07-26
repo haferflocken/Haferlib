@@ -97,7 +97,7 @@ public class ListFrame extends GUISubcontext implements GUIEventGenerator, GUIEv
 	}
 	
 	// EFFECTS:  Recalculate the height.
-	private void recalculateHeight() {
+	public void recalculateHeight() {
 		int oldHeight = height;
 		y2 = getBottomY();
 		height = y2 - y1;

@@ -211,7 +211,7 @@ public class OutputFrame extends GUISubcontext {
 				return false;
 			}
 		}
-		scrollFrame.recalculateScrollingFields();
+		scrollFrame.recalculateListHeight();
 		return false;
 	}
 	

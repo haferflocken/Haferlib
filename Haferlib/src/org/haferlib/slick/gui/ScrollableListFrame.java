@@ -28,11 +28,16 @@ public class ScrollableListFrame extends ScrollableFrame implements GUIEventList
 	}
 	
 	// Make the list frame.
-	public void makeListFrame(byte xAlign, int xAlignOffset, int ySpacing) {
+	private void makeListFrame(byte xAlign, int xAlignOffset, int ySpacing) {
 		listFrame = new ListFrame(x1, y1, width - scrollBarWidth, 0, xAlign, xAlignOffset, ySpacing);
 		listFrame.addListener(this);
 		subcontext.addElement(listFrame);
 		subcontext.addAndRemoveElements();
+	}
+	
+	// Recalculate the list height.
+	public void recalculateListHeight() {
+		listFrame.recalculateHeight();
 	}
 	
 	// Add an element at a specific y, shifting elements down to make room.

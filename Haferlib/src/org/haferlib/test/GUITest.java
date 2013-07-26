@@ -26,7 +26,7 @@ public class GUITest extends BasicGame {
 		container.getInput().addKeyListener(ui);
 
 		//MultifieldDialog test.
-		ui.addElement(new MultifieldDialog("MultifieldDialog Test 1", new String[] {"field 1", "field 2", "field 3"}, 128, 64, 400, 100, 18));
+		//ui.addElement(new MultifieldDialog("MultifieldDialog Test 1", new String[] {"field 1", "field 2", "field 3"}, 128, 64, 400, 100, 18));
 
 		//FileBrowser test.
 		//ui.addElement(new FileBrowser("FileBrower Test", new Paths("Haferlib").gamePath, "", container.getGraphics().getFont(), 128, 256, 512, 320, Color.white, Color.black, Color.blue, Input.KEY_ENTER));
