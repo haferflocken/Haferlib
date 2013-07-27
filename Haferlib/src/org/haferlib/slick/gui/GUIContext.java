@@ -1,7 +1,7 @@
-//Manages GUI elements, calling their methods when appropriate.
-//Keeps a buffer of key pressess and notifies UIElements of them if it is added to an input's keylisteners.
-//Keeps track of which element has the input focus. Only the element with input focus receives key events.
-//This shouldn't be used for static, unchanging things. It's for the UI that can be interacted with.
+// Manages GUI elements, calling their methods when appropriate.
+// Keeps a buffer of key pressess and notifies UIElements of them if it is added to an input's keylisteners.
+// Keeps track of which element has the input focus. Only the element with input focus receives key events.
+// This shouldn't be used for static, unchanging things. It's for the UI that can be interacted with.
 
 package org.haferlib.slick.gui;
 
@@ -65,11 +65,11 @@ public class GUIContext implements KeyListener {
 	}
 
 	public void update(int mouseX, int mouseY, boolean leftMousePressed, boolean middleMousePressed, boolean rightMousePressed, boolean leftMouseDown, boolean middleMouseDown, boolean rightMouseDown, int delta) {
-		// If we're just not running this thing
+		// If we're just not running this thing, return.
 		if (!enabled)
 			return;
 
-		// And and remove stuff as it has asked
+		// And and remove stuff as it has asked.
 		addAndRemoveElements();
 
 		// If the mouse was clicked or is down, clear the click focus. This allows for unfocusing by clicking nothing.
@@ -79,40 +79,36 @@ public class GUIContext implements KeyListener {
 		// Clear the hover focus because it needs to be rethought every frame.
 		hoverFocus = null;
 		
-		// We only want to call events on the top element of a bunch of elements if they overlap, so we keep track of if the event has been consumed yet.
-		boolean clickConsumed = false;
-		boolean mouseDownConsumed = false;
+		// Did certain events happen?
+		boolean mousePressed = leftMousePressed | middleMousePressed | rightMousePressed;
+		boolean mouseDown = leftMouseDown | middleMouseDown | rightMouseDown;
+		
+		// We only want to call events on the top element of a bunch of elements if they overlap,
+		// so we keep track of if the event has been consumed yet. If not clicking/mouseDown,
+		// the event is already consumed (this is so the loop can break early if it is done).
+		boolean clickConsumed = !mousePressed;
+		boolean mouseDownConsumed = !mouseDown;
 		boolean hoverConsumed = false;
 		
-		// Loop through the elements and call their methods as they need to be called.
-		// They are looped through backwards to ensure that for overlapping elements, the one clicked is
-		// the one the player saw on top.
+		// Loop through the elements to do click, mouseDown, and hover.
 		GUIElement e;
 		for (int i = elements.size() - 1; i > -1; i--) {
 			e = elements.get(i);
-			// If we're within the element's area...
+			// If we are within the element's area...
 			if (e.pointIsWithin(mouseX, mouseY)) {
 				// If we are clicking...
-				if (leftMousePressed | middleMousePressed | rightMousePressed) {
-					// If the click has already been consumed, clickedElsewhere the element.
-					if (clickConsumed) {
-						clickedElementElsewhere(e, leftMousePressed, middleMousePressed, rightMousePressed);
-					}
-					// Otherwise, click the element and make it the click focus.
-					else {
+				if (mousePressed) {
+					// Click the element and make it the click focus.
+					if (!clickConsumed) {
 						clickElement(e, mouseX, mouseY, leftMousePressed, middleMousePressed, rightMousePressed);
 						setClickFocus(e);
 						clickConsumed = true;
 					}
 				}
 				// If we have the mouse down...
-				else if (leftMouseDown | middleMouseDown | rightMouseDown) {
-					// If the mouse down has already been consumed, mouseDownElsewhere the element.
-					if (mouseDownConsumed) {
-						mouseDownElementElsewhere(e, leftMouseDown, middleMouseDown, rightMouseDown);
-					}
-					// Otherwise, mouseDown the element and make it the click focus.
-					else {
+				else if (mouseDown) {
+					// MouseDown the element and make it the click focus.
+					if (!mouseDownConsumed) {
 						mouseDownElement(e, mouseX, mouseY, leftMouseDown, middleMouseDown, rightMouseDown);
 						setClickFocus(e);
 						mouseDownConsumed = true;
@@ -120,38 +116,50 @@ public class GUIContext implements KeyListener {
 				}
 				// If we are hovering...
 				else {
-					// If the hover has already been consumed, hoveredElsewhere the element.
-					if (hoverConsumed) {
-						e.hoveredElsewhere(hoverFocus);
-					}
-					// Otherwise, hover the element.
-					else {
+					// Hover the element and make it the hover focus.
+					if (!hoverConsumed) {
 						e.hover(mouseX, mouseY);
 						setHoverFocus(e);
 						hoverConsumed = true;
 					}
 				}
 			}
-			// If we're not within the area...
-			else {
-				// If we're clicking outside of this element...
-				if (leftMousePressed | middleMousePressed | rightMousePressed)
+			// Break if all events are consumed.
+			if (clickConsumed && mouseDownConsumed && hoverConsumed)
+				break;
+		}
+		
+		// Loop through the elements to do clickedElsewhere, mouseDownElsewhere, and hoveredElsewhere.
+		for (int i = elements.size() - 1; i > -1; i--) {
+			e = elements.get(i);
+			// If a click happened, clickedElsehwere this element if it is not the click focus.
+			if (mousePressed) {
+				if (e != clickFocus)
 					clickedElementElsewhere(e, leftMousePressed, middleMousePressed, rightMousePressed);
-				// If we're mousing down outside of this element...
-				else if (leftMouseDown | middleMouseDown | rightMouseDown)
+			}
+			// If the mouse is down, mouseDown this element if it is not the click focus.
+			else if (mouseDown) {
+				if (e != clickFocus)
 					mouseDownElementElsewhere(e, leftMouseDown, middleMouseDown, rightMouseDown);
-				// If we are hovering outside of this element...
-				else
+			}
+			// If the mouse is hovering, hoveredElsewhere this element if it is not the hover focus.
+			else {
+				if (e != hoverFocus)
 					e.hoveredElsewhere(hoverFocus);
 			}
-			// Update the element after all the other stuff happens
+		}
+		
+		// Loop through the elements and update them.
+		for (int i = elements.size() - 1; i > -1; i--) {
+			e = elements.get(i);
 			e.update(delta);
 		}
-		// Only the element with click focus gets key input.
+		
+		// Pass key input to the element in click focus.
 		if (clickFocus != null) {
 			// If any keys have been pressed...
 			if (keyBuffer.size() > 0) {
-				// Tell the focus of those key presses
+				// Tell the focus of those key presses.
 				for (KeyCharPair k : keyBuffer) {
 					clickFocus.keyPressed(k.key, k.c);
 				}
@@ -169,24 +177,25 @@ public class GUIContext implements KeyListener {
 			// If the two elements are out of order, sort that shit.
 			if (elements.get(i - 1).getDepth() > elements.get(i).getDepth()) {
 				Collections.sort(elements, depthComparator);
+				break;
 			}
 		}
 	}
 
 	private void setClickFocus(GUIElement e) {
 		clickFocus = e;
-		clickFocusBoxX = clickFocus.getX() - 5;
-		clickFocusBoxY = clickFocus.getY() - 5;
-		clickFocusBoxWidth = clickFocus.getWidth() + 10;
-		clickFocusBoxHeight = clickFocus.getHeight() + 10;
+		clickFocusBoxX = clickFocus.getX();
+		clickFocusBoxY = clickFocus.getY();
+		clickFocusBoxWidth = clickFocus.getWidth();
+		clickFocusBoxHeight = clickFocus.getHeight();
 	}
 	
 	private void setHoverFocus(GUIElement e) {
 		hoverFocus = e;
-		hoverFocusBoxX = hoverFocus.getX() - 5;
-		hoverFocusBoxY = hoverFocus.getY() - 5;
-		hoverFocusBoxWidth = hoverFocus.getWidth() + 10;
-		hoverFocusBoxHeight = hoverFocus.getHeight() + 10;
+		hoverFocusBoxX = hoverFocus.getX();
+		hoverFocusBoxY = hoverFocus.getY();
+		hoverFocusBoxWidth = hoverFocus.getWidth();
+		hoverFocusBoxHeight = hoverFocus.getHeight();
 	}
 
 	private void clickElement(GUIElement e, int mouseX, int mouseY, boolean lmbPressed, boolean mmbPressed, boolean rmbPressed) {
@@ -317,6 +326,7 @@ public class GUIContext implements KeyListener {
 		// Debug rendering.
 		if (debugMode) {
 			// Draw the click focus box.
+			g.setLineWidth(2);
 			if (clickFocus != null) {
 				g.setColor(Color.red);
 				g.drawRect(clickFocusBoxX, clickFocusBoxY, clickFocusBoxWidth, clickFocusBoxHeight);
@@ -326,6 +336,7 @@ public class GUIContext implements KeyListener {
 				g.setColor(Color.green);
 				g.drawRect(hoverFocusBoxX, hoverFocusBoxY, hoverFocusBoxWidth, hoverFocusBoxHeight);
 			}
+			g.setLineWidth(1);
 		}
 	}
 
