@@ -103,18 +103,22 @@ public abstract class GUISubcontext implements GUIElement {
 		gClip.setBounds(g.getClip());
 		
 		// Only make the clip area smaller. Don't increase its size.
-		if (leftX < gClip.getX())
-			leftX = (int)gClip.getX();
+		int gClipLeftX = (int)gClip.getX();
+		if (leftX < gClipLeftX)
+			leftX = gClipLeftX;
 		
-		if (topY < gClip.getY())
-			topY = (int)gClip.getY();
+		int gClipTopY = (int)gClip.getY();
+		if (topY < gClipTopY)
+			topY = gClipTopY;
 		
-		if (rightX > gClip.getX() + gClip.getWidth())
-			rightX = (int)(gClip.getX() + gClip.getWidth());
+		int gClipRightX = (int)(gClip.getX() + gClip.getWidth());
+		if (rightX > gClipRightX)
+			rightX = gClipRightX;
 		
-		if (bottomY > gClip.getY() + gClip.getHeight());
-			bottomY = (int)(gClip.getY() + gClip.getHeight());
-		
+		int gClipBottomY = (int)(gClip.getY() + gClip.getHeight());
+		if (bottomY > gClipBottomY)
+			bottomY = gClipBottomY;
+			
 		// Render the subcontext.
 		subcontext.render(g, leftX, topY, rightX, bottomY);
 		
