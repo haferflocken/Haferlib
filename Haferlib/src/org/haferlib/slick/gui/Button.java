@@ -1,10 +1,9 @@
-//A button, that when pushed, does something.
+//A button, that when pushed, tells its listeners and sends then its data.
 
 package org.haferlib.slick.gui;
 
 import java.util.HashSet;
 
-import org.newdawn.slick.Font;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.Color;
@@ -15,46 +14,24 @@ public class Button<V> implements GUIElement, GUIEventGenerator {
 	public static final byte CENTER = 1;
 	public static final byte RIGHT = 2;
 
-	private String text;
-	private V data;
-	private Color textColor;
-	private Font font;
-	private byte textAlignment;
-	private int textXOffset;
-	private int x1, y1, x2, y2;
-	private int centerX, centerY;
-	private int width, height;
-	private int depth;
-	private Color backgroundColor;
-	private boolean highlight;
-	private Color highlightColor;
-	private int buttonKey;
-	private HashSet<GUIEventListener> listeners;
+	protected V data;
+	protected int x1, y1, x2, y2;
+	protected int centerX, centerY;
+	protected int width, height;
+	protected int depth;
+	protected Color backgroundColor;
+	protected boolean highlight;
+	protected Color highlightColor;
+	protected int buttonKey;
+	protected HashSet<GUIEventListener> listeners;
 
 	// Constructors.
-	public Button(String text, Color textColor, Font font, int x, int y, int width, int height,
-			int depth, Color backgroundColor, Color highlightColor, int key) {
-		this(text, null, textColor, font, CENTER, 0, x, y, width, height, depth, backgroundColor, highlightColor, key);
+	public Button(int x, int y, int width, int height, int depth, Color backgroundColor, Color highlightColor, int key) {
+		this(null, x, y, width, height, depth, backgroundColor, highlightColor, key);
 	}
 
-	public Button(String text, Color textColor, Font font, byte tAlign, int tXOffset, int x, int y, int width, int height,
-			int depth, Color backgroundColor, Color highlightColor, int key) {
-		this(text, null, textColor, font, tAlign, tXOffset, x, y, width, height, depth, backgroundColor, highlightColor, key);
-	}
-
-	public Button(String text, V data, Color textColor, Font font, int x, int y, int width, int height,
-			int depth, Color backgroundColor, Color highlightColor, int key) {
-		this(text, data, textColor, font, CENTER, 0, x, y, width, height, depth, backgroundColor, highlightColor, key);
-	}
-
-	public Button(String text, V data, Color textColor, Font font, byte tAlign, int tXOffset, int x, int y, int width, int height,
-			int depth, Color backgroundColor, Color highlightColor, int key) {
-		this.text = text;
+	public Button(V data, int x, int y, int width, int height, int depth, Color backgroundColor, Color highlightColor, int key) {
 		this.data = data;
-		this.textColor = textColor;
-		this.font = font;
-		textAlignment = tAlign;
-		textXOffset = tXOffset;
 		setX(x);
 		setY(y);
 		setWidth(width);
@@ -72,12 +49,7 @@ public class Button<V> implements GUIElement, GUIEventGenerator {
 		for (GUIEventListener l : listeners)
 			l.guiEvent(new GUIEvent<V>(this, data));
 	}
-
-	// Return the text.
-	public String toString() {
-		return text;
-	}
-
+	
 	// Get the data.
 	public V getData() {
 		return data;
@@ -96,26 +68,13 @@ public class Button<V> implements GUIElement, GUIEventGenerator {
 				g.fillRect(x1, y1, width, height);
 			}
 		}
-		// Otherwise, draw the non-hightled background.
+		// Otherwise, draw the non-highlighted background.
 		else {
 			if (backgroundColor != null) {
 				g.setColor(backgroundColor);
 				g.fillRect(x1, y1, width, height);
 			}
 		}
-
-		// Draw the text.
-		g.setColor(textColor);
-		g.setFont(font);
-		if (textAlignment == LEFT)
-			g.drawString(text, x1 + textXOffset,
-					centerY - font.getLineHeight() / 2);
-		else if (textAlignment == CENTER)
-			g.drawString(text, centerX - g.getFont().getWidth(text) / 2 + textXOffset,
-					centerY - font.getLineHeight() / 2);
-		else
-			g.drawString(text, x2 - g.getFont().getWidth(text) + textXOffset,
-					centerY - font.getLineHeight() / 2);
 	}
 
 	@Override
