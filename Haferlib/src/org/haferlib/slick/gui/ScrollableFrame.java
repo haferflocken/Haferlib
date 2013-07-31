@@ -79,7 +79,8 @@ public class ScrollableFrame extends GUISubcontext {
 	protected void recalculateScrollingFields() {
 		// First, determine the smallest y and the largest y of the elements.
 		ArrayList<GUIElement> elements = subcontext.getElements();
-		int topY = Integer.MAX_VALUE, bottomY = Integer.MIN_VALUE;
+		int topY = Integer.MAX_VALUE;
+		int bottomY = Integer.MIN_VALUE;
 		for (GUIElement e : elements) {
 			if (e.getY() < topY)
 				topY = e.getY();

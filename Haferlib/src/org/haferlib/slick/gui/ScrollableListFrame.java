@@ -1,5 +1,7 @@
  package org.haferlib.slick.gui;
 
+import java.util.ArrayList;
+
 import org.newdawn.slick.Color;
 
 public class ScrollableListFrame extends ScrollableFrame implements GUIEventListener {
@@ -68,6 +70,38 @@ public class ScrollableListFrame extends ScrollableFrame implements GUIEventList
 		super.reinitSubcontext();
 		makeListFrame(xAlign, xAlignOffset, ySpacing);
 	}
+	
+	/**
+	 * GUISubcontext has some accessors that have to be overridden to look
+	 * at listFrame rather than subcontext.
+	 * These methods are between here...
+	 */
+	
+	@Override 
+	public GUIElement getElementAbove(int y) {
+		return listFrame.getElementAbove(y);
+	}
+	
+	@Override
+	public GUIElement getElementBelow(int y) {
+		return listFrame.getElementBelow(y);
+	}
+	
+	@Override
+	public GUIElement getElementAtPoint(int x, int y) {
+		return listFrame.getElementAtPoint(x, y);
+	}
+	
+	@Override
+	public ArrayList<GUIElement> getElements() {
+		if (listFrame != null)
+			return listFrame.getElements();
+		return null;
+	}
+	
+	/**
+	 * .. and here.
+	 */
 	
 	@Override
 	public void guiEvent(GUIEvent<?> event) {
