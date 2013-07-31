@@ -150,6 +150,7 @@ public class ScrollableFrame extends GUISubcontext {
 	
 	public void clearElements() {
 		subcontext.clear();
+		recalculateScrollingFields();
 	}
 	
 	public void reinitSubcontext() {

@@ -35,31 +35,43 @@ public class ScrollableListFrame extends ScrollableFrame implements GUIEventList
 		listFrame.addListener(this);
 		subcontext.addElement(listFrame);
 		subcontext.addAndRemoveElements();
+		recalculateScrollingFields();
 	}
 	
 	// Recalculate the list height.
 	public void recalculateListHeight() {
 		listFrame.recalculateHeight();
+		recalculateScrollingFields();
 	}
 	
 	// Add an element at a specific y, shifting elements down to make room.
 	public void addElement(GUIElement e, int y) {
 		listFrame.addElement(e, y);
+		recalculateScrollingFields();
 	}
 	
 	@Override
 	public void addElement(GUIElement e) {
 		listFrame.addElement(e);
+		recalculateScrollingFields();
 	}
 	
 	@Override
 	public void addElements(GUIElement[] es) {
 		listFrame.addElements(es);
+		recalculateScrollingFields();
 	}
 	
 	@Override
 	public void removeElement(GUIElement e) {
 		listFrame.removeElement(e);
+		recalculateScrollingFields();
+	}
+	
+	@Override
+	public void clearElements() {
+		listFrame.clearElements();
+		recalculateScrollingFields();
 	}
 	
 	@Override
