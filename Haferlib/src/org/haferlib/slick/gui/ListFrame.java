@@ -116,7 +116,7 @@ public class ListFrame extends GUISubcontext implements GUIEventGenerator, GUIEv
 
 		// Reposition the elements below the index.
 		int xAnchor = getAlignedXAnchor();
-		int yPos = 0;
+		int yPos = y1;
 		for (int i = 0; i < elements.size(); i++) {
 			GUIElement e = elements.get(i);
 			alignElementX(e, xAnchor);
@@ -129,6 +129,7 @@ public class ListFrame extends GUISubcontext implements GUIEventGenerator, GUIEv
 	}
 
 	// EFFECTS:  Realign the elements below the element given.
+	//			 If the element given is not in this, realign all elements.
 	private void realignFromElement(GUIElement e) {
 		// Get a copy of the elements list sorted by Y.
 		ArrayList<GUIElement> elements = new ArrayList<GUIElement>(subcontext.getElements());
@@ -136,8 +137,10 @@ public class ListFrame extends GUISubcontext implements GUIEventGenerator, GUIEv
 
 		// Get the index of the element, returning if we can't find it.
 		int i = elements.indexOf(e);
-		if (i == -1)
+		if (i == -1) {
+			realignAllElements();
 			return;
+		}
 
 		// Reposition the elements below the index.
 		int xAnchor = getAlignedXAnchor();
@@ -255,6 +258,48 @@ public class ListFrame extends GUISubcontext implements GUIEventGenerator, GUIEv
 	public void clearElements() {
 		subcontext.clear();
 		recalculateHeight();
+	}
+	
+	// EFFECTS:  Change an element's position in the list to the one at the
+	//			 given y coordinate.
+	public void moveElement(GUIElement e, int y) {
+		// If we don't contain e, return.
+		if (!contains(e))
+			return;
+		
+		// Look through the elements for the one at the given y.
+		ArrayList<GUIElement> sortedElements = new ArrayList<>(subcontext.getElements());
+		Collections.sort(sortedElements, new ElementYComparator());
+		
+		GUIElement other = null;
+		int otherIndex = -1;
+		for (int i = 0; i < sortedElements.size(); i++) {
+			GUIElement o = sortedElements.get(i);
+			if (o.getY() > y) {
+				other = o;
+				otherIndex = i;
+				break;
+			}
+		}
+		
+		// If no element was found, place the element below all the other elements.
+		if (other == null) {
+			// We know there is at least one element in the list so this is ok (because e is in the list).
+			other = sortedElements.get(sortedElements.size() - 1);
+			e.setY(other.getY() + other.getHeight() + ySpacing);
+		}
+		// If the other element was found, place e at its bottom and shift down the elements after it.
+		else {
+			e.setY(other.getY() + other.getHeight() + ySpacing);
+			int dY = e.getHeight();
+			for (int i = otherIndex + 1; i < sortedElements.size(); i++) {
+				GUIElement o = sortedElements.get(i);
+				o.setY(o.getY() + dY);
+			}
+		}
+		
+		// Realign everything.
+		realignAllElements();
 	}
 	
 	@Override

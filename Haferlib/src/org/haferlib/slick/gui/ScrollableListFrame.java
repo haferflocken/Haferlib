@@ -50,6 +50,12 @@ public class ScrollableListFrame extends ScrollableFrame implements GUIEventList
 		recalculateScrollingFields();
 	}
 	
+	// Move an element to a different spot in the list.
+	public void moveElement(GUIElement e, int y) {
+		listFrame.moveElement(e, y);
+		recalculateScrollingFields();
+	}
+	
 	@Override
 	public void addElement(GUIElement e) {
 		listFrame.addElement(e);
@@ -72,6 +78,11 @@ public class ScrollableListFrame extends ScrollableFrame implements GUIEventList
 	public void clearElements() {
 		listFrame.clearElements();
 		recalculateScrollingFields();
+	}
+	
+	@Override
+	public boolean contains(GUIElement e) {
+		return listFrame.contains(e);
 	}
 	
 	@Override
