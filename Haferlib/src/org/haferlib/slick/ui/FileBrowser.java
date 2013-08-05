@@ -61,7 +61,7 @@ public class FileBrowser implements UIElement, UIEventListener, UIEventGenerator
 		int folderPaneY = y1 + f.getLineHeight();
 		int folderPaneHeight = height - f.getLineHeight();
 
-		ArrayDeque<NAryTree.Node> deque = new ArrayDeque<>();
+		/*ArrayDeque<NAryTree.Node> deque = new ArrayDeque<>();
 		ArrayList<Button<ScrollableFrame>> buttons = new ArrayList<>();
 		NAryTree.Node current;
 		deque.addAll(fileTree.getRoot().getChildren());
@@ -91,10 +91,10 @@ public class FileBrowser implements UIElement, UIEventListener, UIEventGenerator
 
 		UIElement[] folderPaneElements = new UIElement[buttons.size()];
 		for (int i = 0; i < buttons.size(); i++)
-			folderPaneElements[i] = buttons.get(i);
+			folderPaneElements[i] = buttons.get(i);*/
 
-		folderPane = new ScrollableFrame(folderPaneElements, x1, folderPaneY, folderPaneWidth, folderPaneHeight, 0, 8, 0, 0, 0, 0, textColor, backgroundColor);
-		filePane = buttons.get(0).getData();
+		folderPane = new ScrollableFrame(new UIElement[0], x1, folderPaneY, folderPaneWidth, folderPaneHeight, 0, 8, 0, 0, 0, 0, textColor, backgroundColor);
+		filePane = new ScrollableFrame(new UIElement[0], x1 + folderPaneWidth, folderPaneY, filePaneWidth, folderPaneHeight, 0, 8, 0, 0, 0 ,0, textColor, backgroundColor);
 	}
 
 	//@see UIElement.update(int)

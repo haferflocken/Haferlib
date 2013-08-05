@@ -1,82 +1,81 @@
-//An n-ary tree where all nodes have their children sorted by key. All keys are strings.
-
 package org.haferlib.util;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.TreeMap;
 import java.util.regex.Pattern;
+
+/**
+ * An NAry tree implementation that has string keys that look like file system paths.
+ * Nodes have their children sorted by key.
+ * 
+ * @author John Werner
+ * 
+ */
 
 public class NAryTree<V> implements Iterable<V> {
 
-	//The iterator class.
-	private static class NAryTreeIterator<E> implements Iterator<E> {
+	/**
+	 * Iterates over the tree.
+	 * 
+	 * @author John Werner
+	 *
+	 */
+	// The iterator class.
+	private class NAryTreeIterator implements Iterator<V> {
 
-		private ArrayDeque<Node<E>> deque;
+		private ArrayDeque<Node> deque;
 
-		private NAryTreeIterator(NAryTree<E> tree) {
+		private NAryTreeIterator() {
 			deque = new ArrayDeque<>();
-			deque.push(tree.getRoot());
-			/*for (int i = 0; i < tree.getRootChildren().size(); i++) {
-				deque.push((Node)tree.getRootChildren().get(i));
-			}*/
-			//System.out.println("Tree root : " + deque.size());
+			deque.push(NAryTree.this.rootNode);
 		}
 
 		public boolean hasNext() {
 			return (deque.size() > 0);
 		}
 
-		public E next() {
-			Node<E> current = deque.pop();
-			for (int i = 0; i < current.getNumChildren(); i++) {
-				deque.push(current.getChildren().get(i));
+		public V next() {
+			Node current = deque.pop();
+			for (Node child : current.getChildNodes()) {
+				deque.push(child);
 			}
 
-			return current.getValue();
+			return current.value;
 		}
 
-		//Do nothing with remove.
+		// Remove is not supported.
 		public void remove() {
 			throw new UnsupportedOperationException();
 		}
 	}
 
-	//The class of nodes in the tree.
-	public static class Node<E> implements Comparable<Node<E>> {
+	/**
+	 * A node in the tree.
+	 * 
+	 * @author John Werner
+	 *
+	 */
+	// The class of nodes in the tree.
+	private class Node implements Comparable<Node> {
 
-		private String key; //The identifier of this node
-		private E value; //The value of this node
-		private ArrayList<Node<E>> children; //The sorted children.
-		private int depth; //How many parents this node has. This isn't used by anything in this file, but may be useful by other classes.
+		private String key; // The identifier of this node
+		private V value; // The value of this node
+		private TreeMap<String, Node> children; // The sorted children.
 
-		private Node(String key, E value, ArrayList<Node<E>> children, int depth) {
+		private Node(String key, V value) {
 			this.key = key;
 			this.value = value;
-			this.children = children;
-			Collections.sort(children);
-			this.depth = depth;
+			children = new TreeMap<String, Node>();
 		}
 
-		private void addChild(Node<E> child) {
-			//Place the node in sorted order.
-			if (children.size() > 0) {
-				for (int i = 0; i < children.size(); i++) {
-					if (children.get(i).compareTo(child) >= 0) {
-						children.add(i, child);
-						return;
-					}
-				}
-				children.add(child);
-			}
-			else {
-				children.add(child);
-			}
+		private void addChild(Node child) {
+			children.put(child.key, child);
 		}
 
-		public boolean removeChild(Node<E> child) {
-			return children.remove(child);
+		public void removeChild(Node child) {
+			children.remove(child);
 		}
 
 		public boolean equals(Object o) {
@@ -85,85 +84,73 @@ public class NAryTree<V> implements Iterable<V> {
 			return false;
 		}
 
-		public int compareTo(Node<E> other) {
+		public int compareTo(Node other) {
 			return key.compareTo(other.key);
 		}
 
-		//Get a value from this by key. Since it is sorted, we can quicksearch.
-		public Node<E> get(String key) {
-			//System.out.println("Searching for " + key);
-
-			for (int i = 0; i < children.size(); i++) {
-				if (children.get(i).equals(key))
-					return children.get(i);
-			}
-			return null;
-
-			//Failed attempt at quicksearch
-			/*Node<V> select;
-			int l, r, m;
-			l = 0;
-			r = children.size();
-			while(r - l > 1) {
-				m = (l + r) / 2;
-				select = children.get(m);
-				if (select.equals(key))
-					return select;
-				else if (key.compareTo(select.key) > 0)
-					l = m;
-				else //if key < select
-					r = m;
-			}
-			return null;*/
+		public Node getChild(String key) {
+			return children.get(key);
 		}
 
-		public String getKey() {
-			return key;
-		}
-
-		public E getValue() {
-			return value;
-		}
-
-		public ArrayList<Node<E>> getChildren() {
-			return children;
+		public Collection<Node> getChildNodes() {
+			return children.values();
 		}
 
 		public int getNumChildren() {
 			return children.size();
 		}
 
-		public int getDepth() {
-			return depth;
-		}
 	}
 
-	private Pattern keySplitter;	//This is used to split keys around backslashes.
-	private String rootPath;		//This is removed from the start of keys before put and get operations.
-	private Node<V> rootNode;		//The top node of this tree.
-
-	// Constructor.
-	public NAryTree(String rootPath) {
+	// Instance fields.
+	private Pattern keySplitter;	// This is used to split keys around backslashes.
+	private String rootPath;		// This is removed from the start of keys before put and get operations.
+	private Node rootNode;			// The top node of this tree.
+	private int numNodes;			// Keeps track of the number of nodes in this tree.
+	
+	/**
+	 * Make an NAryTree. setRootPath must be called before performing any operations on a tree
+	 * constructed with this constructor.
+	 */
+	public NAryTree() {
 		keySplitter = Pattern.compile("\\\\");
-		this.rootPath = rootPath;
-		clear();
 	}
 
-	// Get the value for a key.
+	/**
+	 * Make an NAryTree with the given root path.
+	 * 
+	 * @param rootPath The root path of keys in the tree, which is sent to setRootPath.
+	 */
+	public NAryTree(String rootPath) {
+		this();
+		setRootPath(rootPath);
+	}
+
+	/**
+	 * Get the value at a given key.
+	 * 
+	 * @param key The key to get the value of.
+	 * @return The value of the node at the key, or null if no node exists there.
+	 */
 	public V get(String key) {
-		//Get the node for that key.
-		Node<V> node = getNode(key);
+		// Get the node for that key.
+		Node node = getNode(key);
 		
-		//If we found a node, return its value.
+		// If we found a node, return its value.
 		if (node != null)
 			return node.value;
-		//Otherwise, return null.
+		// Otherwise, return null.
 		return null;
 	}
 	
-	// Get the node for a key.
-	public Node<V> getNode(String key) {
-		//First, the key is compared to the root path and dealt with appropriately.
+	/**
+	 * Get the node at a key.
+	 * 
+	 * @param key The key to look for the node at.
+	 * @return The node at the key, or null if no node is at that key.
+	 */
+	private Node getNode(String key) {
+		// First, the key is compared to the root path and dealt with appropriately.
 		if (rootPath.equals(key))
 			return rootNode;
 		if (rootPath.startsWith(key))
@@ -171,91 +158,164 @@ public class NAryTree<V> implements Iterable<V> {
 		if (key.startsWith(rootPath))
 			key = key.substring(rootPath.length());
 
-		//Then, the key is broken into its levels, which are separated by backslashes. Much like a filesystem.
+		// Then, the key is broken into its levels, which are separated by backslashes. Much like a filesystem.
 		String[] levels = keySplitter.split(key);
 
-		//Then the nodes are looped through to find the appropriate one.
-		Node<V> current = rootNode;
+		// Then the nodes are looped through to find the appropriate one.
+		Node current = rootNode;
 		for (int i = 0; i < levels.length; i++) {
-			//See if this level has the right key.
-			current = current.get(levels[i]);
-			//If there isn't a node for the level, return null.
+			// See if this level has the right key.
+			current = current.getChild(levels[i]);
+			// If there isn't a node for the level, return null.
 			if (current == null)
 				return null;
 		}
 		
-		//Return the node we found.
+		// Return the node we found.
 		return current;
 	}
 
-	// Put a value at a key.
+	/**
+	 * Get the keys of the children of a key.
+	 * 
+	 * @param key The key of the node to get the child keys of.
+	 * @return The keys of the children of the node at key.
+	 */
+	public String[] getChildKeys(String key) {
+		Node node = getNode(key);
+		if (node == null)
+			return null;
+		
+		Collection<Node> childNodes = node.getChildNodes();
+		String[] childKeys = new String[childNodes.size()];
+		int i = 0;
+		for (Node n : childNodes) {
+			childKeys[i++] = n.key;
+		}
+		
+		return childKeys;
+	}
+	
+	/**
+	 * Put a value at a given key, making nodes as needed.
+	 * 
+	 * @param key Where to place the value.
+	 * @param value The value to place at the key.
+	 */
 	public void put(String key, V value) {
-		//First, the key is compared to the root path and dealt with appropriately
+		// First, the key is compared to the root path and dealt with appropriately.
+		// If the key is the root, set its value.
 		if (key.equals(rootPath)) {
 			rootNode.value = value;
 			return;
 		}
-		if (rootPath.startsWith(key))
+		// If the location should technically be outside of this tree, don't do anything.
+		if (rootPath.startsWith(key) || !key.startsWith(rootPath))
 			return;
-		if (key.startsWith(rootPath))
-			key = key.substring(rootPath.length());
+		
+		// Make the key relative to the root path.
+		key = key.substring(rootPath.length());
 
-		//Then, the key is broken into levels. Then, any missing levels are created. After that, the value is placed in the appropriate level.
+		// Then, the key is broken into levels. Then, any missing levels are created. After that, the value is placed in the appropriate level.
 		String[] levels = keySplitter.split(key);
 
-		//The nodes are traversed and made as needed
-		Node<V> current = rootNode;
-		Node<V> next = null;
+		// The nodes are traversed and made as needed.
+		Node current = rootNode;
+		Node next = null;
 		for (int i = 0; i < levels.length; i++) {
-			//See if this node has the right next node
-			next = current.get(levels[i]);
-			//If there isn't a next node, make it
+			// See if this node has the right next node.
+			next = current.getChild(levels[i]);
+			// If there isn't a next node, make it.
 			if (next == null) {
-				//System.out.println("Making node " + levels[i]);
-				next = new Node<V>(levels[i], null, new ArrayList<Node<V>>(), i);
+				next = new Node(levels[i], null);
 				current.addChild(next);
+				numNodes++;
 			}
-			//Go to the next node
+			// Go to the next node.
 			current = next;
 		}
 
-		//Once we are here, the nodes have been created and current should hold the node to place the value in
+		// Once we are here, the nodes have been created and current should hold the node to place the value in
 		current.value = value;
 	}
 	
-	// Get the root node.
-	public Node<V> getRoot() {
-		return rootNode;
+	/**
+	 * Remove the value at the given key. Also removes the node if it has no child nodes.
+	 * 
+	 * @param key The key of the value to remove.
+	 * @return The value that was at the key, or null if there was no value there.
+	 */
+	public V remove(String key) {
+		Node node = getNode(key);
+		if (node == null)
+			return null;
+		
+		// Get the old value and clear it from the node.
+		V out = node.value;
+		node.value = null;
+		
+		// If the node has no children, find its parent and remove it.
+		if (node.getNumChildren() == 0) {
+			// Get the key of the parent of this.
+			String parentKey;
+			if (key.endsWith("\\"))
+				parentKey = key.substring(0, key.length() - 1);
+			else
+				parentKey = key;
+			parentKey = parentKey.substring(0, parentKey.lastIndexOf('\\'));
+			
+			// Remove the node from the parent node.
+			Node parentNode = getNode(parentKey);
+			if (parentNode != null) {
+				parentNode.removeChild(node);
+			}
+		}
+		
+		// Return the old value at the key.
+		return out;
 	}
 	
-	// Get the root path.
+	/**
+	 * Get the root path of this tree.
+	 * 
+	 * @return The root path relative to which all nodes are made.
+	 */
 	public String getRootPath() {
 		return rootPath;
 	}
 
-	// Get the child nodes of a key.
-	public ArrayList<Node<V>> getChildren(String key) {
-		//Find the node.
-		Node<V> node = getNode(key);
-		
-		//If we found the node, return its children. Otherwise, return null.
-		if (node != null)
-			return node.children;
-		return null;
-	}
-
-	// Clear the contents of the tree.
+	/**
+	 * Clear the contents of this tree.
+	 */
 	public void clear() {
-		rootNode = new Node<V>(null, null, new ArrayList<Node<V>>(), 0);
+		rootNode = new Node(null, null);
 	}
 
-	// Set the root path of the tree.
-	protected void setRootPath(String path) {
+	/**
+	 * Set the root path of this tree, relative to which all nodes are placed.
+	 * Clears the tree.
+	 * 
+	 * @param path The new root path.
+	 */
+	public void setRootPath(String path) {
 		rootPath = path;
+		clear();
 	}
 
-	// Get an iterator for this tree.
+	/**
+	 * Get the number of nodes in this tree.
+	 * 
+	 * @return The number of nodes in the tree.
+	 */
+	public int getNumNodes() {
+		return numNodes;
+	}
+		
+	/**
+	 * Return an iterator over this tree.
+	 */
+	@Override
 	public Iterator<V> iterator() {
-		return new NAryTreeIterator<V>(this);
+		return new NAryTreeIterator();
 	}
 }
