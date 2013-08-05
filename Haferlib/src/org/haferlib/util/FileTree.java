@@ -7,8 +7,9 @@ import java.io.FileFilter;
 
 /**
  * An NAryTree that is used to load a directory of files. The files can be filtered by extension.
- * This tree is IMMUTABLE. Attempts to call put/remove will result in an UnsupportedOperationException
- * being thrown. This is to ensure this tree accurately reflects the file system at the time it was built.
+ * This tree is immutable except by setRootPath. Attempts to call put/remove will result in an
+ * UnsupportedOperationException being thrown. This is to ensure this tree accurately reflects the
+ * file system at the time it was built.
  * 
  * Nodes of this tree represent directories.
  * 
