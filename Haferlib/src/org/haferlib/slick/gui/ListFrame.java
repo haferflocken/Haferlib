@@ -206,20 +206,23 @@ public class ListFrame extends GUISubcontext implements GUIEventGenerator, GUIEv
 	public void addElement(GUIElement e, int y) {
 		alignElementX(e, getAlignedXAnchor());
 		GUIElement above = getElementAbove(y);
-		if (above == null) {
-			e.setY(Integer.MIN_VALUE);
-		}
-		else if (above.getY() + above.getHeight() >= y) {
-			e.setY(above.getY());
-			above.setY(y);
-		}
-		else {
-			e.setY(above.getY() + above.getHeight() + ySpacing);
-		}
 		subcontext.addElement(e);
 		subcontext.addAndRemoveElements();
 		lastSize++;
-		realignFromElement(e);
+		if (above == null) {
+			e.setY(Integer.MIN_VALUE);
+			realignAllElements();
+		}
+		else {
+			if (above.getY() + above.getHeight() >= y) {
+				e.setY(above.getY());
+				above.setY(y);
+			}
+			else 
+				e.setY(above.getY() + above.getHeight() + ySpacing);
+			
+			realignFromElement(e);
+		}
 	}
 	
 	// EFFECTS:  Remove an element from the subcontext,
