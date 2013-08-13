@@ -29,7 +29,6 @@ public class CollapsibleFrame extends GUISubcontext implements GUIEventGenerator
 		toggleButtonX2, toggleButtonY2, toggleButtonCX;
 	protected int toggleButtonPos, toggleButtonSize;		// The toggle button offset and side length.
 	protected boolean expanded;								// Is this expanded?
-	protected Image titleImage;								// The predrawn title.
 	
 	// Constructor.
 	public CollapsibleFrame(String title, Color textColor, Font font, int x, int y, int width, int height, int depth, boolean expanded) {
@@ -95,16 +94,35 @@ public class CollapsibleFrame extends GUISubcontext implements GUIEventGenerator
 			l.guiEvent(new GUIEvent<Object>(this, GUIEvent.RESIZE_EVENT));
 	}
 	
+	private void recalcTitleCoords() {
+		// Figure out the height.
+		int titleX = font.getLineHeight();
+		titleWidth = width - titleX;
+		collapsedHeight = gUtil.getWrappedStringHeight(font, title, titleWidth);
+		
+		// Figure out the size of the toggle button.
+		toggleButtonSize = font.getLineHeight() * 2 / 3;
+		toggleButtonCenter = font.getLineHeight() / 2;
+		toggleButtonPos = font.getLineHeight() / 6;
+	}
+	
+	private void drawTitle(Graphics g) {
+		// Figure out the size of the toggle button and draw it.
+		g.setColor(textColor);
+		g.setFont(font);
+		g.drawRect(toggleButtonPos, toggleButtonPos, toggleButtonSize, toggleButtonSize); // Button outline.
+		g.fillRect(toggleButtonPos, toggleButtonCenter - 1, toggleButtonSize, 2); // Horizontal bar.
+			
+		// Draw the title.
+		gUtil.drawStringWrapped(g, title, titleX, 0, titleWidth);
+	}
+	
 	// Predraw the title.
 	public void redrawTitle() {
 		// Make a GraphicsUtil to help out.
 		GraphicsUtils gUtil = new GraphicsUtils();
 
-		// Figure out the height.
-		int titleX = font.getLineHeight();
-		int titleWidth = width - titleX;
-		int titleHeight = gUtil.getWrappedStringHeight(font, title, titleWidth);
-		collapsedHeight = titleHeight;
+		
 
 		try {
 			// Create a new image to draw to.
@@ -118,9 +136,7 @@ public class CollapsibleFrame extends GUISubcontext implements GUIEventGenerator
 			g.clearAlphaMap();
 	
 			// Figure out the size of the toggle button and draw it.
-			toggleButtonSize = font.getLineHeight() * 2 / 3;
-			int toggleButtonCenter = font.getLineHeight() / 2;
-			toggleButtonPos = font.getLineHeight() / 6;
+			
 			g.setColor(textColor);
 			g.setFont(font);
 			g.drawRect(toggleButtonPos, toggleButtonPos, toggleButtonSize, toggleButtonSize); // Button outline.
@@ -151,7 +167,7 @@ public class CollapsibleFrame extends GUISubcontext implements GUIEventGenerator
 	@Override
 	public void render(Graphics g) {
 		// Draw the title.
-		g.drawImage(titleImage, x1, y1);
+		gUtil.drawStringWrapped(g, title, titleX, 0, titleWidth);
 		
 		// Draw the subcontext if this is expanded.
 		if (expanded) {

@@ -4,15 +4,58 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Font;
 
 import java.awt.Point;
+import java.util.ArrayList;
 
 public class GraphicsUtils {
 	
-	//Constructor.
+	// Constructor.
 	public GraphicsUtils() {
 	}
 	
-	//REQUIRES:	font != null, string != null
-	//EFFECTS:	If g != null, draws the string with word wrapping from the point (x, y) without crossing maxWidth.
+	// Word wrap a string into several strings, each representing a line.
+	public String[] wordWrap(Font font, String string, int maxWidth) {
+		// First, check if we need to wrap the string.
+		// If we do, break it down into substrings where each is a line.
+		if (font.getWidth(string) > maxWidth || string.indexOf('\n') != -1) {
+			ArrayList<String> wrappedStrings = new ArrayList<>();
+			String substring;
+			int startIndex = 0;		// The start index of this line.
+			int lastStartWord = 0;	// The index of the last word start
+									// encountered.
+			int currentWidth;
+			char curChar = string.charAt(0);
+			char prevChar;
+			// Check the length of substrings until we reach the max width.
+			for (int i = 1; i < string.length(); i++) {
+				substring = string.substring(startIndex, i);
+				currentWidth = font.getWidth(substring);
+				prevChar = curChar;
+				curChar = string.charAt(i);
+				// Keep track of where words start.
+				if (curChar == '\n' || !Character.isWhitespace(curChar)
+						&& Character.isWhitespace(prevChar))
+					lastStartWord = i;
+				// If we passed over the edge, cut the string off and move on to
+				// the next line.
+				if (currentWidth > maxWidth || curChar == '\n') {
+					substring = string.substring(startIndex, lastStartWord);
+					wrappedStrings.add(substring);
+					startIndex = lastStartWord;
+				}
+			}
+			// Get the last line if we need to.
+			if (startIndex < string.length()) {
+				substring = string.substring(startIndex);
+				wrappedStrings.add(substring);
+			}
+			return wrappedStrings.toArray(new String[wrappedStrings.size()]);
+		}
+		// If we don't need to wrap the string, return it in an array.
+		return new String[] { string };
+	}
+	
+	// REQUIRES:	font != null, string != null
+	// EFFECTS:	If g != null, draws the string with word wrapping from the point (x, y) without crossing maxWidth.
 	//			Returns the point at which it stops drawing.
 	private Point stringWrap(Graphics g, Font font, String string, int x, int y, int maxWidth) {
 		Point endPoint = new Point(x, y); //The end drawing point.
@@ -63,19 +106,6 @@ public class GraphicsUtils {
 		endPoint.x = x + font.getWidth(string);
 		endPoint.y = y;
 		return endPoint;
-	}
-	
-	//REQUIRES: g != null, string != null
-	//EFFECTS:	Draw a string with word wrap then return the drawing point.
-	public Point drawStringWrapped(Graphics g, String string, int x, int y, int maxWidth) {
-		return stringWrap(g, g.getFont(), string, x, y, maxWidth);
-	}
-	
-	//REQUIRES: font != null, string != null
-	//EFFECTS:	Get the height of a word wrapped string without drawing it.
-	public int getWrappedStringHeight(Font font, String string, int maxWidth) {
-		int yEnd = stringWrap(null, font, string, 0, 0, maxWidth).y;
-		return yEnd += font.getLineHeight();
 	}
 
 }
