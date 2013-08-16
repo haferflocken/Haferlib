@@ -10,9 +10,7 @@ import org.haferlib.slick.GraphicsUtils;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Font;
 import org.newdawn.slick.Graphics;
-import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
-import org.newdawn.slick.SlickException;
 
 public class CollapsibleFrame extends GUISubcontext implements GUIEventGenerator {
 	
@@ -22,11 +20,13 @@ public class CollapsibleFrame extends GUISubcontext implements GUIEventGenerator
 	protected int depth;
 	protected boolean dead;
 	protected HashSet<GUIEventListener> listeners;			// The listeners listening to this. They are notified of collapsing/expanding.
-	protected String title;									// The title of this element.
+	protected String[] title;									// The title of this element.
 	protected Color textColor;								// The color of the title.
 	protected Font font;									// The font of the title.
+	protected int titleX, titleWidth;						// The title position.
 	protected int toggleButtonX1, toggleButtonY1,			// The toggle button position.
-		toggleButtonX2, toggleButtonY2, toggleButtonCX;
+		toggleButtonX2, toggleButtonY2,
+		toggleButtonCX, toggleButtonCY;
 	protected int toggleButtonPos, toggleButtonSize;		// The toggle button offset and side length.
 	protected boolean expanded;								// Is this expanded?
 	
@@ -35,16 +35,20 @@ public class CollapsibleFrame extends GUISubcontext implements GUIEventGenerator
 		super();
 		listeners = new HashSet<>();
 		dead = false;
-		this.title = title;
 		this.textColor = textColor;
-		this.font = font;
+		this.width = width;
+		setTitle(title, font);
 		setWidth(width);
 		setHeight(height);
 		setDepth(depth);
-		redrawTitle();
 		setX(x);
 		setY(y);
 		setExpanded(expanded);
+	}
+	
+	// Get the text color.
+	public Color getTextColor() {
+		return textColor;
 	}
 	
 	// EFFECTS:  Add an element to this.
@@ -94,67 +98,57 @@ public class CollapsibleFrame extends GUISubcontext implements GUIEventGenerator
 			l.guiEvent(new GUIEvent<Object>(this, GUIEvent.RESIZE_EVENT));
 	}
 	
-	private void recalcTitleCoords() {
-		// Figure out the height.
-		int titleX = font.getLineHeight();
-		titleWidth = width - titleX;
-		collapsedHeight = gUtil.getWrappedStringHeight(font, title, titleWidth);
+	// Set the title and word wrap it.
+	public void setTitle(String t, Font f) {
+		// Set the font.
+		font = f;
 		
-		// Figure out the size of the toggle button.
+		rethinkTitleWidth();
+		
+		// Word wrap the title.
+		title = new GraphicsUtils().wordWrap(font, t, titleWidth);
+		
+		rethinkCollapsedHeight();
+		rethinkTitleX();
+		
+		rethinkToggleButtonDimensions();
+		rethinkToggleButtonX();
+		rethinkToggleButtonY();
+	}
+	
+	// Rethink the title dimensions.
+	protected void rethinkTitleWidth() {
+		titleWidth = width - font.getLineHeight();
+	}
+	
+	// Rethink the collapsed height.
+	protected void rethinkCollapsedHeight() {
+		collapsedHeight = font.getLineHeight() * title.length;
+		subcontextY1 = y1 + collapsedHeight;
+	}
+	
+	// Rethink the title position.
+	protected void rethinkTitleX() {
+		titleX = x1 + font.getLineHeight();
+	}
+	
+	// Rethink the size and offsets of the toggle button.
+	protected void rethinkToggleButtonDimensions() {
 		toggleButtonSize = font.getLineHeight() * 2 / 3;
-		toggleButtonCenter = font.getLineHeight() / 2;
 		toggleButtonPos = font.getLineHeight() / 6;
 	}
 	
-	private void drawTitle(Graphics g) {
-		// Figure out the size of the toggle button and draw it.
-		g.setColor(textColor);
-		g.setFont(font);
-		g.drawRect(toggleButtonPos, toggleButtonPos, toggleButtonSize, toggleButtonSize); // Button outline.
-		g.fillRect(toggleButtonPos, toggleButtonCenter - 1, toggleButtonSize, 2); // Horizontal bar.
-			
-		// Draw the title.
-		gUtil.drawStringWrapped(g, title, titleX, 0, titleWidth);
+	// Sets the toggle button's position appropriately.
+	protected void rethinkToggleButtonX() {
+		toggleButtonX1 = x1 + toggleButtonPos;
+		toggleButtonX2 = toggleButtonX1 + toggleButtonSize;
+		toggleButtonCX = toggleButtonX1 + toggleButtonSize / 2;
 	}
 	
-	// Predraw the title.
-	public void redrawTitle() {
-		// Make a GraphicsUtil to help out.
-		GraphicsUtils gUtil = new GraphicsUtils();
-
-		
-
-		try {
-			// Create a new image to draw to.
-			titleImage = Image.createOffscreenImage(width, collapsedHeight);
-	
-			// Get the graphics to draw with.
-			Graphics g = titleImage.getGraphics();
-			g.clear();
-	
-			// Give the image a transparent background.
-			g.clearAlphaMap();
-	
-			// Figure out the size of the toggle button and draw it.
-			
-			g.setColor(textColor);
-			g.setFont(font);
-			g.drawRect(toggleButtonPos, toggleButtonPos, toggleButtonSize, toggleButtonSize); // Button outline.
-			g.fillRect(toggleButtonPos, toggleButtonCenter - 1, toggleButtonSize, 2); // Horizontal bar.
-	
-			// Draw the title.
-			gUtil.drawStringWrapped(g, title, titleX, 0, titleWidth);
-	
-			// Flush the graphics to the image.
-			g.flush();
-			g.destroy();
-		}
-		catch (SlickException e) {
-			// Failing to create the title image is pretty awful, so mark this for death.
-			dead = true;
-			System.out.println("CollapsibleFrame failed to draw title image; marking for death.");
-			e.printStackTrace();
-		}
+	protected void rethinkToggleButtonY() {
+		toggleButtonY1 = y1 + toggleButtonPos;
+		toggleButtonY2 = toggleButtonY1 + toggleButtonSize;
+		toggleButtonCY = toggleButtonY1 + toggleButtonSize / 2;
 	}
 	
 	@Override
@@ -167,7 +161,15 @@ public class CollapsibleFrame extends GUISubcontext implements GUIEventGenerator
 	@Override
 	public void render(Graphics g) {
 		// Draw the title.
-		gUtil.drawStringWrapped(g, title, titleX, 0, titleWidth);
+		g.setColor(textColor);
+		g.setFont(font);
+		for (int i = 0; i < title.length; i++) {
+			g.drawString(title[i], titleX, y1 + i * font.getLineHeight());
+		}
+		
+		// Draw the toggle button.
+		g.drawRect(toggleButtonX1, toggleButtonY1, toggleButtonSize, toggleButtonSize); // Button outline.
+		g.fillRect(toggleButtonX1, toggleButtonCY, toggleButtonSize, 2); // Horizontal bar.
 		
 		// Draw the subcontext if this is expanded.
 		if (expanded) {
@@ -184,9 +186,12 @@ public class CollapsibleFrame extends GUISubcontext implements GUIEventGenerator
 	public void setX(int x) {
 		super.setX(x);
 		x2 = x1 + width;
-		toggleButtonX1 = x1 + toggleButtonPos;
-		toggleButtonX2 = toggleButtonX1 + toggleButtonSize;
-		toggleButtonCX = toggleButtonX1 + toggleButtonSize / 2;
+		
+		// Set the title position.
+		rethinkTitleX();
+		
+		// Set the toggle button position.
+		rethinkToggleButtonX();
 	}
 	
 	@Override
@@ -196,8 +201,11 @@ public class CollapsibleFrame extends GUISubcontext implements GUIEventGenerator
 			y2 = y1 + expandedHeight;
 		else
 			y2 = y1 + collapsedHeight;
-		toggleButtonY1 = y1 + toggleButtonPos;
-		toggleButtonY2 = toggleButtonY1 + toggleButtonSize;
+		
+		// Set the toggle button position.
+		rethinkToggleButtonY();
+		
+		// Adjust the subcontext clip.
 		subcontextY1 = y1 + collapsedHeight;
 	}
 
@@ -205,6 +213,7 @@ public class CollapsibleFrame extends GUISubcontext implements GUIEventGenerator
 	public void setWidth(int w) {
 		width = w;
 		x2 = x1 + width;
+		rethinkTitleWidth();
 	}
 
 	@Override
@@ -255,21 +264,6 @@ public class CollapsibleFrame extends GUISubcontext implements GUIEventGenerator
 	@Override
 	public boolean dead() {
 		return dead;
-	}
-	
-	@Override
-	public void destroy() {
-		super.destroy();
-		if (titleImage != null) {
-			try {
-				titleImage.getGraphics().destroy();
-				titleImage.destroy();
-			}
-			catch (SlickException e) {
-				e.printStackTrace();
-			}
-			titleImage = null;
-		}
 	}
 
 	@Override

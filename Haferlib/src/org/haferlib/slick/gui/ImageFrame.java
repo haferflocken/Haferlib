@@ -1,28 +1,25 @@
-//A frame that displays an image, stretched to fit the frame.
+// A frame that displays an image, stretched to fit the frame.
 
 package org.haferlib.slick.gui;
 
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 
-public class ImageFrame implements GUIElement {
+public class ImageFrame extends AbstractRectangularElement {
 	
-	private int x1, y1, x2, y2;	//The position of the frame.
-	private int width, height;	//The dimensions of the frame.
-	private int depth;			//The depth.
-	private Image image;		//The image in the frame.
+	private Image image;		// The image in the frame.
 	
-	//Constructor.
-	public ImageFrame(Image image, int x, int y, int width, int height, int depth) {
-		this.image = image;
-		setX(x);
-		setY(y);
-		setWidth(width);
-		setHeight(height);
-		setDepth(depth);
+	// Constructors.
+	public ImageFrame(Image image, int x, int y, int depth) {
+		this(image, x, y, image.getWidth(), image.getHeight(), depth);
 	}
 	
-	//Get the image.
+	public ImageFrame(Image image, int x, int y, int width, int height, int depth) {
+		super(x, y, width, height, depth);
+		this.image = image;
+	}
+	
+	// Get the image.
 	public Image getImage() {
 		return image;
 	}
@@ -33,61 +30,6 @@ public class ImageFrame implements GUIElement {
 	@Override
 	public void render(Graphics g) {
 		g.drawImage(image, x1, y1, x2, y2, 0, 0, width, height);
-		//g.setColor(org.newdawn.slick.Color.red);
-		//g.drawRect(x1, y1, width, height);
-	}
-
-	@Override
-	public void setX(int x) {
-		x1 = x;
-		x2 = x1 + width;
-	}
-
-	@Override
-	public int getX() {
-		return x1;
-	}
-
-	@Override
-	public void setY(int y) {
-		y1 = y;
-		y2 = y1 + height;
-	}
-
-	@Override
-	public int getY() {
-		return y1;
-	}
-
-	@Override
-	public void setWidth(int w) {
-		if (w > image.getWidth())
-			w = image.getWidth();
-		width = w;
-		x2 = x1 + width;
-	}
-
-	@Override
-	public int getWidth() {
-		return width;
-	}
-
-	@Override
-	public void setHeight(int h) {
-		if (h > image.getHeight())
-			h = image.getHeight();
-		height = h;
-		y2 = y1 + height;
-	}
-
-	@Override
-	public int getHeight() {
-		return height;
-	}
-
-	@Override
-	public boolean pointIsWithin(int x, int y) {
-		return (x >= x1 && y >= y1 && x <= x2 && y <= y2);
 	}
 
 	@Override
@@ -107,27 +49,12 @@ public class ImageFrame implements GUIElement {
 
 	@Override
 	public void hoveredElsewhere(GUIElement target) { }
-	
-	@Override
-	public void setDepth(int d) {
-		depth = d;
-	}
-
-	@Override
-	public int getDepth() {
-		return depth;
-	}
 
 	@Override
 	public void keyPressed(int key, char c) { }
 
 	@Override
 	public void keyInputDone() { }
-
-	@Override
-	public boolean dead() {
-		return false;
-	}
 
 	@Override
 	public void destroy() { }

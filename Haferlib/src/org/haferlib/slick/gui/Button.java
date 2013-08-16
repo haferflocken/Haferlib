@@ -8,17 +8,14 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.Color;
 
-public class Button<V> implements GUIElement, GUIEventGenerator {
+public class Button<V> extends AbstractRectangularElement implements GUIEventGenerator {
 
 	public static final byte LEFT = 0;
 	public static final byte CENTER = 1;
 	public static final byte RIGHT = 2;
 
 	protected V data;
-	protected int x1, y1, x2, y2;
 	protected int centerX, centerY;
-	protected int width, height;
-	protected int depth;
 	protected Color backgroundColor;
 	protected boolean highlight;
 	protected Color highlightColor;
@@ -31,12 +28,8 @@ public class Button<V> implements GUIElement, GUIEventGenerator {
 	}
 
 	public Button(V data, int x, int y, int width, int height, int depth, Color backgroundColor, Color highlightColor, int key) {
+		super(x, y, width, height, depth);
 		this.data = data;
-		setX(x);
-		setY(y);
-		setWidth(width);
-		setHeight(height);
-		setDepth(depth);
 		this.backgroundColor = backgroundColor;
 		this.highlightColor = highlightColor;
 		highlight = false;
@@ -44,15 +37,15 @@ public class Button<V> implements GUIElement, GUIEventGenerator {
 		buttonKey = key;
 	}
 	
-	// Press this button.
-	public void press() {
-		for (GUIEventListener l : listeners)
-			l.guiEvent(new GUIEvent<V>(this, data));
-	}
-	
 	// Get the data.
 	public V getData() {
 		return data;
+	}
+	
+	// Press this button.
+	protected void press() {
+		for (GUIEventListener l : listeners)
+			l.guiEvent(new GUIEvent<V>(this, data));
 	}
 
 	@Override
@@ -79,54 +72,26 @@ public class Button<V> implements GUIElement, GUIEventGenerator {
 
 	@Override
 	public void setX(int x) {
-		x1 = x;
-		x2 = x + width;
+		super.setX(x);
 		centerX = x1 + width / 2;
-	}
-
-	public int getX() {
-		return x1;
 	}
 
 	@Override
 	public void setY(int y) {
-		y1 = y;
-		y2 = y + height;
+		super.setY(y);
 		centerY = y1 + height / 2;
-	}
-
-	@Override
-	public int getY() {
-		return y1;
 	}
 
 	@Override
 	public void setWidth(int w) {
-		width = w;
-		x2 = x1 + width;
+		super.setWidth(w);
 		centerX = x1 + width / 2;
 	}
 
 	@Override
-	public int getWidth() {
-		return width;
-	}
-
-	@Override
 	public void setHeight(int h) {
-		height = h;
-		y2 = y1 + height;
+		super.setHeight(h);
 		centerY = y1 + height / 2;
-	}
-
-	@Override
-	public int getHeight() {
-		return height;
-	}
-
-	@Override
-	public boolean pointIsWithin(int x, int y) {
-		return (x >= x1 && x <= x2 && y >= y1 && y <= y2);
 	}
 
 	@Override
@@ -158,16 +123,6 @@ public class Button<V> implements GUIElement, GUIEventGenerator {
 	}
 	
 	@Override
-	public void setDepth(int d) {
-		depth = d;
-	}
-
-	@Override
-	public int getDepth() {
-		return depth;
-	}
-
-	@Override
 	public void keyPressed(int key, char c) {
 		if (key == buttonKey)
 			press();
@@ -175,11 +130,6 @@ public class Button<V> implements GUIElement, GUIEventGenerator {
 
 	@Override
 	public void keyInputDone() {
-	}
-
-	@Override
-	public boolean dead() {
-		return false;
 	}
 
 	@Override

@@ -7,7 +7,7 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Input;
 
-public class TextField implements GUIElement {
+public class TextField extends AbstractRectangularElement {
 
 	// An array of the characters that are allowed that aren't letters or digits. I took these from what would be considered valid in a URL.
 	public static final char[] VALID_SYMBOLS = {' ', '!', '#', '$', '&', '\'', '(', ')', '*', '+', ',', '-', '.', '/', ':', ';', '=', '?', '@', '[', ']', '_', '~'};
@@ -15,10 +15,7 @@ public class TextField implements GUIElement {
 	private StringBuilder text;
 	private String textAsString;
 	private String backgroundMessage;
-	private int x1, y1, x2, y2;
-	private int width, height;
 	private int centerX, centerY;
-	private int depth;
 	private Color textColor;
 	private Color backgroundMessageColor;
 	private Color borderColor;
@@ -34,11 +31,7 @@ public class TextField implements GUIElement {
 	}
 
 	public TextField(int x, int y, int w, int h, int d, String startText, String bgText, Color tColor, Color bgTextColor, Color bColor, Color bgColor) {
-		setWidth(w);
-		setHeight(h);
-		setX(x);
-		setY(y);
-		setDepth(d);
+		super(x, y, w, h, d);
 		text = new StringBuilder(startText);
 		textAsString = startText;
 		backgroundMessage = bgText;
@@ -71,19 +64,19 @@ public class TextField implements GUIElement {
 
 	@Override
 	public void render(Graphics g) {
-		//Draw the background
+		// Draw the background
 		g.setColor(backgroundColor);
 		g.fillRect(x1, y1, width, height);
 
-		//The text's y loc
+		// The text's y loc
 		int textY = centerY - g.getFont().getLineHeight()/2;
 
-		//Draw the background message if there's no text
+		// Draw the background message if there's no text
 		if ((backgroundMessage != null) && (textAsString.length() == 0)) {
 			g.setColor(backgroundMessageColor);
 			g.drawString(backgroundMessage, centerX - g.getFont().getWidth(backgroundMessage)/2, textY);
 		}
-		//Or draw the text if there is text
+		// Or draw the text if there is text
 		else {
 			g.setColor(textColor);
 			g.drawString(textAsString, centerX - g.getFont().getWidth(textAsString)/2, textY);
@@ -96,53 +89,26 @@ public class TextField implements GUIElement {
 
 	@Override
 	public void setX(int x) {
-		x1 = x;
-		x2 = x + width;
-		centerX = x1 + width/2;
-	}
-
-	@Override
-	public int getX() {
-		return x1;
+		super.setX(x);
+		centerX = x1 + width / 2;
 	}
 
 	@Override
 	public void setY(int y) {
-		y1 = y;
-		y2 = y + height;
-		centerY = y1 + height/2;
-	}
-
-	@Override
-	public int getY() {
-		return y1;
+		super.setY(y);
+		centerY = y1 + height / 2;
 	}
 
 	@Override
 	public void setWidth(int w) {
-		width = w;
-		x2 = x1 + width;
-	}
-	
-	@Override
-	public int getWidth() {
-		return width;
+		super.setWidth(w);
+		centerX = x1 + width / 2;
 	}
 
 	@Override
 	public void setHeight(int h) {
-		height = h;
-		y2 = y1 + height;
-	}
-
-	@Override
-	public int getHeight() {
-		return height;
-	}
-
-	@Override
-	public boolean pointIsWithin(int x, int y) {
-		return (x >= x1 && x <= x2 && y >= y1 && y <= y2);
+		super.setHeight(h);
+		centerY = y1 + height / 2;
 	}
 
 	@Override
@@ -168,16 +134,6 @@ public class TextField implements GUIElement {
 	@Override
 	public void hoveredElsewhere(GUIElement target) {
 	}
-	
-	@Override
-	public void setDepth(int d) {
-		depth = d;
-	}
-
-	@Override
-	public int getDepth() {
-		return depth;
-	}
 
 	@Override
 	public void keyPressed(int key, char c) {
@@ -195,11 +151,6 @@ public class TextField implements GUIElement {
 	@Override
 	public void keyInputDone() {
 		textAsString = text.toString();
-	}
-
-	@Override
-	public boolean dead() {
-		return false;
 	}
 	
 	@Override

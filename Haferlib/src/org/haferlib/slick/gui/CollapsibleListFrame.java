@@ -38,6 +38,13 @@ public class CollapsibleListFrame extends CollapsibleFrame implements GUIEventLi
 	}
 	
 	@Override
+	protected void rethinkCollapsedHeight() {
+		super.rethinkCollapsedHeight();
+		if (listFrame != null)
+			listFrame.setY(subcontextY1);
+	}
+	
+	@Override
 	public void addElement(GUIElement e) {
 		listFrame.addElement(e);
 	}
