@@ -270,35 +270,41 @@ public class ListFrame extends GUISubcontext implements GUIEventGenerator, GUIEv
 		if (!contains(e))
 			return;
 		
-		// Look through the elements for the one at the given y.
-		ArrayList<GUIElement> sortedElements = new ArrayList<>(subcontext.getElements());
-		Collections.sort(sortedElements, new ElementYComparator());
-		
+		// Loop through the elements to find one at the given y
+		// and whether or not y is in the top half of the found element.
 		GUIElement other = null;
-		int otherIndex = -1;
-		for (int i = 0; i < sortedElements.size(); i++) {
-			GUIElement o = sortedElements.get(i);
-			if (o.getY() > y) {
+		boolean topHalf = false;
+		for (GUIElement o : subcontext.getElements()) {
+			int oY1 = o.getY();
+			int oY2 = oY1 + o.getHeight();
+			if (y >= oY1 && y <= oY2) {
 				other = o;
-				otherIndex = i;
+				int oCY = (oY1 + oY2) / 2;
+				if (y < oCY)
+					topHalf = true;
 				break;
 			}
 		}
 		
-		// If no element was found, place the element below all the other elements.
-		if (other == null) {
-			// We know there is at least one element in the list so this is ok (because e is in the list).
-			other = sortedElements.get(sortedElements.size() - 1);
-			e.setY(other.getY() + other.getHeight() + ySpacing);
-		}
-		// If the other element was found, place e at its bottom and shift down the elements after it.
-		else {
-			e.setY(other.getY() + other.getHeight() + ySpacing);
-			int dY = e.getHeight();
-			for (int i = otherIndex + 1; i < sortedElements.size(); i++) {
-				GUIElement o = sortedElements.get(i);
-				o.setY(o.getY() + dY);
+		// If an element was found, shift other and all elements below it
+		// down by e.getHeight() and then set e's y to other's old y.
+		if (other != null) {
+			int newY = (topHalf ? other.getY() : other.getY() + other.getHeight());
+			for (GUIElement o : subcontext.getElements()) {
+				if (o.getY() >= newY)
+					o.setY(o.getY() + e.getHeight());
 			}
+			e.setY(newY);
+		}
+		// Otherwise, place the element below all other elements.
+		else {
+			int bottomY = Integer.MIN_VALUE;
+			for (GUIElement o : subcontext.getElements()) {
+				int oY2 = o.getY() + o.getHeight();
+				if (oY2 > bottomY)
+					bottomY = oY2;
+			}
+			e.setY(bottomY);
 		}
 		
 		// Realign everything.
