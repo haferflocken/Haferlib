@@ -14,11 +14,8 @@ import org.newdawn.slick.Input;
 
 public class CollapsibleFrame extends GUISubcontext implements GUIEventGenerator {
 	
-	protected int x2, y2;									// The location of the bottom right corner.
-	protected int width, collapsedHeight, expandedHeight;	// The dimensions.
+	protected int collapsedHeight;							// The height when collapsed.
 	protected int subcontextY1;								// The top of the subcontext render area.
-	protected int depth;
-	protected boolean dead;
 	protected HashSet<GUIEventListener> listeners;			// The listeners listening to this. They are notified of collapsing/expanding.
 	protected String[] title;									// The title of this element.
 	protected Color textColor;								// The color of the title.
@@ -32,7 +29,7 @@ public class CollapsibleFrame extends GUISubcontext implements GUIEventGenerator
 	
 	// Constructor.
 	public CollapsibleFrame(String title, Color textColor, Font font, int x, int y, int width, int height, int depth, boolean expanded) {
-		super();
+		super(x, y, width, height, depth);
 		listeners = new HashSet<>();
 		dead = false;
 		this.textColor = textColor;
@@ -40,7 +37,6 @@ public class CollapsibleFrame extends GUISubcontext implements GUIEventGenerator
 		setTitle(title, font);
 		setWidth(width);
 		setHeight(height);
-		setDepth(depth);
 		setX(x);
 		setY(y);
 		setExpanded(expanded);
@@ -84,7 +80,7 @@ public class CollapsibleFrame extends GUISubcontext implements GUIEventGenerator
 	protected void setExpanded(boolean e) {
 		expanded = e;
 		if (expanded) {
-			y2 = y1 + expandedHeight;
+			y2 = y1 + height;
 		}
 		else {
 			y2 = y1 + collapsedHeight;
@@ -185,7 +181,6 @@ public class CollapsibleFrame extends GUISubcontext implements GUIEventGenerator
 	@Override
 	public void setX(int x) {
 		super.setX(x);
-		x2 = x1 + width;
 		
 		// Set the title position.
 		rethinkTitleX();
@@ -197,9 +192,7 @@ public class CollapsibleFrame extends GUISubcontext implements GUIEventGenerator
 	@Override
 	public void setY(int y) {
 		super.setY(y);
-		if (expanded)
-			y2 = y1 + expandedHeight;
-		else
+		if (!expanded)
 			y2 = y1 + collapsedHeight;
 		
 		// Set the toggle button position.
@@ -211,28 +204,22 @@ public class CollapsibleFrame extends GUISubcontext implements GUIEventGenerator
 
 	@Override
 	public void setWidth(int w) {
-		width = w;
-		x2 = x1 + width;
+		super.setWidth(w);
 		rethinkTitleWidth();
-	}
-
-	@Override
-	public int getWidth() {
-		return width;
 	}
 
 	@Override
 	// EFFECTS:  setHeight sets the expanded height.
 	public void setHeight(int h) {
-		expandedHeight = h;
-		if (expanded)
-			y2 = y1 + expandedHeight;
+		super.setHeight(h);
+		if (!expanded)
+			y2 = y1 + collapsedHeight;
 	}
 
 	@Override
 	public int getHeight() {
 		if (expanded)
-			return expandedHeight;
+			return super.getHeight();
 		return collapsedHeight;
 	}
 	
@@ -243,27 +230,6 @@ public class CollapsibleFrame extends GUISubcontext implements GUIEventGenerator
 		// Collapse or expand if we click the button.
 		if (button == Input.MOUSE_LEFT_BUTTON && x >= toggleButtonX1 && y >= toggleButtonY1 && x <= toggleButtonX2 && y <= toggleButtonY2)
 			setExpanded(!expanded);
-	}
-
-
-	@Override
-	public boolean pointIsWithin(int x, int y) {
-		return (x >= x1 && y >= y1 && x <= x2 && y <= y2);
-	}
-	
-	@Override
-	public void setDepth(int d) {
-		depth = d;
-	}
-
-	@Override
-	public int getDepth() {
-		return depth;
-	}
-
-	@Override
-	public boolean dead() {
-		return dead;
 	}
 
 	@Override

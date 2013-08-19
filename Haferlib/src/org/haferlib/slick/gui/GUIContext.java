@@ -8,6 +8,7 @@ package org.haferlib.slick.gui;
 import java.util.ArrayList;
 import java.util.Vector;
 import java.util.Collections;
+
 import org.newdawn.slick.KeyListener;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Color;
@@ -265,7 +266,6 @@ public class GUIContext implements KeyListener {
 				clickFocus = null;
 			if (removeThese.contains(hoverFocus))
 				hoverFocus = null;
-			System.out.println("Removed " + removeThese);
 			removeThese.clear();
 		}
 
@@ -273,7 +273,6 @@ public class GUIContext implements KeyListener {
 		if (addThese.size() > 0) {
 			for (GUIElement e : addThese)
 				addAtSortedLoc(e);
-			System.out.println("Added " + addThese);
 			addThese.clear();
 		}
 	}

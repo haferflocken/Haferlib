@@ -12,9 +12,6 @@ public class ListFrame extends GUISubcontext implements GUIEventGenerator, GUIEv
 	public static final byte XALIGN_CENTER = 1;
 	public static final byte XALIGN_RIGHT = 2;
 	
-	private int x2, y2;
-	private int width, height;
-	private int depth;
 	private byte xAlign;
 	private int xAlignOffset;
 	private int ySpacing;
@@ -23,11 +20,9 @@ public class ListFrame extends GUISubcontext implements GUIEventGenerator, GUIEv
 	
 	// Constructors.
 	public ListFrame(int x, int y, int width, int depth, byte xAlign, int xAlignOffset, int ySpacing) {
-		super(x, y);
+		super(x, y, width, 0, depth);
 		listeners = new HashSet<>();
-		setWidth(width);
 		recalculateHeight();
-		setDepth(depth);
 		if (xAlign == XALIGN_LEFT || xAlign == XALIGN_CENTER || xAlign == XALIGN_RIGHT)
 			this.xAlign = xAlign;
 		else
@@ -325,60 +320,6 @@ public class ListFrame extends GUISubcontext implements GUIEventGenerator, GUIEv
 	@Override
 	public void render(Graphics g) {
 		renderSubcontext(g, x1, y1, x2, y2);
-	}
-
-	@Override
-	public void setX(int x) {
-		super.setX(x);
-		x2 = x1 + width;
-	}
-	
-	@Override
-	public void setY(int y) {
-		super.setY(y);
-		y2 = y1 + height;
-	}
-	
-	@Override
-	public void setWidth(int w) {
-		width = w;
-		x2 = x1 + width;
-	}
-
-	@Override
-	public int getWidth() {
-		return width;
-	}
-
-	@Override
-	public void setHeight(int h) {
-		height = h;
-		y2 = y1 + height;
-	}
-
-	@Override
-	public int getHeight() {
-		return height;
-	}
-
-	@Override
-	public boolean pointIsWithin(int x, int y) {
-		return (x >= x1 && y >= y1 && x <= x2 && y <= y2);
-	}
-	
-	@Override
-	public void setDepth(int d) {
-		depth = d;
-	}
-
-	@Override
-	public int getDepth() {
-		return depth;
-	}
-
-	@Override
-	public boolean dead() {
-		return false;
 	}
 	
 	@Override

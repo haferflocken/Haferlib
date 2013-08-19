@@ -25,7 +25,7 @@ public class CollapsibleListFrame extends CollapsibleFrame implements GUIEventLi
 	// EFFECTS: Recalculate the height.
 	private void recalculateHeight() {
 		int newHeight = collapsedHeight + listFrame.getHeight();
-		int oldHeight = expandedHeight;
+		int oldHeight = height;
 		setHeight(newHeight);
 		if (oldHeight != newHeight) {
 			notifyListeners();

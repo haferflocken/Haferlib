@@ -1,6 +1,3 @@
-//An interface for anything that can be drawn as a UI element.
-//Coordinates for all parameters are always screen coordinates.
-
 package org.haferlib.slick.gui;
 
 import java.util.ArrayList;
@@ -10,9 +7,15 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.geom.Rectangle;
 
-public abstract class GUISubcontext implements GUIElement {
+/**
+ * A GUISubcontext is a rectangular GUIElement that can contain other GUIElements in an internal GUIContext.
+ * 
+ * @author John Werner
+ *
+ */
 
-	protected int x1, y1;
+public abstract class GUISubcontext extends AbstractRectangularElement {
+
 	protected GUIContext subcontext;
 	protected boolean lmbPressed, mmbPressed, rmbPressed;
 	protected boolean lmbDown, mmbDown, rmbDown;
@@ -20,14 +23,9 @@ public abstract class GUISubcontext implements GUIElement {
 	private Rectangle gClip;
 
 	// Constructors.
-	protected GUISubcontext() {
-		this(0, 0);
-	}
-
-	protected GUISubcontext(int x, int y) {
+	protected GUISubcontext(int x, int y, int width, int height, int depth) {
+		super(x, y, width, height, depth);
 		subcontext = new GUIContext();
-		x1 = x;
-		y1 = y;
 		gClip = new Rectangle(0, 0, 0, 0);
 	}
 	
@@ -141,25 +139,15 @@ public abstract class GUISubcontext implements GUIElement {
 	@Override
 	public void setX(int x) {
 		int dX = x - x1;
-		x1 = x;
 		subcontext.translateX(dX);
-	}
-
-	@Override
-	public int getX() {
-		return x1;
+		super.setX(x);
 	}
 
 	@Override
 	public void setY(int y) {
 		int dY = y - y1;
-		y1 = y;
 		subcontext.translateY(dY);
-	}
-
-	@Override
-	public int getY() {
-		return y1;
+		super.setY(y);
 	}
 
 	// Track mouse clicks.
@@ -242,6 +230,7 @@ public abstract class GUISubcontext implements GUIElement {
 	@Override
 	public void destroy() {
 		subcontext.destroy();
+		subcontext = null;
 	}
 
 }

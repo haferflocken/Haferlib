@@ -11,9 +11,6 @@ import java.util.ArrayList;
 public class ScrollableFrame extends GUISubcontext {
 
 	// Non-input fields.
-	protected int x2, y2;
-	protected int width, height;
-	protected int depth;
 	protected boolean hasScrollBar;
 	protected int scrollStepSize;
 	protected int scrollBarX, scrollBarY;
@@ -27,10 +24,7 @@ public class ScrollableFrame extends GUISubcontext {
 
 	// Constructors.
 	public ScrollableFrame(int x, int y, int width, int height, int depth, int scrollBarWidth, Color scrollBarColor) {
-		super(x, y);
-		setWidth(width);
-		setHeight(height);
-		setDepth(depth);
+		super(x, y, width, height, depth);
 		this.scrollBarWidth = scrollBarWidth;
 		scrollBarCornerRadius = scrollBarWidth / 2;
 		this.scrollBarColor = scrollBarColor;

@@ -15,7 +15,8 @@ public abstract class AbstractRectangularElement implements GUIElement {
 	protected boolean dead;					// Is this dead?
 	
 	/**
-	 * Constructor.
+	 * Constructor. This does not call the set methods so that way any initialization that
+	 * subclasses need to do can be done and their setters don't need to have != null checks.
 	 * 
 	 * @param x The initial x.
 	 * @param y The initial y.
@@ -24,11 +25,13 @@ public abstract class AbstractRectangularElement implements GUIElement {
 	 * @param depth The initial depth.
 	 */
 	public AbstractRectangularElement(int x, int y, int width, int height, int depth) {
-		setX(x);
-		setY(y);
-		setWidth(width);
-		setHeight(height);
-		setDepth(depth);
+		x1 = x;
+		y1 = y;
+		x2 = x1 + width;
+		y2 = y1 + height;
+		this.width = width;
+		this.height = height;
+		this.depth = depth;
 		dead = false;
 	}
 

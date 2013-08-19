@@ -7,24 +7,15 @@ import org.newdawn.slick.Color;
 import org.newdawn.slick.Font;
 import org.newdawn.slick.Graphics;
 
-public class OutputFrame extends GUISubcontext {
+public class OutputFrame extends GUISubcontext implements Appendable {
 	
-	private int x2, y2;							// The bottom right corner position.
-	private int width, height;					// The dimensions.
-	private int depth;							// The display depth.
-	private boolean dead;						// Is this dead?
 	private TextDisplay textDisplay;			// The element that displays the output.
 	private ScrollableListFrame scrollFrame;	// The scrollable list frame that the output is displayed in.
 	private StringBuilder contents;				// A string builder to build the output.
 	
 	//Constructor.
 	public OutputFrame(int x, int y, int width, int height, int depth, Font font, Color textColor, int scrollBarWidth, Color scrollBarColor) {
-		setX(x);
-		setY(y);
-		setWidth(width);
-		setHeight(height);
-		setDepth(depth);
-		dead = false;
+		super(x, y, width, height, depth);
 
 		scrollFrame = new ScrollableListFrame(x1, y1, this.width, this.height, 0, scrollBarWidth, scrollBarColor);
 		subcontext.addElement(scrollFrame);
@@ -34,6 +25,28 @@ public class OutputFrame extends GUISubcontext {
 		scrollFrame.addElement(textDisplay);
 		
 		contents = new StringBuilder();
+	}
+	
+	// Append to this.
+	@Override
+	public Appendable append(char c) {
+		contents.append(c);
+		textDisplay.setText(contents.toString());
+		return this;
+	}
+	
+	@Override
+	public Appendable append(CharSequence csq) {
+		contents.append(csq);
+		textDisplay.setText(contents.toString());
+		return this;
+	}
+	
+	@Override
+	public Appendable append(CharSequence csq, int start, int end) {
+		contents.append(csq, start, end);
+		textDisplay.setText(contents.toString());
+		return this;
 	}
 	
 	// Print an object to this.
@@ -160,60 +173,6 @@ public class OutputFrame extends GUISubcontext {
 	public void render(Graphics g) {
 		// Render the subcontext.
 		renderSubcontext(g, x1, y1, x2, y2);
-	}
-
-	@Override
-	public void setWidth(int w) {
-		width = w;
-		x2 = x1 + width;
-	}
-	
-	@Override
-	public void setX(int x) {
-		super.setX(x);
-		x2 = x1 + width;
-	}
-	
-	@Override
-	public void setY(int y) {
-		super.setY(y);
-		y2 = y1 + height;
-	}
-
-	@Override
-	public int getWidth() {
-		return width;
-	}
-
-	@Override
-	public void setHeight(int h) {
-		height = h;
-		y2 = y1 + height;
-	}
-
-	@Override
-	public int getHeight() {
-		return height;
-	}
-
-	@Override
-	public boolean pointIsWithin(int x, int y) {
-		return (x >= x1 && y >= y1 && x <= x2 && y <= y2);
-	}
-	
-	@Override
-	public void setDepth(int d) {
-		depth = d;
-	}
-
-	@Override
-	public int getDepth() {
-		return depth;
-	}
-
-	@Override
-	public boolean dead() {
-		return dead;
 	}
 
 }

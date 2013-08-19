@@ -18,6 +18,10 @@ public class TextDisplay extends AbstractRectangularElement implements GUIEventG
 	public TextDisplay(int x, int y, int width, int height, int depth, String text, Font font, Color color) {
 		super(x, y, width, height, depth);
 		listeners = new HashSet<>();
+		setX(x);
+		setY(y);
+		setWidth(width);
+		setHeight(height);
 		setText(text, font);
 		setColor(color);
 	}
