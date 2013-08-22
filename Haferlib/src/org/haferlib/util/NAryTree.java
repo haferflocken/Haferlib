@@ -22,7 +22,6 @@ public class NAryTree<V> implements Iterable<V> {
 	 * @author John Werner
 	 *
 	 */
-	// The iterator class.
 	private class NAryTreeIterator implements Iterator<V> {
 
 		private ArrayDeque<Node> deque;
@@ -57,7 +56,6 @@ public class NAryTree<V> implements Iterable<V> {
 	 * @author John Werner
 	 *
 	 */
-	// The class of nodes in the tree.
 	private class Node implements Comparable<Node> {
 
 		private String key; // The identifier of this node

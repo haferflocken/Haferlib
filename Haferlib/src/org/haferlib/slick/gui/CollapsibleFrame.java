@@ -5,7 +5,7 @@ package org.haferlib.slick.gui;
 
 import java.util.HashSet;
 
-import org.haferlib.slick.GraphicsUtils;
+import org.haferlib.slick.WordWrapper;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Font;
@@ -102,7 +102,7 @@ public class CollapsibleFrame extends GUISubcontext implements GUIEventGenerator
 		rethinkTitleWidth();
 		
 		// Word wrap the title.
-		title = new GraphicsUtils().wordWrap(font, t, titleWidth);
+		title = new WordWrapper().wordWrap(font, t, titleWidth);
 		
 		rethinkCollapsedHeight();
 		rethinkTitleX();

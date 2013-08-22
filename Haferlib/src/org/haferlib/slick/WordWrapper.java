@@ -4,13 +4,23 @@ import org.newdawn.slick.Font;
 
 import java.util.ArrayList;
 
-public class GraphicsUtils {
+/**
+ * A class that exists to word wrap strings.
+ * 
+ * @author John Werner
+ *
+ */
+
+public class WordWrapper {
 	
-	// Constructor.
-	public GraphicsUtils() {
-	}
-	
-	// Word wrap a string into several strings, each representing a line.
+	/**
+	 * Word wrap a string.
+	 * 
+	 * @param font The font to wrap the string with.
+	 * @param string The string to be wrapped.
+	 * @param maxWidth The maximum width of each line.
+	 * @return An array of strings where each element represents a line of the wrapped string.
+	 */
 	public String[] wordWrap(Font font, String string, int maxWidth) {
 		// First, check if we need to wrap the string.
 		// If we do, break it down into substrings where each is a line.

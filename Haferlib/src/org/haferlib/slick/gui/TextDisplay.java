@@ -2,7 +2,7 @@ package org.haferlib.slick.gui;
 
 import java.util.HashSet;
 
-import org.haferlib.slick.GraphicsUtils;
+import org.haferlib.slick.WordWrapper;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Font;
 import org.newdawn.slick.Graphics;
@@ -31,7 +31,7 @@ public class TextDisplay extends AbstractRectangularElement implements GUIEventG
 		font = f;
 		
 		// Word wrap the text.
-		wrappedText = new GraphicsUtils().wordWrap(font, text, maxWidth);
+		wrappedText = new WordWrapper().wordWrap(font, text, maxWidth);
 		
 		// Recalc the width.
 		int oldWidth = width;

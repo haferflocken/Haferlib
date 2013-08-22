@@ -1,122 +1,160 @@
-//A rectangular field that you can type in.
-//Can display a "background message" when the field is empty.
+// A rectangular field that you can type in.
+// Can display a "background message" when the field is empty.
 
 package org.haferlib.slick.gui;
 
+import org.haferlib.slick.WordWrapper;
+import org.newdawn.slick.Font;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Input;
 
 public class TextField extends AbstractRectangularElement {
 
-	// An array of the characters that are allowed that aren't letters or digits. I took these from what would be considered valid in a URL.
-	public static final char[] VALID_SYMBOLS = {' ', '!', '#', '$', '&', '\'', '(', ')', '*', '+', ',', '-', '.', '/', ':', ';', '=', '?', '@', '[', ']', '_', '~'};
+	// An array of the characters that are allowed that aren't letters or digits.
+	public static final char[] VALID_SYMBOLS =
+		{ ' ', '!', '#', '$', '&', '\'', '(', ')', '*', '+', ',', '-', '.', '/', ':', ';', '=', '?', '@', '[', ']', '_', '~', '\\' };
 
+	private static final int CURSOR_FLASH_PERIOD = 750; // How many miliseconds for each cursor flash.
+	
 	private StringBuilder text;
-	private String textAsString;
-	private String backgroundMessage;
-	private int centerX, centerY;
-	private Color textColor;
-	private Color backgroundMessageColor;
-	private Color borderColor;
-	private Color backgroundColor;
+	private int cursor;
+	private int cursorX, cursorY;
+	private boolean cursorFlash;	// Whether the cursor is visible or not due to flashing.
+	private int cursorFlashCounter;	// A counter to toggle cursorFlash.
+	private boolean displayCursor;	// Whether or not we should display the cursor.
+	
+	private WordWrapper wordWrapper;
+	private String[] textDisplay;
+	private String unwrappedBackgroundMessage;
+	private String[] backgroundMessage;
+	
+	private Font font;
+	private Color textColor, backgroundColor, backgroundMessageColor;
 
 	// Constructors.
-	public TextField(int x, int y, int w, int h, int d) {
-		this(x, y, w, h, d, Color.white, Color.white, Color.black);
-	}
-
-	public TextField(int x, int y, int w, int h, int d, Color tColor, Color bColor, Color bgColor) {
-		this(x, y, w, h, d, "", null, tColor, tColor.darker(), bColor, bgColor);
-	}
-
-	public TextField(int x, int y, int w, int h, int d, String startText, String bgText, Color tColor, Color bgTextColor, Color bColor, Color bgColor) {
-		super(x, y, w, h, d);
+	public TextField(int x, int y, int width, int height, int depth, String startText, String backgroundMessage,
+			Font font, Color textColor, Color backgroundMessageColor, Color backgroundColor) {
+		super(x, y, width, height, depth);
 		text = new StringBuilder(startText);
-		textAsString = startText;
-		backgroundMessage = bgText;
-		textColor = tColor;
-		backgroundMessageColor = bgTextColor;
-		borderColor = bColor;
-		backgroundColor = bgColor;
+		cursor = text.length();
+		
+		wordWrapper = new WordWrapper();
+		unwrappedBackgroundMessage = backgroundMessage;
+		setFont(font);
+		
+		cursorFlash = false;
+		cursorFlashCounter = 0;
+		displayCursor = false;
+		
+		this.textColor = textColor;
+		this.backgroundMessageColor = backgroundMessageColor;
+		this.backgroundColor = backgroundColor;
+	}
+	
+	private void rewrapText() {
+		textDisplay = wordWrapper.wordWrap(font, text.toString(), width);
+	}
+	
+	private void rewrapBackgroundMessage() {
+		if (unwrappedBackgroundMessage != null)
+			backgroundMessage = wordWrapper.wordWrap(font, unwrappedBackgroundMessage, width);
+	}
+	
+	private void rethinkCursorPos() {
+		// The cursor needs to be visually placed among the display strings,
+		// so find which one it is in.
+		int sumLength = 0;
+		for (int i = 0; i < textDisplay.length; i++) {
+			sumLength += textDisplay[i].length();
+			// If we have found the line, set the cursor position.
+			if (cursor <= sumLength) {
+				int prevLength = sumLength - textDisplay[i].length();
+				int offset = cursor - prevLength;
+				String lineToCursor = textDisplay[i].substring(0, offset);
+				cursorX = x1 + font.getWidth(lineToCursor);
+				cursorY = y1 + font.getLineHeight() * i;
+				return;
+			}
+		}
+		
+		// If we fail to place the cursor, place it at the start.
+		cursorX = x1;
+		cursorY = y1;
 	}
 	
 	// EFFECTS:  Determines if a key/char pair is a valid character to add to our string.
 	private boolean isTextKey(int key, char c) {
-		if (Character.isLetterOrDigit(c))
-			return true;
-		for (char symbol : VALID_SYMBOLS)  {
-			if (symbol == c)
-				return true;
-		}
-		return false;
+		return (!Character.isISOControl(c));
 	}
-
+	
+	public void setFont(Font f) {
+		font = f;
+		rewrapText();
+		rewrapBackgroundMessage();
+		rethinkCursorPos();
+	}
+	
 	// EFFECTS: Clears this TextField's text.
 	public void clear() {
 		text.delete(0, text.length());
-		textAsString = "";
+		textDisplay = new String[0];
 	}
 
 	@Override
 	public void update(int delta) {
+		cursorFlashCounter += delta;
+		if (cursorFlashCounter > CURSOR_FLASH_PERIOD) {
+			cursorFlash = !cursorFlash;
+			cursorFlashCounter = 0;
+		}
 	}
 
 	@Override
 	public void render(Graphics g) {
-		// Draw the background
+		// Draw the background.
 		g.setColor(backgroundColor);
 		g.fillRect(x1, y1, width, height);
 
-		// The text's y loc
-		int textY = centerY - g.getFont().getLineHeight()/2;
-
-		// Draw the background message if there's no text
-		if ((backgroundMessage != null) && (textAsString.length() == 0)) {
+		// Set the font.
+		g.setFont(font);
+		
+		// Draw the background message if there's no text.
+		if ((backgroundMessage != null) && (text.length() == 0)) {
 			g.setColor(backgroundMessageColor);
-			g.drawString(backgroundMessage, centerX - g.getFont().getWidth(backgroundMessage)/2, textY);
+			for (int i = 0; i < backgroundMessage.length; i++)
+				g.drawString(backgroundMessage[i], x1, y1 + font.getLineHeight() * i);
 		}
-		// Or draw the text if there is text
+		// Or draw the text if there is text.
 		else {
 			g.setColor(textColor);
-			g.drawString(textAsString, centerX - g.getFont().getWidth(textAsString)/2, textY);
+			for (int i = 0; i < textDisplay.length; i++)
+				g.drawString(textDisplay[i], x1, y1 + font.getLineHeight() * i);
 		}
-
-		//Draw the outline
-		g.setColor(borderColor);
-		g.drawRect(x1, y1, width, height);
+		
+		// Draw the cursor.
+		if (displayCursor && cursorFlash) {
+			g.setColor(textColor);
+			g.fillRect(cursorX, cursorY, 2, font.getLineHeight());
+		}
 	}
-
-	@Override
-	public void setX(int x) {
-		super.setX(x);
-		centerX = x1 + width / 2;
-	}
-
-	@Override
-	public void setY(int y) {
-		super.setY(y);
-		centerY = y1 + height / 2;
-	}
-
+	
 	@Override
 	public void setWidth(int w) {
 		super.setWidth(w);
-		centerX = x1 + width / 2;
-	}
-
-	@Override
-	public void setHeight(int h) {
-		super.setHeight(h);
-		centerY = y1 + height / 2;
+		rewrapText();
+		rewrapBackgroundMessage();
+		rethinkCursorPos();
 	}
 
 	@Override
 	public void click(int x, int y, int button) {
+		displayCursor = true;
 	}
 
 	@Override
 	public void mouseDown(int x, int y, int button) {
+		displayCursor = true;
 	}
 
 	@Override
@@ -125,10 +163,12 @@ public class TextField extends AbstractRectangularElement {
 
 	@Override
 	public void clickedElsewhere(GUIElement target, int button) {
+		displayCursor = false;
 	}
 
 	@Override
 	public void mouseDownElsewhere(GUIElement target, int button) {
+		displayCursor = false;
 	}
 
 	@Override
@@ -139,18 +179,38 @@ public class TextField extends AbstractRectangularElement {
 	public void keyPressed(int key, char c) {
 		// If it's a text key, remember it.
 		if (isTextKey(key, c)) {
-			text.append(c);
+			text.insert(cursor, c);
+			cursor++;
 		}
-		// If it's a backspace, delete the last character in text.
+		// If it's a backspace, delete the character before the cursor.
 		else if (key == Input.KEY_BACK) {
-			if (text.length() > 0)
-				text.deleteCharAt(text.length() - 1);
+			if (text.length() > 0) {
+				text.deleteCharAt(cursor - 1);
+				cursor--;
+			}
+		}
+		// If it's a delete, delete the character after the cursor.
+		else if (key == Input.KEY_DELETE) {
+			if (text.length() > cursor) {
+				text.deleteCharAt(cursor);
+			}
+		}
+		// Left arrow moves the cursor left.
+		else if (key == Input.KEY_LEFT) {
+			if (cursor > 0)
+				cursor--;
+		}
+		// Right arrow moves the cursor right.
+		else if (key == Input.KEY_RIGHT) {
+			if (cursor < text.length())
+				cursor++;
 		}
 	}
 
 	@Override
 	public void keyInputDone() {
-		textAsString = text.toString();
+		rewrapText();
+		rethinkCursorPos();
 	}
 	
 	@Override
@@ -159,6 +219,6 @@ public class TextField extends AbstractRectangularElement {
 	
 	@Override
 	public String toString() {
-		return textAsString;
+		return text.toString();
 	}
 }
