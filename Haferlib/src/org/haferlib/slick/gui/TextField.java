@@ -1,6 +1,3 @@
-// A rectangular field that you can type in.
-// Can display a "background message" when the field is empty.
-
 package org.haferlib.slick.gui;
 
 import org.haferlib.slick.WordWrapper;
@@ -8,6 +5,13 @@ import org.newdawn.slick.Font;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Input;
+
+/**
+ * A field for typing in that can display a message when empty.
+ * 
+ * @author John Werner
+ *
+ */
 
 public class TextField extends AbstractRectangularElement {
 
@@ -32,11 +36,39 @@ public class TextField extends AbstractRectangularElement {
 	private Font font;
 	private Color textColor, backgroundColor, backgroundMessageColor;
 
-	// Constructors.
+	/**
+	 * A field to type in. Fields cannot be null unless otherwise specified.
+	 * 
+	 * @param x The x coordinate for this element.
+	 * @param y The y coordinate for this element.
+	 * @param width How wide this element is.
+	 * @param height How tall this element is.
+	 * @param depth The depth in the context to place this element.
+	 * @param startText What text should already be filled in. If null, starts with no text.
+	 * @param backgroundMessage The message to display if there is no text typed. If null, there is no message.
+	 * @param font The font to use.
+	 * @param textColor The color to display what is typed.
+	 * @param backgroundMessageColor The color to display backgroundMessage with. Can only be null if background message is.
+	 * @param backgroundColor The color of the background of this. If null, no background is drawn.
+	 */
 	public TextField(int x, int y, int width, int height, int depth, String startText, String backgroundMessage,
 			Font font, Color textColor, Color backgroundMessageColor, Color backgroundColor) {
 		super(x, y, width, height, depth);
-		text = new StringBuilder(startText);
+		
+		// Check the arguments.
+		if (font == null)
+			throw new IllegalArgumentException("Font cannot be null.");
+		if (textColor == null)
+			throw new IllegalArgumentException("Text color cannot be null.");
+		if (backgroundMessageColor == null && backgroundMessage != null)
+			throw new IllegalArgumentException("If a background message is specified,"
+					+ "a background message color must be as well.");
+		
+		// Set up.
+		if (startText == null)
+			text = new StringBuilder();
+		else
+			text = new StringBuilder(startText);
 		cursor = text.length();
 		
 		wordWrapper = new WordWrapper();
@@ -88,6 +120,11 @@ public class TextField extends AbstractRectangularElement {
 		return (!Character.isISOControl(c));
 	}
 	
+	/**
+	 * Set the font to use in this field.
+	 * 
+	 * @param f The font to use.
+	 */
 	public void setFont(Font f) {
 		font = f;
 		rewrapText();
@@ -95,7 +132,9 @@ public class TextField extends AbstractRectangularElement {
 		rethinkCursorPos();
 	}
 	
-	// EFFECTS: Clears this TextField's text.
+	/**
+	 * Remove all typed text.
+	 */
 	public void clear() {
 		text.delete(0, text.length());
 		textDisplay = new String[0];
@@ -113,8 +152,10 @@ public class TextField extends AbstractRectangularElement {
 	@Override
 	public void render(Graphics g) {
 		// Draw the background.
-		g.setColor(backgroundColor);
-		g.fillRect(x1, y1, width, height);
+		if (backgroundColor != null) {
+			g.setColor(backgroundColor);
+			g.fillRect(x1, y1, width, height);
+		}
 
 		// Set the font.
 		g.setFont(font);
@@ -149,12 +190,20 @@ public class TextField extends AbstractRectangularElement {
 
 	@Override
 	public void click(int x, int y, int button) {
-		displayCursor = true;
+		if (!displayCursor) {
+			cursorFlash = true;
+			cursorFlashCounter = 0;
+			displayCursor = true;
+		}
 	}
 
 	@Override
 	public void mouseDown(int x, int y, int button) {
-		displayCursor = true;
+		if (!displayCursor) {
+			cursorFlash = true;
+			cursorFlashCounter = 0;
+			displayCursor = true;
+		}
 	}
 
 	@Override
@@ -181,29 +230,41 @@ public class TextField extends AbstractRectangularElement {
 		if (isTextKey(key, c)) {
 			text.insert(cursor, c);
 			cursor++;
+			cursorFlash = true;
+			cursorFlashCounter = 0;
 		}
 		// If it's a backspace, delete the character before the cursor.
 		else if (key == Input.KEY_BACK) {
 			if (text.length() > 0) {
 				text.deleteCharAt(cursor - 1);
 				cursor--;
+				cursorFlash = true;
+				cursorFlashCounter = 0;
 			}
 		}
 		// If it's a delete, delete the character after the cursor.
 		else if (key == Input.KEY_DELETE) {
 			if (text.length() > cursor) {
 				text.deleteCharAt(cursor);
+				cursorFlash = true;
+				cursorFlashCounter = 0;
 			}
 		}
 		// Left arrow moves the cursor left.
 		else if (key == Input.KEY_LEFT) {
-			if (cursor > 0)
+			if (cursor > 0) {
 				cursor--;
+				cursorFlash = true;
+				cursorFlashCounter = 0;
+			}
 		}
 		// Right arrow moves the cursor right.
 		else if (key == Input.KEY_RIGHT) {
-			if (cursor < text.length())
+			if (cursor < text.length()) {
 				cursor++;
+				cursorFlash = true;
+				cursorFlashCounter = 0;
+			}
 		}
 	}
 
