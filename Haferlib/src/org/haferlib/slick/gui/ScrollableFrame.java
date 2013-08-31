@@ -8,7 +8,7 @@ import org.newdawn.slick.Color;
 
 import java.util.ArrayList;
 
-public class ScrollableFrame extends GUISubcontext {
+public class ScrollableFrame extends GUISubcontext implements GUIEventListener {
 
 	// Non-input fields.
 	protected boolean hasScrollBar;
@@ -122,20 +122,30 @@ public class ScrollableFrame extends GUISubcontext {
 	
 	// Add and remove elements.
 	public void addElement(GUIElement e) {
+		if (e instanceof GUIEventGenerator)
+			((GUIEventGenerator)e).addListener(this);
+		
 		subcontext.addElement(e);
 		subcontext.addAndRemoveElements();
 		recalculateScrollingFields();
 	}
 
 	public void addElements(GUIElement[] es) {
-		for (int i = 0; i < es.length; i++)
+		for (int i = 0; i < es.length; i++) {
+			if (es[i] instanceof GUIEventGenerator)
+				((GUIEventGenerator)es[i]).addListener(this);
+			
 			subcontext.addElement(es[i]);
+		}
 		subcontext.addAndRemoveElements();
 		recalculateScrollingFields();
 	}
 
 	public void removeElement(GUIElement e) {
 		if (subcontext.contains(e)) {
+			if (e instanceof GUIEventGenerator)
+				((GUIEventGenerator)e).removeListener(this);
+			
 			subcontext.removeElement(e);
 			subcontext.addAndRemoveElements();
 			recalculateScrollingFields();
@@ -143,11 +153,19 @@ public class ScrollableFrame extends GUISubcontext {
 	}
 	
 	public void clearElements() {
+		for (GUIElement e : subcontext.getElements()) {
+			if (e instanceof GUIEventGenerator)
+				((GUIEventGenerator)e).removeListener(this);
+		}
 		subcontext.clear();
 		recalculateScrollingFields();
 	}
 	
 	public void reinitSubcontext() {
+		for (GUIElement e : subcontext.getElements()) {
+			if (e instanceof GUIEventGenerator)
+				((GUIEventGenerator)e).removeListener(this);
+		}
 		subcontext.destroy();
 		subcontext = new GUIContext();
 	}
@@ -239,6 +257,18 @@ public class ScrollableFrame extends GUISubcontext {
 	@Override
 	public boolean dead() {
 		return false;
+	}
+
+	@Override
+	public void guiEvent(GUIEvent<?> event) {
+		// If an element resizes, recalculate the scrolling fields.
+		if (GUIEvent.RESIZE_EVENT.equals(event)) {
+			if (event.getGenerator() instanceof GUIElement) {
+				if (subcontext.contains((GUIElement)event.getGenerator())) {
+					recalculateScrollingFields();
+				}
+			}
+		}
 	}
 
 }

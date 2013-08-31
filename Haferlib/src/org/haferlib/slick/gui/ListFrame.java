@@ -179,7 +179,7 @@ public class ListFrame extends GUISubcontext implements GUIEventGenerator, GUIEv
 		// Figure out the x position we're aligning to.
 		int xAnchor = getAlignedXAnchor();
 		
-		// Align the elements and listen to them.
+		// Align the elements, listen to them, and add them.
 		for (int i = 0; i < es.length; i++) {
 			alignElementX(es[i], xAnchor);
 			es[i].setY(yPos);
@@ -187,11 +187,10 @@ public class ListFrame extends GUISubcontext implements GUIEventGenerator, GUIEv
 			
 			if (es[i] instanceof GUIEventGenerator)
 				((GUIEventGenerator)es[i]).addListener(this);
+			
+			subcontext.addElement(es[i]);
 		}
 		
-		// Add the elements.
-		for (GUIElement e : es)
-			subcontext.addElement(e);
 		subcontext.addAndRemoveElements();
 		lastSize += es.length;
 		recalculateHeight();
@@ -199,11 +198,20 @@ public class ListFrame extends GUISubcontext implements GUIEventGenerator, GUIEv
 	
 	// EFFECTS:  Add an element at a specific y, shifting elements down to make room.
 	public void addElement(GUIElement e, int y) {
+		// Align e.getX().
 		alignElementX(e, getAlignedXAnchor());
-		GUIElement above = getElementAbove(y);
+		
+		// Listen to e.
+		if (e instanceof GUIEventGenerator)
+			((GUIEventGenerator)e).addListener(this);
+		
+		// Add e to the subcontext.
 		subcontext.addElement(e);
 		subcontext.addAndRemoveElements();
 		lastSize++;
+		
+		// Align e.getY().
+		GUIElement above = getElementAbove(y);
 		if (above == null) {
 			e.setY(Integer.MIN_VALUE);
 			realignAllElements();
@@ -224,6 +232,10 @@ public class ListFrame extends GUISubcontext implements GUIEventGenerator, GUIEv
 	//			 realigning the other elements appropriately.
 	public void removeElement(GUIElement e) {
 		if (subcontext.contains(e)) {
+			// Stop listening to e.
+			if (e instanceof GUIEventGenerator)
+				((GUIEventGenerator)e).removeListener(this);
+			
 			// Remove the element.
 			subcontext.removeElement(e);
 			subcontext.addAndRemoveElements();
@@ -243,6 +255,11 @@ public class ListFrame extends GUISubcontext implements GUIEventGenerator, GUIEv
 	public void removeElements(GUIElement[] es) {
 		// Remove the elements.
 		for (GUIElement e : es) {
+			// Stop listening to e.
+			if (e instanceof GUIEventGenerator)
+				((GUIEventGenerator)e).removeListener(this);
+			
+			// Remove the element.
 			subcontext.removeElement(e);
 			subcontext.addAndRemoveElements();
 			lastSize--;
@@ -254,6 +271,13 @@ public class ListFrame extends GUISubcontext implements GUIEventGenerator, GUIEv
 	
 	// EFFECTS:  Clear all elements from this.
 	public void clearElements() {
+		// Stop listening to all the elements.
+		for (GUIElement e : subcontext.getElements()) {
+			if (e instanceof GUIEventGenerator)
+				((GUIEventGenerator)e).removeListener(this);
+		}
+		
+		// Clear the subcontext and recalc the height.
 		subcontext.clear();
 		recalculateHeight();
 	}

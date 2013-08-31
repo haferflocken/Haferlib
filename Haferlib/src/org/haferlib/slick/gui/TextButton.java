@@ -35,7 +35,7 @@ public class TextButton<V> extends Button<V> {
 					/ 2);
 		else if (textAlignment == CENTER)
 			g.drawString(text, centerX - g.getFont().getWidth(text) / 2
-					+ textXOffset, centerY - font.getLineHeight() / 2);
+					+ textXOffset, centerY - font.getHeight(text) / 2);
 		else
 			g.drawString(text, x2 - g.getFont().getWidth(text) + textXOffset,
 					centerY - font.getLineHeight() / 2);

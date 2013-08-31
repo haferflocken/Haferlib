@@ -53,16 +53,7 @@ public class TextField extends AbstractRectangularElement {
 	 */
 	public TextField(int x, int y, int width, int height, int depth, String startText, String backgroundMessage,
 			Font font, Color textColor, Color backgroundMessageColor, Color backgroundColor) {
-		super(x, y, width, height, depth);
-		
-		// Check the arguments.
-		if (font == null)
-			throw new IllegalArgumentException("Font cannot be null.");
-		if (textColor == null)
-			throw new IllegalArgumentException("Text color cannot be null.");
-		if (backgroundMessageColor == null && backgroundMessage != null)
-			throw new IllegalArgumentException("If a background message is specified,"
-					+ "a background message color must be as well.");
+		super(x, y, width, height, depth);		
 		
 		// Set up.
 		if (startText == null)
@@ -79,9 +70,9 @@ public class TextField extends AbstractRectangularElement {
 		cursorFlashCounter = 0;
 		displayCursor = false;
 		
-		this.textColor = textColor;
-		this.backgroundMessageColor = backgroundMessageColor;
-		this.backgroundColor = backgroundColor;
+		setTextColor(textColor);
+		setBackgroundMessageColor(backgroundMessageColor);
+		setBackgroundColor(backgroundColor);
 	}
 	
 	private void rewrapText() {
@@ -121,15 +112,48 @@ public class TextField extends AbstractRectangularElement {
 	}
 	
 	/**
-	 * Set the font to use in this field.
+	 * Set the font to use.
 	 * 
 	 * @param f The font to use.
 	 */
 	public void setFont(Font f) {
+		if (f == null)
+			throw new IllegalArgumentException("The font cannot be null.");
 		font = f;
 		rewrapText();
 		rewrapBackgroundMessage();
 		rethinkCursorPos();
+	}
+	
+	/**
+	 * Set the text color.
+	 * 
+	 * @param tC The new text color.
+	 */
+	public void setTextColor(Color tC) {
+		if (tC == null)
+			throw new IllegalArgumentException("The text color cannot be null.");
+		textColor = tC;
+	}
+	
+	/**
+	 * Set the background color.
+	 * 
+	 * @param bC The new background color.
+	 */
+	public void setBackgroundColor(Color bC) {
+		backgroundColor = bC;
+	}
+	
+	/**
+	 * Set the background message color.
+	 * 
+	 * @param bMC The new background message color.
+	 */
+	public void setBackgroundMessageColor(Color bMC) {
+		if (backgroundMessage != null && bMC == null)
+			throw new IllegalArgumentException("If there is a background message, its color cannot be null.");
+		backgroundMessageColor = bMC;
 	}
 	
 	/**
@@ -178,6 +202,20 @@ public class TextField extends AbstractRectangularElement {
 			g.setColor(textColor);
 			g.fillRect(cursorX, cursorY, 2, font.getLineHeight());
 		}
+	}
+	
+	@Override
+	public void setX(int x) {
+		int dX = x - x1;
+		super.setX(x);
+		cursorX += dX;
+	}
+	
+	@Override
+	public void setY(int y) {
+		int dY = y - y1;
+		super.setY(y);
+		cursorY += dY;
 	}
 	
 	@Override

@@ -22,7 +22,17 @@ public abstract class GUISubcontext extends AbstractRectangularElement {
 	protected int mouseX, mouseY;
 	private Rectangle gClip;
 
-	// Constructors.
+	/**
+	 * Make a GUISubcontext. A note: if you add anything to the subcontext, be sure to call its
+	 * addAndRemoveElements() method at the end of the constructor so that anything done to this
+	 * before a call to update() affects the elements in the subcontext as well.
+	 * 
+	 * @param x
+	 * @param y
+	 * @param width
+	 * @param height
+	 * @param depth
+	 */
 	protected GUISubcontext(int x, int y, int width, int height, int depth) {
 		super(x, y, width, height, depth);
 		subcontext = new GUIContext();

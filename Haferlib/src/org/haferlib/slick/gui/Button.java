@@ -23,10 +23,6 @@ public class Button<V> extends AbstractRectangularElement implements GUIEventGen
 	protected HashSet<GUIEventListener> listeners;
 
 	// Constructors.
-	public Button(int x, int y, int width, int height, int depth, Color backgroundColor, Color highlightColor, int key) {
-		this(null, x, y, width, height, depth, backgroundColor, highlightColor, key);
-	}
-
 	public Button(V data, int x, int y, int width, int height, int depth, Color backgroundColor, Color highlightColor, int key) {
 		super(x, y, width, height, depth);
 		this.data = data;
