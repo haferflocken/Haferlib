@@ -60,5 +60,39 @@ public class WordWrapper {
 		// If we don't need to wrap the string, return it in an array.
 		return new String[] { string };
 	}
+	
+	public String getSubstringOfWidth(Font font, String string, int maxWidth, int startIndex) {
+		// Chop off the start of the string.
+		if (startIndex > 0)
+			string = string.substring(startIndex);
+		
+		// First, make sure we need to wrap the string at all.
+		if (font.getWidth(string) > maxWidth || (string.length() > 0 && string.indexOf('\n') != -1)) {
+			String substring;
+			int lastStartWord = 0;	// The index of the last word start
+									// encountered.
+			int currentWidth;
+			char curChar = string.charAt(0);
+			char prevChar;
+			// Check the length of substrings until we reach the max width.
+			for (int i = 1; i < string.length(); i++) {
+				substring = string.substring(startIndex, i);
+				currentWidth = font.getWidth(substring);
+				prevChar = curChar;
+				curChar = string.charAt(i);
+				// Keep track of where words start.
+				if (curChar == '\n' || !Character.isWhitespace(curChar) && Character.isWhitespace(prevChar))
+					lastStartWord = i;
+				// If we passed over the edge, cut the string off and return it.
+				if (currentWidth > maxWidth || curChar == '\n') {
+					substring = string.substring(startIndex, lastStartWord);
+					return substring;
+				}
+			}
+		}
+		
+		// If we don't need to wrap the string, just return it.
+		return string;
+	}
 
 }

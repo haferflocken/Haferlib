@@ -21,20 +21,20 @@ public class TextField extends AbstractRectangularElement {
 
 	private static final int CURSOR_FLASH_PERIOD = 750; // How many miliseconds for each cursor flash.
 	
-	private StringBuilder text;
-	private int cursor;
-	private int cursorX, cursorY;
-	private boolean cursorFlash;	// Whether the cursor is visible or not due to flashing.
-	private int cursorFlashCounter;	// A counter to toggle cursorFlash.
-	private boolean displayCursor;	// Whether or not we should display the cursor.
+	protected StringBuilder text;
+	protected int cursor;
+	protected int cursorX, cursorY;
+	protected boolean cursorFlash;	// Whether the cursor is visible or not due to flashing.
+	protected int cursorFlashCounter;	// A counter to toggle cursorFlash.
+	protected boolean displayCursor;	// Whether or not we should display the cursor.
 	
-	private WordWrapper wordWrapper;
-	private String[] textDisplay;
-	private String unwrappedBackgroundMessage;
-	private String[] backgroundMessage;
+	protected WordWrapper wordWrapper;
+	protected String[] textDisplay;
+	protected String unwrappedBackgroundMessage;
+	protected String[] backgroundMessage;
 	
-	private Font font;
-	private Color textColor, backgroundColor, backgroundMessageColor;
+	protected Font font;
+	protected Color textColor, backgroundColor, backgroundMessageColor;
 
 	/**
 	 * A field to type in. Fields cannot be null unless otherwise specified.
@@ -75,16 +75,16 @@ public class TextField extends AbstractRectangularElement {
 		setBackgroundColor(backgroundColor);
 	}
 	
-	private void rewrapText() {
+	protected void rewrapText() {
 		textDisplay = wordWrapper.wordWrap(font, text.toString(), width);
 	}
 	
-	private void rewrapBackgroundMessage() {
+	protected void rewrapBackgroundMessage() {
 		if (unwrappedBackgroundMessage != null)
 			backgroundMessage = wordWrapper.wordWrap(font, unwrappedBackgroundMessage, width);
 	}
 	
-	private void rethinkCursorPos() {
+	protected void rethinkCursorPos() {
 		// The cursor needs to be visually placed among the display strings,
 		// so find which one it is in.
 		int sumLength = 0;
@@ -107,7 +107,7 @@ public class TextField extends AbstractRectangularElement {
 	}
 	
 	// EFFECTS:  Determines if a key/char pair is a valid character to add to our string.
-	private boolean isTextKey(int key, char c) {
+	protected boolean isTextKey(int key, char c) {
 		return (!Character.isISOControl(c));
 	}
 	
