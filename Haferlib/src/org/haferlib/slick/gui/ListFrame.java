@@ -1,5 +1,9 @@
  package org.haferlib.slick.gui;
 
+import org.haferlib.slick.gui.event.GUIEvent;
+import org.haferlib.slick.gui.event.GUIEventGenerator;
+import org.haferlib.slick.gui.event.GUIEventListener;
+import org.haferlib.slick.gui.event.ResizeEvent;
 import org.newdawn.slick.Graphics;
 
 import java.util.ArrayList;
@@ -97,8 +101,9 @@ public class ListFrame extends GUISubcontext implements GUIEventGenerator, GUIEv
 		y2 = getBottomY();
 		height = y2 - y1;
 		if (height != oldHeight) {
+			ResizeEvent event = new ResizeEvent(this);
 			for (GUIEventListener l : listeners) {
-				l.guiEvent(new GUIEvent<Object>(this, GUIEvent.RESIZE_EVENT));
+				l.guiEvent(event);
 			}
 		}
 	}
@@ -348,12 +353,8 @@ public class ListFrame extends GUISubcontext implements GUIEventGenerator, GUIEv
 	
 	@Override
 	public void guiEvent(GUIEvent<?> event) {
-		// Upon receiving a GUIEvent, see if its data indicates it resized.
-		Object eventData = event.getData();
-		if (eventData == null)
-			return;
-		if (eventData.equals(GUIEvent.RESIZE_EVENT)) {
-			// If it was a resize, realign from the generator.
+		// If it was a resize, realign from the generator.
+		if (event instanceof ResizeEvent) {
 			GUIEventGenerator generator = event.getGenerator();
 			if (generator instanceof GUIElement)
 				realignFromElement((GUIElement)generator);

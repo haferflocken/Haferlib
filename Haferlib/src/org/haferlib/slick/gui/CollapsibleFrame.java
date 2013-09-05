@@ -6,7 +6,9 @@ package org.haferlib.slick.gui;
 import java.util.HashSet;
 
 import org.haferlib.slick.WordWrapper;
-
+import org.haferlib.slick.gui.event.GUIEventGenerator;
+import org.haferlib.slick.gui.event.GUIEventListener;
+import org.haferlib.slick.gui.event.ResizeEvent;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Font;
 import org.newdawn.slick.Graphics;
@@ -90,8 +92,9 @@ public class CollapsibleFrame extends GUISubcontext implements GUIEventGenerator
 	
 	// Notify the listeners of expanding/collapsing.
 	protected void notifyListeners() {
+		ResizeEvent event = new ResizeEvent(this);
 		for (GUIEventListener l : listeners)
-			l.guiEvent(new GUIEvent<Object>(this, GUIEvent.RESIZE_EVENT));
+			l.guiEvent(event);
 	}
 	
 	// Set the title and word wrap it.

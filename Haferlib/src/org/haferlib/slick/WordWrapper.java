@@ -61,6 +61,15 @@ public class WordWrapper {
 		return new String[] { string };
 	}
 	
+	/**
+	 * Get the first substring starting from a given index that is a certain width.
+	 * 
+	 * @param font The font to use.
+	 * @param string The string to get the substring from.
+	 * @param maxWidth The desired width of the string.
+	 * @param startIndex The index to start at.
+	 * @return The first and longest substring beginning at startIndex that has a width less than maxWidth.
+	 */
 	public String getSubstringOfWidth(Font font, String string, int maxWidth, int startIndex) {
 		// Chop off the start of the string.
 		if (startIndex > 0)

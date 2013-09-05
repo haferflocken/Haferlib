@@ -2,6 +2,10 @@
 
 import java.util.ArrayList;
 
+import org.haferlib.slick.gui.event.GUIEvent;
+import org.haferlib.slick.gui.event.GUIEventGenerator;
+import org.haferlib.slick.gui.event.GUIEventListener;
+import org.haferlib.slick.gui.event.ResizeEvent;
 import org.newdawn.slick.Color;
 
 public class ScrollableListFrame extends ScrollableFrame implements GUIEventListener {
@@ -128,12 +132,8 @@ public class ScrollableListFrame extends ScrollableFrame implements GUIEventList
 	
 	@Override
 	public void guiEvent(GUIEvent<?> event) {
-		// Upon receiving a GUIEvent, see if its data indicates it resized.
-		Object eventData = event.getData();
-		if (eventData == null)
-			return;
-		if (eventData.equals(GUIEvent.RESIZE_EVENT)) {
-			// If it was a resize, realign from the generator.
+		// If it was a resize, realign from the generator.
+		if (event instanceof ResizeEvent) {
 			GUIEventGenerator generator = event.getGenerator();
 			if (generator instanceof GUIElement)
 				recalculateScrollingFields();

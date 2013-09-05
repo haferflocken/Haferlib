@@ -3,6 +3,10 @@ package org.haferlib.slick.gui;
 import java.util.HashSet;
 
 import org.haferlib.slick.WordWrapper;
+import org.haferlib.slick.gui.event.GUIEvent;
+import org.haferlib.slick.gui.event.GUIEventGenerator;
+import org.haferlib.slick.gui.event.GUIEventListener;
+import org.haferlib.slick.gui.event.ResizeEvent;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Font;
 import org.newdawn.slick.Graphics;
@@ -64,7 +68,7 @@ public class TextDisplay extends AbstractRectangularElement implements GUIEventG
 	}
 	
 	private void notifyListeners() {
-		GUIEvent<String> event = new GUIEvent<>(this, GUIEvent.RESIZE_EVENT);
+		GUIEvent<?> event = new ResizeEvent(this);
 		for (GUIEventListener l : listeners) 
 			l.guiEvent(event);
 	}

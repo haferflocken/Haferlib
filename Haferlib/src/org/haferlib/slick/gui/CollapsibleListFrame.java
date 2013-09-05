@@ -1,5 +1,9 @@
 package org.haferlib.slick.gui;
 
+import org.haferlib.slick.gui.event.GUIEvent;
+import org.haferlib.slick.gui.event.GUIEventGenerator;
+import org.haferlib.slick.gui.event.GUIEventListener;
+import org.haferlib.slick.gui.event.ResizeEvent;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Font;
 
@@ -71,12 +75,8 @@ public class CollapsibleListFrame extends CollapsibleFrame implements GUIEventLi
 
 	@Override
 	public void guiEvent(GUIEvent<?> event) {
-		// If the list frame resized, resize this.
-		Object eventData = event.getData();
-		if (eventData == null)
-			return;
-		if (eventData.equals(GUIEvent.RESIZE_EVENT)) {
-			// If it was a resize, realign from the generator.
+		// If it was a resize, realign from the generator.
+		if (event instanceof ResizeEvent) {
 			GUIEventGenerator generator = event.getGenerator();
 			if (generator instanceof GUIElement)
 				recalculateHeight();

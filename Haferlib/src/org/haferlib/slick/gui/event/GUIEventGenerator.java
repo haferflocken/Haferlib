@@ -1,6 +1,6 @@
 //Makes a UI event
 
-package org.haferlib.slick.gui;
+package org.haferlib.slick.gui.event;
 
 public interface GUIEventGenerator {
 

@@ -3,6 +3,10 @@
 
 package org.haferlib.slick.gui;
 
+import org.haferlib.slick.gui.event.GUIEvent;
+import org.haferlib.slick.gui.event.GUIEventGenerator;
+import org.haferlib.slick.gui.event.GUIEventListener;
+import org.haferlib.slick.gui.event.ResizeEvent;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Color;
 
@@ -262,7 +266,7 @@ public class ScrollableFrame extends GUISubcontext implements GUIEventListener {
 	@Override
 	public void guiEvent(GUIEvent<?> event) {
 		// If an element resizes, recalculate the scrolling fields.
-		if (GUIEvent.RESIZE_EVENT.equals(event)) {
+		if (event instanceof ResizeEvent) {
 			if (event.getGenerator() instanceof GUIElement) {
 				if (subcontext.contains((GUIElement)event.getGenerator())) {
 					recalculateScrollingFields();

@@ -4,6 +4,9 @@ package org.haferlib.slick.gui;
 
 import java.util.HashSet;
 
+import org.haferlib.slick.gui.event.GUIEvent;
+import org.haferlib.slick.gui.event.GUIEventGenerator;
+import org.haferlib.slick.gui.event.GUIEventListener;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.Color;
@@ -31,6 +34,8 @@ public class Button<V> extends AbstractRectangularElement implements GUIEventGen
 		highlight = false;
 		listeners = new HashSet<>();
 		buttonKey = key;
+		setX(x);
+		setY(y);
 	}
 	
 	// Get the data.
