@@ -33,6 +33,21 @@ public class ScrollableListFrame extends ScrollableFrame implements GUIEventList
 		this(elements, x, y, width, height, depth, scrollBarWidth, scrollBarColor, ListFrame.XALIGN_LEFT, 0, 0);
 	}
 	
+	// Get listFrame's x align.
+	public byte getXAlign() {
+		return listFrame.getXAlign();
+	}
+	
+	// Return listFrame's xAlignOffset.
+	public int getXAlignOffset() {
+		return listFrame.getXAlignOffset();
+	}
+		
+	// Return listFrame's ySpacing.
+	public int getYSpacing() {
+		return listFrame.getYSpacing();
+	}
+	
 	// Make the list frame.
 	private void makeListFrame(byte xAlign, int xAlignOffset, int ySpacing) {
 		listFrame = new ListFrame(x1, y1, width - scrollBarWidth, 0, xAlign, xAlignOffset, ySpacing);

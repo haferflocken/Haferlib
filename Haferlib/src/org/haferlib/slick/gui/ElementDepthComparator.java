@@ -1,5 +1,3 @@
-//Compares elements by depth.
-
 package org.haferlib.slick.gui;
 
 import java.util.Comparator;

@@ -95,6 +95,30 @@ public abstract class GUISubcontext extends AbstractRectangularElement {
 		// Return null if we can't find anything below the y.
 		return null;
 	}
+	
+	// EFFECTS:  Get the element immediately to the left of the element
+	//			 given, or null if one could not be found.
+	public GUIElement getElementToLeft(GUIElement e) {
+		return getElementToLeft(e.getX());
+	}
+	
+	// EFFECTS:  Get the element immediately to the left of the given
+	//			 x coordinate, or null if one could not be found.
+	public GUIElement getElementToLeft(int x) {
+		GUIElement out = null;
+		int dX = Integer.MAX_VALUE;
+
+		// Loop through the elements to find the one closest to the x.
+		for (GUIElement e : subcontext.getElements()) {
+			int newDX = x - e.getX();
+			if (newDX < dX && newDX > 0) {
+				dX = newDX;
+				out = e;
+			}
+		}
+
+		return out;
+	}
 
 	// EFFECTS:  Get the element that contains a point,
 	//			 or null if one could not be found.

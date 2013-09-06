@@ -15,9 +15,17 @@ import org.newdawn.slick.Color;
 import org.newdawn.slick.Input;
 
 public class GUIContext implements KeyListener {
+	
+	private static final byte DEBUG_NONE = 0;
+	private static final byte DEBUG_FOCUS = 1;
+	private static final byte DEBUG_CLIP = 2;
+	private static final byte DEBUG_BOTH = 3;
+	public static final byte NUM_DEBUG_MODES = 4;
+	private static final Color CLIP_COLOR = new Color(255, 255, 122, 10); // The color to fill over the clip area in debug mode.
 
-	public static boolean debugMode = false; // Do we draw debug info?
-
+	// The debug drawing mode.
+	public static byte debugMode = DEBUG_NONE;
+	
 	// Holds a pair of a key code and a char. Used by the key buffer.
 	private static class KeyCharPair {
 
@@ -323,7 +331,7 @@ public class GUIContext implements KeyListener {
 		g.clearClip();
 
 		// Debug rendering.
-		if (debugMode) {
+		if (debugMode == DEBUG_FOCUS || debugMode == DEBUG_BOTH) {
 			// Draw the click focus box.
 			g.setLineWidth(2);
 			if (clickFocus != null) {
@@ -336,6 +344,11 @@ public class GUIContext implements KeyListener {
 				g.drawRect(hoverFocusBoxX, hoverFocusBoxY, hoverFocusBoxWidth, hoverFocusBoxHeight);
 			}
 			g.setLineWidth(1);
+		}
+		if (debugMode == DEBUG_CLIP || debugMode == DEBUG_BOTH) {
+			// Fill the clip area.
+			g.setColor(CLIP_COLOR);
+			g.fillRect(leftX, topY, clipWidth, clipHeight);
 		}
 	}
 

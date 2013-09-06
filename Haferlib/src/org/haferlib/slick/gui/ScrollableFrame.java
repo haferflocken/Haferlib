@@ -42,35 +42,10 @@ public class ScrollableFrame extends GUISubcontext implements GUIEventListener {
 		this(x, y, width, height, depth, scrollBarWidth, scrollBarColor);
 		addElements(elements);
 	}
-
 	
-	@Override
-	public void update(int delta) {
-		// Scroll when dragging.
-		super.update(delta);
-		if (mouseDragging) {
-			int lastScrollBarY = scrollBarY;
-			scrollBarY = mouseY + mouseDragDistFromScrollY;
-			if (scrollBarY < y1)
-				scrollBarY = y1;
-			else if (scrollBarY + scrollBarHeight > y2)
-				scrollBarY = y2 - scrollBarHeight;
-			int dScroll = lastScrollBarY - scrollBarY;
-			if (dScroll != 0)
-				scroll(dScroll);
-		}
-	}
-
-	@Override
-	public void render(Graphics g) {
-		// Draw the subcontext.
-		renderSubcontext(g, x1, y1, x2, y2);
-
-		// Draw the scroll bar if there is one.
-		if (hasScrollBar) {
-			g.setColor(scrollBarColor);
-			g.fillRoundRect(scrollBarX, scrollBarY, scrollBarWidth, scrollBarHeight, scrollBarCornerRadius);
-		}
+	// Get the width of the scroll bar.
+	public int getScrollBarWidth() {
+		return scrollBarWidth;
 	}
 
 	// Recalculate the scrolling fields.
@@ -117,11 +92,6 @@ public class ScrollableFrame extends GUISubcontext implements GUIEventListener {
 	// Scroll some amount of pixels on the scroll bar.
 	public void scroll(int amount) {
 		subcontext.translateY(amount * scrollStepSize);
-	}
-
-	// Get the width of the scroll bar.
-	public int getScrollBarWidth() {
-		return scrollBarWidth;
 	}
 	
 	// Add and remove elements.
@@ -172,6 +142,35 @@ public class ScrollableFrame extends GUISubcontext implements GUIEventListener {
 		}
 		subcontext.destroy();
 		subcontext = new GUIContext();
+	}
+	
+	@Override
+	public void update(int delta) {
+		// Scroll when dragging.
+		super.update(delta);
+		if (mouseDragging) {
+			int lastScrollBarY = scrollBarY;
+			scrollBarY = mouseY + mouseDragDistFromScrollY;
+			if (scrollBarY < y1)
+				scrollBarY = y1;
+			else if (scrollBarY + scrollBarHeight > y2)
+				scrollBarY = y2 - scrollBarHeight;
+			int dScroll = lastScrollBarY - scrollBarY;
+			if (dScroll != 0)
+				scroll(dScroll);
+		}
+	}
+
+	@Override
+	public void render(Graphics g) {
+		// Draw the subcontext.
+		renderSubcontext(g, x1, y1, x2, y2);
+
+		// Draw the scroll bar if there is one.
+		if (hasScrollBar) {
+			g.setColor(scrollBarColor);
+			g.fillRoundRect(scrollBarX, scrollBarY, scrollBarWidth, scrollBarHeight, scrollBarCornerRadius);
+		}
 	}
 	
 	@Override
