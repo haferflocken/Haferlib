@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
  * 
  */
 
-public class NAryTree<V> implements Iterable<V> {
+public class PathMap<V> implements Iterable<V> {
 
 	/**
 	 * Iterates over the tree.
@@ -22,13 +22,13 @@ public class NAryTree<V> implements Iterable<V> {
 	 * @author John Werner
 	 *
 	 */
-	private class NAryTreeIterator implements Iterator<V> {
+	private class PathMapIterator implements Iterator<V> {
 
 		private ArrayDeque<Node> deque;
 
-		private NAryTreeIterator() {
+		private PathMapIterator() {
 			deque = new ArrayDeque<>();
-			deque.push(NAryTree.this.rootNode);
+			deque.push(PathMap.this.rootNode);
 		}
 
 		public boolean hasNext() {
@@ -110,7 +110,7 @@ public class NAryTree<V> implements Iterable<V> {
 	 * Make an NAryTree. setRootPath must be called before performing any operations on a tree
 	 * constructed with this constructor.
 	 */
-	public NAryTree() {
+	public PathMap() {
 		keySplitter = Pattern.compile("\\\\");
 	}
 
@@ -119,7 +119,7 @@ public class NAryTree<V> implements Iterable<V> {
 	 * 
 	 * @param rootPath The root path of keys in the tree, which is sent to setRootPath.
 	 */
-	public NAryTree(String rootPath) {
+	public PathMap(String rootPath) {
 		this();
 		setRootPath(rootPath);
 	}
@@ -314,6 +314,6 @@ public class NAryTree<V> implements Iterable<V> {
 	 */
 	@Override
 	public Iterator<V> iterator() {
-		return new NAryTreeIterator();
+		return new PathMapIterator();
 	}
 }

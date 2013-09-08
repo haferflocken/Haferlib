@@ -172,36 +172,48 @@ public class TextField extends AbstractRectangularElement {
 			cursorFlashCounter = 0;
 		}
 	}
+	
+	protected void drawBackground(Graphics g) {
+		g.setColor(backgroundColor);
+		g.fillRect(x1, y1, width, height);
+	}
+	
+	protected void drawBackgroundMessage(Graphics g) {
+		g.setColor(backgroundMessageColor);
+		for (int i = 0; i < backgroundMessage.length; i++)
+			g.drawString(backgroundMessage[i], x1, y1 + font.getLineHeight() * i);
+	}
+	
+	protected void drawText(Graphics g) {
+		g.setColor(textColor);
+		for (int i = 0; i < textDisplay.length; i++)
+			g.drawString(textDisplay[i], x1, y1 + font.getLineHeight() * i);
+	}
+	
+	protected void drawCursor(Graphics g) {
+		g.setColor(textColor);
+		g.fillRect(cursorX, cursorY, 2, font.getLineHeight());
+	}
 
 	@Override
 	public void render(Graphics g) {
 		// Draw the background.
-		if (backgroundColor != null) {
-			g.setColor(backgroundColor);
-			g.fillRect(x1, y1, width, height);
-		}
-
+		if (backgroundColor != null)
+			drawBackground(g);
+			
 		// Set the font.
 		g.setFont(font);
 		
 		// Draw the background message if there's no text.
-		if ((backgroundMessage != null) && (text.length() == 0)) {
-			g.setColor(backgroundMessageColor);
-			for (int i = 0; i < backgroundMessage.length; i++)
-				g.drawString(backgroundMessage[i], x1, y1 + font.getLineHeight() * i);
-		}
+		if ((backgroundMessage != null) && (text.length() == 0))
+			drawBackgroundMessage(g);
 		// Or draw the text if there is text.
-		else {
-			g.setColor(textColor);
-			for (int i = 0; i < textDisplay.length; i++)
-				g.drawString(textDisplay[i], x1, y1 + font.getLineHeight() * i);
-		}
+		else
+			drawText(g);
 		
 		// Draw the cursor.
-		if (displayCursor && cursorFlash) {
-			g.setColor(textColor);
-			g.fillRect(cursorX, cursorY, 2, font.getLineHeight());
-		}
+		if (displayCursor && cursorFlash)
+			drawCursor(g);
 	}
 	
 	@Override

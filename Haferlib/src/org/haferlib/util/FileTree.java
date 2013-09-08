@@ -19,7 +19,7 @@ import java.io.FileFilter;
  *
  */
 
-public class FileTree extends NAryTree<File[]> {
+public class FileTree extends PathMap<File[]> {
 
 	/**
 	 * A FileFilter that filters by extension.

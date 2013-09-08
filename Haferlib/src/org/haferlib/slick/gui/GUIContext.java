@@ -21,7 +21,10 @@ public class GUIContext implements KeyListener {
 	private static final byte DEBUG_CLIP = 2;
 	private static final byte DEBUG_BOTH = 3;
 	public static final byte NUM_DEBUG_MODES = 4;
-	private static final Color CLIP_COLOR = new Color(255, 255, 122, 10); // The color to fill over the clip area in debug mode.
+	
+	// The colors to draw the debug clips with.
+	private static final Color CLIP_BORDER_COLOR = new Color(255, 255, 122, 100);
+	private static final Color CLIP_FILL_COLOR = new Color(255, 255, 122, 10);
 
 	// The debug drawing mode.
 	public static byte debugMode = DEBUG_NONE;
@@ -346,9 +349,11 @@ public class GUIContext implements KeyListener {
 			g.setLineWidth(1);
 		}
 		if (debugMode == DEBUG_CLIP || debugMode == DEBUG_BOTH) {
-			// Fill the clip area.
-			g.setColor(CLIP_COLOR);
+			// Draw the clip area.
+			g.setColor(CLIP_FILL_COLOR);
 			g.fillRect(leftX, topY, clipWidth, clipHeight);
+			g.setColor(CLIP_BORDER_COLOR);
+			g.drawRect(leftX, topY, clipWidth, clipHeight);
 		}
 	}
 

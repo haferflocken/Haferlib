@@ -3,6 +3,7 @@ package org.haferlib.slick.gui;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Font;
 import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Input;
 
 /**
  * A text field that can autocomplete to strings that start with the typed text.
@@ -92,8 +93,8 @@ public class SearchField extends TextField {
 	}
 	
 	@Override
-	public void render(Graphics g) {
-		super.render(g);
+	protected void drawText(Graphics g) {
+		super.drawText(g);
 		
 		// Display the found string display.
 		if (foundString != null) {
@@ -103,6 +104,17 @@ public class SearchField extends TextField {
 				g.drawString(foundStringDisplay[i], x1, foundStringY + font.getLineHeight() * i);
 			}
 		}
+	}
+	
+	@Override
+	public void keyPressed(int key, char c) {
+		// Enter sets the text to the predicted text.
+		if (key == Input.KEY_ENTER) {
+			
+		}
+		// Handle other keys.
+		else
+			super.keyPressed(key, c);
 	}
 	
 	@Override
