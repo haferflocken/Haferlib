@@ -110,7 +110,10 @@ public class SearchField extends TextField {
 	public void keyPressed(int key, char c) {
 		// Enter sets the text to the predicted text.
 		if (key == Input.KEY_ENTER) {
-			
+			text.append(foundString);
+			cursor = text.length();
+			cursorFlash = true;
+			cursorFlashCounter = 0;
 		}
 		// Handle other keys.
 		else
