@@ -31,5 +31,10 @@ public class ConstantExpression implements Expression {
 		else
 			return other.addWith(this);
 	}
+	
+	@Override
+	public String toString() {
+		return "" + value;
+	}
 
 }

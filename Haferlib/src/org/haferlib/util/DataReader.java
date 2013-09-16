@@ -25,7 +25,6 @@ public class DataReader {
 
 	private Matcher intMatcher;
 	private Matcher floatMatcher;
-	private Pattern tokenizerPattern;
 	private Matcher fieldNameMatcher;
 	private Matcher equalsMatcher;
 
@@ -35,7 +34,6 @@ public class DataReader {
 	public DataReader() {
 		intMatcher = Pattern.compile("-?\\d+").matcher("");
 		floatMatcher = Pattern.compile("-?\\d+\\.\\d+").matcher("");
-		tokenizerPattern = Pattern.compile("\\s*;\\s*");
 		fieldNameMatcher = Pattern.compile("[a-zA-Z]\\w*").matcher("");
 		equalsMatcher = Pattern.compile("\\s*=").matcher("");
 	}
@@ -85,10 +83,33 @@ public class DataReader {
 		rawData = rawData.trim();
 
 		// Break the raw data into tokens and trim them.
-		// TODO: Redo this without regex so that it ignores escaped semicolons.
-		String[] tokens = tokenizerPattern.split(rawData);
-		for (int i = 0; i < tokens.length; i++) {
-			tokens[i] = tokens[i].trim();
+		// Count the number of non-string semicolons.
+		int numTokens = 0;
+		for (int i = 0; i < rawData.length(); i++) {
+			char c = rawData.charAt(i);
+			if (c == '\"') {
+				i = indexOfStringClose(rawData, i);
+			}
+			else if (c == ';') {
+				numTokens++;
+			}
+		}
+		
+		// Allocate an array for the tokens and make them.
+		String[] tokens = new String[numTokens];
+		int tokenIndex = 0;
+		int startToken = 0;
+		for (int i = 0; i < rawData.length(); i++) {
+			char c = rawData.charAt(i);
+			if (c == '\"') {
+				int stringClose = indexOfStringClose(rawData, i);
+				i = stringClose;
+			}
+			else if (c == ';') {
+				tokens[tokenIndex] = rawData.substring(startToken, i);
+				tokenIndex++;
+				startToken = i + 1;
+			}
 		}
 
 		// Look through the tokens and return the output TreeMap.

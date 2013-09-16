@@ -48,6 +48,22 @@ public interface Expression {
 			// Unknown
 			return 0;
 		}
+		
+		@Override
+		public String toString() {
+			switch (type) {
+				case 0: return "+";
+				case 1: return "-";
+				case 2: return "*";
+				case 3: return "/";
+				case 4: return "^";
+				case 5: return "%";
+				case 6: return ">";
+				case 7: return "<";
+				case 8: return "^1/";
+				default: return "";
+			}
+		}
 	}
 	
 	// A number in an expression.
@@ -62,6 +78,11 @@ public interface Expression {
 		public float getNumber() {
 			return number;
 		}
+		
+		@Override
+		public String toString() {
+			return "" + number;
+		}
 	}
 	
 	// A variable in an expression.
@@ -74,6 +95,11 @@ public interface Expression {
 		}
 		
 		public String getVariableName() {
+			return variableName;
+		}
+		
+		@Override
+		public String toString() {
 			return variableName;
 		}
 	}

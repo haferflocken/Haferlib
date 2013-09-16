@@ -8,8 +8,8 @@ import java.util.Map;
 
 public class VariableExpression implements Expression {
 
-	private Token[] tokens; // An array of the tokens in the expression.
-	private VariableToken[] varTokens; // The variable tokens.
+	private final Token[] tokens; // An array of the tokens in the expression.
+	private final VariableToken[] varTokens; // The variable tokens.
 	private ArrayDeque<Float> evaluateStack; // The stack the expression does work with.
 	private float lastResult; // The last result of this expression.
 	
@@ -100,6 +100,16 @@ public class VariableExpression implements Expression {
 		outTokens[outTokens.length - 1] = new OperatorToken((byte)0);
 		
 		return new VariableExpression(outTokens);
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder out = new StringBuilder();
+		for (Token t : tokens) {
+			out.append(t.toString());
+			out.append(' ');
+		}
+		return out.toString();
 	}
 
 }
