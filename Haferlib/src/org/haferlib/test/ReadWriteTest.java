@@ -30,7 +30,7 @@ public class ReadWriteTest {
 			DataWriter writer = new DataWriter();
 			writer.setOutputToFile(new File(destPath));
 			writer.write(data);
-			writer.closeOutput();
+			writer.close();
 		}
 		catch (IOException e) {
 			e.printStackTrace();

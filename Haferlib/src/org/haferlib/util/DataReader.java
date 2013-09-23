@@ -116,8 +116,13 @@ public class DataReader {
 		return buildMapFromTokens(tokens);
 	}
 
-	// Builds a TreeMap of data from an array of tokens.
-	// Tokens must be a field name followed by an = followed by a value. They must be trimmed.
+	/**
+	 * Builds a Map of data from an array of tokens.
+	 * Tokens must be a field name followed by an = followed by a value. They must be trimmed.
+	 * 
+	 * @param tokens The tokens to make into a map.
+	 * @return A map made from the tokens.
+	 */
 	private Map<String, Object> buildMapFromTokens(String[] tokens) {
 		// Make the output TreeMap.
 		TreeMap<String, Object> out = new TreeMap<>();
@@ -158,7 +163,13 @@ public class DataReader {
 		return out;
 	}
 
-	// For finding the last character of a string block. Returns -1 if it doesn't end.
+	/**
+	 * Find the last character of a block enclosed by quotes in a string.
+	 * 
+	 * @param string The string to look in.
+	 * @param startIndex Where to start looking. Generally the opening quote.
+	 * @return The index of the first non-escaped quote after startIndex. -1 if none is found.
+	 */
 	private int indexOfStringClose(String string, int startIndex) {
 		for (int q = startIndex + 1; q < string.length(); q++) {
 			if (string.charAt(q) == '\\')
@@ -169,7 +180,17 @@ public class DataReader {
 		return -1;
 	}
 
-	// For finding the last character of a block defined by an open and close character. Returns -1 if it doesn't end.
+	/**
+	 * Find the last character of a block defined by an open and close character.
+	 * Sub-blocks are respected: calling indexOfBlockClose("{ {} }", 0, '{', '}') will
+	 * return 5, not 3.
+	 * 
+	 * @param string The string to look through.
+	 * @param startIndex The index to begin looking at. Generally the opening character of the block.
+	 * @param openBlock The character that opens blocks.
+	 * @param closeBlock The character that closes blocks.
+	 * @return The index of the closing character of the block. -1 if none is found.
+	 */
 	private int indexOfBlockClose(String string, int startIndex, char openBlock, char closeBlock) {
 		int numOpen = 1;
 		int q;
