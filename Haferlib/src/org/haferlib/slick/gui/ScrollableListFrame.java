@@ -1,6 +1,6 @@
  package org.haferlib.slick.gui;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import org.haferlib.slick.gui.event.GUIEvent;
 import org.haferlib.slick.gui.event.GUIEventGenerator;
@@ -135,7 +135,7 @@ public class ScrollableListFrame extends ScrollableFrame implements GUIEventList
 	}
 	
 	@Override
-	public ArrayList<GUIElement> getElements() {
+	public List<GUIElement> getElements() {
 		if (listFrame != null)
 			return listFrame.getElements();
 		return null;

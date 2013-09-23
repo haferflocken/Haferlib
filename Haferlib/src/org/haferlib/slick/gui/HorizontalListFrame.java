@@ -9,6 +9,7 @@ import org.newdawn.slick.Graphics;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 
 public class HorizontalListFrame extends GUISubcontext implements GUIEventGenerator, GUIEventListener {
 	
@@ -85,7 +86,7 @@ public class HorizontalListFrame extends GUISubcontext implements GUIEventGenera
 	// EFFECTS:  Find the x2 of the rightmost element in this frame.
 	private int getRightmostX() {
 		// Get the elements and loop through them to find which is on bottom.
-		ArrayList<GUIElement> elements = subcontext.getElements();
+		List<GUIElement> elements = subcontext.getElements();
 		int rightX = x1;
 		for (GUIElement e : elements) {
 			int elementX2 = e.getX() + e.getWidth();

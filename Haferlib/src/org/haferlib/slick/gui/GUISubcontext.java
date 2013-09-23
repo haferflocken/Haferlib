@@ -2,6 +2,7 @@ package org.haferlib.slick.gui;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
@@ -40,7 +41,7 @@ public abstract class GUISubcontext extends AbstractRectangularElement {
 	}
 	
 	// EFFECTS:  Get the elements in the subcontext.
-	public ArrayList<GUIElement> getElements() {
+	public List<GUIElement> getElements() {
 		return subcontext.getElements();
 	}
 	

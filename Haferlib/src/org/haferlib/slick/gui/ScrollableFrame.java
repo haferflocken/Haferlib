@@ -10,7 +10,7 @@ import org.haferlib.slick.gui.event.ResizeEvent;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Color;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class ScrollableFrame extends GUISubcontext implements GUIEventListener {
 
@@ -51,7 +51,7 @@ public class ScrollableFrame extends GUISubcontext implements GUIEventListener {
 	// Recalculate the scrolling fields.
 	protected void recalculateScrollingFields() {
 		// First, determine the smallest y and the largest y of the elements.
-		ArrayList<GUIElement> elements = subcontext.getElements();
+		List<GUIElement> elements = subcontext.getElements();
 		int topY = Integer.MAX_VALUE;
 		int bottomY = Integer.MIN_VALUE;
 		for (GUIElement e : elements) {

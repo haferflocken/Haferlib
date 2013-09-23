@@ -1,18 +1,26 @@
-// Manages GUI elements, calling their methods when appropriate.
-// Keeps a buffer of key pressess and notifies UIElements of them if it is added to an input's keylisteners.
-// Keeps track of which element has the input focus. Only the element with input focus receives key events.
-// This shouldn't be used for static, unchanging things. It's for the UI that can be interacted with.
-
 package org.haferlib.slick.gui;
 
 import java.util.ArrayList;
-import java.util.Vector;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Collections;
 
 import org.newdawn.slick.KeyListener;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Input;
+
+/**
+ * A collection of GUIElements that can be updated and rendered as a whole.
+ * 
+ * A note on the implementation: The elements are stored in an ArrayList. This is
+ * because the list is iterated over both forward and backward. Forward for rendering,
+ * backward for updating. This ensures that elements are properly given user input 
+ * (the element you visually click is the one that gets clicked) and rendered by depth
+ * (elements of lower depth are rendered first).
+ * @author John
+ *
+ */
 
 public class GUIContext implements KeyListener {
 	
@@ -26,42 +34,104 @@ public class GUIContext implements KeyListener {
 	private static final Color CLIP_BORDER_COLOR = new Color(255, 255, 122, 100);
 	private static final Color CLIP_FILL_COLOR = new Color(255, 255, 122, 10);
 
-	// The debug drawing mode.
+	// The debug drawing mode. This is static as that makes sure all contexts
+	// are in the same debug mode (viewing just one context in debug mode is next to useless).
 	public static byte debugMode = DEBUG_NONE;
 	
-	// Holds a pair of a key code and a char. Used by the key buffer.
-	private static class KeyCharPair {
-
-		private int key;
-		private char c;
-
-		private KeyCharPair(int key, char c) {
-			this.key = key;
-			this.c = c;
+	// A basic queue backed by a linked list that holds keys and chars in the links
+	// rather than encapsulating them with them (like java.util.LinkedList).
+	private static class KeyCharQueue {
+		
+		// A link in the list.
+		private static class Link {
+			private final int key;
+			private final char c;
+			private Link next;
+			
+			private Link(int key, char c, Link next) {
+				this.key = key;
+				this.c = c;
+				setNext(next);
+			}
+			
+			private void setNext(Link n) {
+				next = n;
+			}
+		}
+		
+		// Instance fields.
+		private Link head; // The head link of the list.
+		private Link tail; // The tail link of the list.
+		private int size; // The number of links in the list.
+		
+		// Constructor.
+		private KeyCharQueue() {
+			head = null;
+			tail = null;
+			size = 0;
+		}
+		
+		// Add a pair.
+		private void enqueue(int key, char c) {
+			Link newLink = new Link(key, c, null);
+			// If the queue is empty, this is now the head and the tail.
+			if (size == 0) {
+				head = newLink;
+				tail = newLink;
+			}
+			// Otherwise, the new link is the new tail.
+			else {
+				tail.setNext(newLink);
+				tail = newLink;
+			}
+			size++;
+		}
+		
+		// Peek at the head key.
+		private int peekKey() {
+			return head.key;
+		}
+		
+		// Peek at the head char.
+		private char peekChar() {
+			return head.c;
+		}
+		
+		// Dequeue the front pair.
+		private void dequeue() {
+			head = head.next;
+			if (head == null)
+				tail = null;
+			size--;
+		}
+		
+		// Get the size of the queue.
+		private int size() {
+			return size;
 		}
 	}
 
 	/////////////////////////
 	//// INSTANCE FIELDS ////
 	/////////////////////////
-	private Vector<KeyCharPair> keyBuffer;								// The buffer of key presses that have occurred since the last update.
-	private ArrayList<GUIElement> elements;								// The GUIElements in this GUIContext, sorted by depth.
-	private ElementDepthComparator depthComparator;						// Compares elements by depth.
-	private GUIElement clickFocus, hoverFocus;							// The element in focus for different actions.
-	private int clickFocusBoxX, clickFocusBoxY;							// The box drawn around the click focus in debug mode.
+	private KeyCharQueue keyBuffer;							// The buffer of key presses that have occurred since the last update.
+	private ArrayList<GUIElement> elements;					// The GUIElements in this GUIContext, sorted by depth.
+	private ElementDepthComparator depthComparator;			// Compares elements by depth.
+	private GUIElement clickFocus, hoverFocus;				// The element in focus for different actions.
+	private int clickFocusBoxX, clickFocusBoxY;				// The box drawn around the click focus in debug mode.
 	private int clickFocusBoxWidth, clickFocusBoxHeight;
-	private int hoverFocusBoxX, hoverFocusBoxY;							// The box drawn around the hover focus in debug mode.
+	private int hoverFocusBoxX, hoverFocusBoxY;				// The box drawn around the hover focus in debug mode.
 	private int hoverFocusBoxWidth, hoverFocusBoxHeight;
-	private ArrayList<GUIElement> addThese;								// The elements to be added on the next update.
-	private ArrayList<GUIElement> removeThese;							// The elements to be removed on the next update.
-	private boolean enabled;											// Is this GUIContext listening to key input?
+	private ArrayList<GUIElement> addThese;					// The elements to be added on the next update.
+	private ArrayList<GUIElement> removeThese;				// The elements to be removed on the next update.
+	private boolean enabled;								// If false, update does nothing and ignores key input.
 
 	// Constructors.
     public GUIContext() {
     	elements = new ArrayList<>();
     	depthComparator = new ElementDepthComparator();
     	enabled = true;
-    	keyBuffer = new Vector<>();
+    	keyBuffer = new KeyCharQueue();
     	addThese = new ArrayList<>();
     	removeThese = new ArrayList<>();
     	clickFocus = null;
@@ -172,17 +242,16 @@ public class GUIContext implements KeyListener {
 			// If any keys have been pressed...
 			if (keyBuffer.size() > 0) {
 				// Tell the focus of those key presses.
-				for (KeyCharPair k : keyBuffer) {
-					clickFocus.keyPressed(k.key, k.c);
+				while (keyBuffer.size() > 0) {
+					clickFocus.keyPressed(keyBuffer.peekKey(), keyBuffer.peekChar());
+					keyBuffer.dequeue();
 				}
 				clickFocus.keyInputDone();
 			}
 		}
-		// Clear the key buffer now that the focus knows about it.
-		keyBuffer.clear();
 		
-		// Look for dead elements and remove them.
-		removeDeadElements();
+		// Remove and destroy dead elements.
+		removeAndDestroyDeadElements();
 		
 		// See if we need to resort the elements and if we do, do it.
 		for (int i = 1; i < elements.size(); i++) {
@@ -289,19 +358,27 @@ public class GUIContext implements KeyListener {
 	}
 
 	// Remove dead elements.
-	public void removeDeadElements() {
+	public void removeAndDestroyDeadElements() {
+		Iterator<GUIElement> iterator = elements.iterator();
 		GUIElement e;
-		for (int i = 0; i < elements.size(); i++) {
+		while (iterator.hasNext()) {
+			e = iterator.next();
+			if (e.dead()) {
+				e.destroy();
+				iterator.remove();
+			}
+		}
+		/*for (int i = 0; i < elements.size(); i++) {
 			e = elements.get(i);
 			if (e.dead()) {
 				e.destroy();
 				removeElement(e);
 			}
-		}
+		}*/
 	}
 	
 	// Get the elements.
-	public ArrayList<GUIElement> getElements() {
+	public List<GUIElement> getElements() {
 		return elements;
 	}
 	
@@ -416,7 +493,8 @@ public class GUIContext implements KeyListener {
 		elements = null;
 		
 		// Destroy the key buffer.
-		keyBuffer.clear();
+		while (keyBuffer.size() > 0)
+			keyBuffer.dequeue();
 		keyBuffer = null;
 		
 		// Clear other references.
@@ -428,7 +506,7 @@ public class GUIContext implements KeyListener {
 	
 	// KeyListener methods.
 	public void keyPressed(int key, char c) {
-		keyBuffer.add(new KeyCharPair(key, c));
+		keyBuffer.enqueue(key, c);
 	}
 
 	public void keyReleased(int key, char c) {

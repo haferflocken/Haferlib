@@ -9,6 +9,7 @@ import org.newdawn.slick.Graphics;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 
 public class ListFrame extends GUISubcontext implements GUIEventGenerator, GUIEventListener {
 	
@@ -85,7 +86,7 @@ public class ListFrame extends GUISubcontext implements GUIEventGenerator, GUIEv
 	// EFFECTS:  Find the bottom y of the bottom element in this frame.
 	private int getBottomY() {
 		// Get the elements and loop through them to find which is on bottom.
-		ArrayList<GUIElement> elements = subcontext.getElements();
+		List<GUIElement> elements = subcontext.getElements();
 		int bottomY = y1;
 		for (GUIElement e : elements) {
 			int elementY2 = e.getY() + e.getHeight();
