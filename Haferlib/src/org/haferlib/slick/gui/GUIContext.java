@@ -18,7 +18,8 @@ import org.newdawn.slick.Input;
  * backward for updating. This ensures that elements are properly given user input 
  * (the element you visually click is the one that gets clicked) and rendered by depth
  * (elements of lower depth are rendered first).
- * @author John
+ * 
+ * @author John Werner
  *
  */
 
@@ -126,7 +127,9 @@ public class GUIContext implements KeyListener {
 	private ArrayList<GUIElement> removeThese;				// The elements to be removed on the next update.
 	private boolean enabled;								// If false, update does nothing and ignores key input.
 
-	// Constructors.
+	/**
+	 * Create an empty GUIContext.
+	 */
     public GUIContext() {
     	elements = new ArrayList<>();
     	depthComparator = new ElementDepthComparator();
@@ -138,7 +141,12 @@ public class GUIContext implements KeyListener {
     	hoverFocus = null;
     }
 
-	// Run this UIManager.
+    /**
+     * Update this context using user input and the time since the last frame.
+     * 
+     * @param input The input data.
+     * @param delta The time since the last frame.
+     */
 	public void update(Input input, int delta) {
 		update(input.getMouseX(), input.getMouseY(),
 			input.isMousePressed(Input.MOUSE_LEFT_BUTTON), input.isMousePressed(Input.MOUSE_MIDDLE_BUTTON), input.isMousePressed(Input.MOUSE_RIGHT_BUTTON),
@@ -146,6 +154,19 @@ public class GUIContext implements KeyListener {
 			delta);
 	}
 
+	/**
+	 * Update this context using user input and the time since the last frame.
+	 * 
+	 * @param mouseX The x coordinate of the mouse.
+	 * @param mouseY The y coordinate of the mouse.
+	 * @param leftMousePressed Whether or not the left mouse is pressed.
+	 * @param middleMousePressed Whether or not the middle mouse is pressed.
+	 * @param rightMousePressed Whether or not the right mouse is pressed.
+	 * @param leftMouseDown Whether or not the left mouse is down.
+	 * @param middleMouseDown Whether or not the middle mouse is down.
+	 * @param rightMouseDown Whether or not the right mouse is down.
+	 * @param delta The time since the last frame.
+	 */
 	public void update(int mouseX, int mouseY, boolean leftMousePressed, boolean middleMousePressed, boolean rightMousePressed, boolean leftMouseDown, boolean middleMouseDown, boolean rightMouseDown, int delta) {
 		// If we're just not running this thing, return.
 		if (!enabled)
@@ -263,6 +284,11 @@ public class GUIContext implements KeyListener {
 		}
 	}
 
+	/**
+	 * Set the click focus to an element.
+	 * 
+	 * @param e The element to make the click focus.
+	 */
 	private void setClickFocus(GUIElement e) {
 		clickFocus = e;
 		clickFocusBoxX = clickFocus.getX();
@@ -271,6 +297,11 @@ public class GUIContext implements KeyListener {
 		clickFocusBoxHeight = clickFocus.getHeight();
 	}
 	
+	/**
+	 * Set the hover focus to an element.
+	 * 
+	 * @param e The element to make the hover focus.
+	 */
 	private void setHoverFocus(GUIElement e) {
 		hoverFocus = e;
 		hoverFocusBoxX = hoverFocus.getX();
@@ -279,6 +310,16 @@ public class GUIContext implements KeyListener {
 		hoverFocusBoxHeight = hoverFocus.getHeight();
 	}
 
+	/**
+	 * Click an element.
+	 * 
+	 * @param e The element to click.
+	 * @param mouseX The x position of the mouse.
+	 * @param mouseY The y position of the mouse.
+	 * @param lmbPressed Whether or not the left button is pressed.
+	 * @param mmbPressed Whether or not the middle button is pressed.
+	 * @param rmbPressed Whether or not the right button is pressed.
+	 */
 	private void clickElement(GUIElement e, int mouseX, int mouseY, boolean lmbPressed, boolean mmbPressed, boolean rmbPressed) {
 		if (lmbPressed)
 			e.click(mouseX, mouseY, Input.MOUSE_LEFT_BUTTON);
@@ -288,6 +329,14 @@ public class GUIContext implements KeyListener {
 			e.click(mouseX, mouseY, Input.MOUSE_RIGHT_BUTTON);
 	}
 	
+	/**
+	 * ClickedElsewhere an element.
+	 * 
+	 * @param e The element to clickedElsewhere.
+	 * @param lmbPressed Whether or not the left button is pressed.
+	 * @param mmbPressed Whether or not the middle button is pressed.
+	 * @param rmbPressed Whether or not the right button is pressed.
+	 */
 	private void clickedElementElsewhere(GUIElement e, boolean lmbPressed, boolean mmbPressed, boolean rmbPressed) {
 		if (lmbPressed)
 			e.clickedElsewhere(clickFocus, Input.MOUSE_LEFT_BUTTON);
@@ -297,6 +346,16 @@ public class GUIContext implements KeyListener {
 			e.clickedElsewhere(clickFocus, Input.MOUSE_RIGHT_BUTTON);
 	}
 	
+	/**
+	 * MouseDown an element.
+	 * 
+	 * @param e The element to mouseDown.
+	 * @param mouseX The x position of the mouse.
+	 * @param mouseY The y position of the mouse.
+	 * @param lmbDown Whether or not the left button is down.
+	 * @param mmbDown Whether or not the middle button is down.
+	 * @param rmbDown Whether or not the right button is down.
+	 */
 	private void mouseDownElement(GUIElement e, int mouseX, int mouseY, boolean lmbDown, boolean mmbDown, boolean rmbDown) {
 		if (lmbDown)
 			e.mouseDown(mouseX, mouseY, Input.MOUSE_LEFT_BUTTON);
@@ -306,6 +365,14 @@ public class GUIContext implements KeyListener {
 			e.mouseDown(mouseX, mouseY, Input.MOUSE_RIGHT_BUTTON);
 	}
 	
+	/**
+	 * MouseDownElsewhere an element.
+	 * 
+	 * @param e The element to mouseDownElsewhere.
+	 * @param lmbDown Whether or not the left button is down.
+	 * @param mmbDown Whether or not the middle button is down.
+	 * @param rmbDown Whether or not the right button is down.
+	 */
 	private void mouseDownElementElsewhere(GUIElement e, boolean lmbDown, boolean mmbDown, boolean rmbDown) {
 		if (lmbDown)
 			e.mouseDownElsewhere(clickFocus, Input.MOUSE_LEFT_BUTTON);
@@ -315,7 +382,13 @@ public class GUIContext implements KeyListener {
 			e.mouseDownElsewhere(clickFocus, Input.MOUSE_RIGHT_BUTTON);
 	}
 
+	/**
+	 * Add e to elements at the correct position.
+	 * 
+	 * @param e The element to add.
+	 */
 	private void addAtSortedLoc(GUIElement e) {
+		// TODO Binary search and then insert, rather than linear insert.
 		for (int i = 0; i < elements.size(); i++) {
 			// If the element being added is of a lower depth than the one we are looking at, add it.
 			if (e.getDepth() < elements.get(i).getDepth()) {
@@ -327,17 +400,36 @@ public class GUIContext implements KeyListener {
 		elements.add(e);
 	}
 
-	// Adds an element to this manager in the right spot
+	/**
+	 * Add an element to this context.
+	 * These will not be affected by any operations to this context
+	 * until addAndRemoveElements() is called (and it is called automatically
+	 * in update()).
+	 * 
+	 * @param e The element to add.
+	 */
 	public void addElement(GUIElement e) {
 		addThese.add(e);
 	}
 
-	// Removes an element from this manager if it contains it.
+	/**
+	 * Remove an element from this context.
+	 * These will not be affected by any operations to this context
+	 * until addAndRemoveElements() is called (and it is called automatically
+	 * in update()).
+	 * 
+	 * @param e The element to remove.
+	 */
 	public void removeElement(GUIElement e) {
 		removeThese.add(e);
 	}
 
-	// Add and remove everything that has asked to be added or removed.
+	/**
+	 * Take elements waiting to be added and removed and put them into the context.
+	 * This is called automatically during update, but is useful for clients that 
+	 * wish to ensure elements will be affected by translate calls before the call
+	 * to update.
+	 */
 	public void addAndRemoveElements() {
 		// Remove anything that wants to be removed. Removal is done first to make adding faster.
 		if (removeThese.size() > 0) {
@@ -357,7 +449,10 @@ public class GUIContext implements KeyListener {
 		}
 	}
 
-	// Remove dead elements.
+	/**
+	 * Looks through the the context for dead elements, calling their
+	 * destroy() method and removing them immediately from the context.
+	 */
 	public void removeAndDestroyDeadElements() {
 		Iterator<GUIElement> iterator = elements.iterator();
 		GUIElement e;
@@ -368,26 +463,30 @@ public class GUIContext implements KeyListener {
 				iterator.remove();
 			}
 		}
-		/*for (int i = 0; i < elements.size(); i++) {
-			e = elements.get(i);
-			if (e.dead()) {
-				e.destroy();
-				removeElement(e);
-			}
-		}*/
 	}
 	
-	// Get the elements.
+	/**
+	 * Get the elements in this context.
+	 * This directly returns the List backing this context! Be careful.
+	 * 
+	 * @return The elements in this context.
+	 */
 	public List<GUIElement> getElements() {
 		return elements;
 	}
 	
-	// Get the number of elements.
+	/**
+	 * Get the number of elements in this context.
+	 * 
+	 * @return The number of elements in this context.
+	 */
 	public int getNumElements() {
 		return elements.size();
 	}
 
-	// Clear this GUIManager of elements.
+	/**
+	 * Clear the elements from this context.
+	 */
 	public void clear() {
 		clickFocus = null;
 		hoverFocus = null;
@@ -396,7 +495,15 @@ public class GUIContext implements KeyListener {
 		removeThese.clear();
 	}
 
-	// Render an area of this GUIManager.
+	/**
+	 * Draw this context with the given clipping area.
+	 * 
+	 * @param g The graphics to draw with.
+	 * @param leftX The left x of the clip area.
+	 * @param topY The top y of the clip area.
+	 * @param rightX The right x of the clip area.
+	 * @param bottomY The bottom y of the clip area.
+	 */
 	public void render(Graphics g, int leftX, int topY, int rightX, int bottomY) {
 		// Render the elements that are in the render area.
 		int clipWidth = rightX - leftX;
