@@ -102,8 +102,7 @@ public class DataReader {
 		for (int i = 0; i < rawData.length(); i++) {
 			char c = rawData.charAt(i);
 			if (c == '\"') {
-				int stringClose = indexOfStringClose(rawData, i);
-				i = stringClose;
+				i = indexOfStringClose(rawData, i);
 			}
 			else if (c == ';') {
 				tokens[tokenIndex] = rawData.substring(startToken, i);
@@ -206,8 +205,12 @@ public class DataReader {
 			return -1;
 	}
 
-	// Parses a value string into a proper value object. Prints out any syntax errors it finds.
-	// Returns null if it encounters a syntax error.
+	/**
+	 * Parses a value string into a proper value object. Logs any syntax errors it finds.
+	 * 
+	 * @param value The string to parse.
+	 * @return The object that was made from value, or null if a syntax error was encountered.
+	 */
 	private Object parseValue(String value) {
 		// Trim the value.
 		value = value.trim();
@@ -239,7 +242,7 @@ public class DataReader {
 				Log.getDefaultLog().error("SYNTAX ERROR: Unexpected end of string at " + stringEnd + " in " + value);
 				return null;
 			}
-			//Make and return the string if it's a valid string.
+			// Make and return the string if it's a valid string.
 			return value.substring(1, value.length() - 1);
 		}
 
@@ -310,10 +313,10 @@ public class DataReader {
 			for (int i = 1; i < value.length() - 1; i++) {
 				// If we have found the next pair to parse, parse it.
 				if (value.charAt(i) == ',') {
-					//Get the pair string
+					// Get the pair string
 					String pairString = value.substring(subStart, i);
-					//Parse the pair.
-					Object[] pair = parsePair(pairString);
+					// Parse the pair.
+					Object[] pair = parseMapPair(pairString);
 					if (pair == null)
 						return null;
 					// Add the pair to the map.
@@ -352,7 +355,7 @@ public class DataReader {
 			String lastPairString = value.substring(subStart, value.length() - 1).trim();
 			if (lastPairString.length() > 0) {
 				// Parse the pair.
-				Object[] pair = parsePair(lastPairString);
+				Object[] pair = parseMapPair(lastPairString);
 				if (pair == null)
 					return null;
 
@@ -368,9 +371,13 @@ public class DataReader {
 		return null;
 	}
 
-	// Take a raw pair string and make it into a key and a value.
-	// Returns an array with the first element being the key and the second element being the value.
-	private Object[] parsePair(String pairString) {
+	/**
+	 * Take a raw map pair string and make it into a key and a value.
+	 * 
+	 * @param pairString The pair string.
+	 * @return An array in the form {key, value}, or null if the pair was invalid.
+	 */
+	private Object[] parseMapPair(String pairString) {
 		// First we need to find the : that separates the key and value.
 		int colonIndex = -1;
 		for (int q = 0; q < pairString.length(); q++) {

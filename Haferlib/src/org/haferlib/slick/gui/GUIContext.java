@@ -270,6 +270,11 @@ public class GUIContext implements KeyListener {
 				clickFocus.keyInputDone();
 			}
 		}
+		// If there is no element in click focus, clear the key buffer.
+		else {
+			while (keyBuffer.size() > 0)
+				keyBuffer.dequeue();
+		}
 		
 		// Remove and destroy dead elements.
 		removeAndDestroyDeadElements();
@@ -541,16 +546,27 @@ public class GUIContext implements KeyListener {
 		}
 	}
 
-	// Turn this manager's key listening on and off.
+	/**
+	 * Enable the context, allowing it to update and take key input.
+	 */
 	public void enable() {
 		enabled = true;
 	}
 
+	/**
+	 * Disable the context, preventing it from updating or taking key input.
+	 */
 	public void disable() {
 		enabled = false;
 	}
 	
-	// Get the topmost element that contains a point. Return null if no elements contain the point.
+	/**
+	 * Get the topmost element that contains a point.
+	 * 
+	 * @param x The x coordinate of the point.
+	 * @param y The y coordinate of the point.
+	 * @return The topmost elemnet that contains the point (x, y). Return null if no element contains (x, y).
+	 */
 	public GUIElement getElementAtPoint(int x, int y) {
 		GUIElement e;
 		for (int i = elements.size() - 1; i > -1; i--) {
@@ -561,12 +577,23 @@ public class GUIContext implements KeyListener {
 		return null;
 	}
 
-	// Does this contain a given GUIElement?
+	/**
+	 * See if this context contains the given GUIElement.
+	 * 
+	 * @param e The element to look for.
+	 * @return true if e is in the context, false otherwise.
+	 */
 	public boolean contains(GUIElement e) {
 		return elements.contains(e);
 	}
 
-	// Is a point within any of the elements?
+	/**
+	 * See if any elements contain the given point.
+	 * 
+	 * @param x The x coordinate of the point.
+	 * @param y The y coordinate of the point.
+	 * @return true if an element contains the point, false otherwise.
+	 */
 	public boolean pointIsWithin(int x, int y) {
 		for (GUIElement e : elements) {
 			if (e.pointIsWithin(x, y))
@@ -575,21 +602,34 @@ public class GUIContext implements KeyListener {
 		return false;
 	}
 
-	// Translate all the elements along the x axis.
+	/**
+	 * Translate all the elements in this context along the x axis.
+	 * 
+	 * @param dX The amount to translate by.
+	 */
 	public void translateX(int dX) {
 		for (GUIElement e : elements) {
 			e.setX(e.getX() + dX);
 		}
 	}
 
-	// Translate all the elements along the y axis.
+	/**
+	 * Translate all the elements in this context along the y axis.
+	 * 
+	 * @param dY The amount to translate by.
+	 */
 	public void translateY(int dY) {
 		for (GUIElement e : elements) {
 			e.setY(e.getY() + dY);
 		}
 	}
 
-	// Force elements to release their resources and release any resources this has.
+	/**
+	 * Destroy all elements in the context and set the fields of this element to null
+	 * so that they cannot be used. Attempting to call any methods of a GUIContext after
+	 * calling this will most likely throw a NullPointerException. Behavior of all
+	 * methods after calling this is undefined.
+	 */
 	public void destroy() {
 		// Destroy the elements.
 		addAndRemoveElements();
@@ -611,28 +651,33 @@ public class GUIContext implements KeyListener {
 		enabled = false;
 	}
 	
-	// KeyListener methods.
+	@Override
 	public void keyPressed(int key, char c) {
 		keyBuffer.enqueue(key, c);
 	}
 
+	@Override
 	public void keyReleased(int key, char c) {
 	}
 
+	@Override
 	public void inputStarted() {
 	}
 
+	@Override
 	public void inputEnded() {
 	}
 
+	@Override
 	public boolean isAcceptingInput() {
 		return enabled;
 	}
 
+	@Override
 	public void setInput(Input input) {
 	}
 
-	// toString
+	@Override
 	public String toString() {
 		return elements.toString();
 	}
