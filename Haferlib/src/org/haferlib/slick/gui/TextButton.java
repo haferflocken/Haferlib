@@ -27,6 +27,11 @@ public class TextButton<V> extends Button<V> {
 		rethinkTextPos();
 	}
 	
+	public TextButton(V data, int x, int y, int width, int height, int depth, Color backgroundColor, Color highlightColor, int key,
+			String text, Color textColor, Font font) {
+		this(data, x, y, width, height, depth, backgroundColor, highlightColor, key, text, textColor, font, CENTER, 0);
+	}
+	
 	// Recalculate the position of the text.
 	private void rethinkTextPos() {
 		textY = centerY - font.getHeight(text) / 2;

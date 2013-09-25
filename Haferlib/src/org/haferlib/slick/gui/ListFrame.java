@@ -160,7 +160,9 @@ public class ListFrame extends GUISubcontext implements GUIEventGenerator, GUIEv
 	// EFFECTS:  Add an element to the subcontext, setting its position appropriately.
 	public void addElement(GUIElement e) {
 		// Find the bottom y to align to. 
-		int yPos = getBottomY() + ySpacing;
+		int yPos = getBottomY();
+		if (yPos != y1)
+			yPos += ySpacing;
 		
 		// Align the element.
 		alignElementX(e, getAlignedXAnchor());
@@ -180,7 +182,9 @@ public class ListFrame extends GUISubcontext implements GUIEventGenerator, GUIEv
 	// EFFECTS:  Add many elements to the subcontext, setting their positions appropriately.
 	public void addElements(GUIElement[] es) {
 		// Find the bottom y to align to. 
-		int yPos = getBottomY() + ySpacing;
+		int yPos = getBottomY();
+		if (yPos != y1)
+			yPos += ySpacing;
 		
 		// Figure out the x position we're aligning to.
 		int xAnchor = getAlignedXAnchor();
