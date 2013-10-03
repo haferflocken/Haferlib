@@ -1,19 +1,33 @@
 package org.haferlib.slick.gui;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.haferlib.slick.gui.event.GUIEvent;
+import org.haferlib.slick.gui.event.GUIEventGenerator;
 import org.haferlib.slick.gui.event.GUIEventListener;
+import org.haferlib.slick.gui.event.ResizeEvent;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Font;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
 
-public class ListEditor extends GUISubcontext implements GUIEventListener {
+/**
+ * An editor for several strings, allowing strings to be added and removed.
+ * Expands in height up to a max height, at which point uses a scroll bar to
+ * display the string fields. Like ArrayEditor, supports autocompleting.
+ * 
+ * @author John Werner
+ */
+
+public class ListEditor extends GUISubcontext implements GUIEventListener, GUIEventGenerator {
 	
 	private static final String[] EMPTY_STRING_ARRAY = {};
 
+	private int maxHeight;
+	private final Set<GUIEventListener> listeners;
 	private final String title;
 	private final Font font;
 	private final Color textColor, fieldColor, backgroundColor, searchColor;
@@ -24,9 +38,9 @@ public class ListEditor extends GUISubcontext implements GUIEventListener {
 	private String defaultFieldContents, defaultFieldMessage;
 	private String[] defaultFieldSearchStrings;
 	
-	public ListEditor(int x, int y, int width, int height, int depth, int ySpacing,
+	public ListEditor(int x, int y, int width, int maxHeight, int depth, int ySpacing,
 			String title, Font font, Color textColor, Color fieldColor, Color backgroundColor, Color searchColor) {
-		super(x, y, width, height, depth);
+		super(x, y, width, maxHeight, depth);
 		
 		// Check that input is valid.
 		if (title == null)
@@ -37,6 +51,7 @@ public class ListEditor extends GUISubcontext implements GUIEventListener {
 			throw new IllegalArgumentException("textColor cannot be null.");
 		
 		// Assign values.
+		this.maxHeight = maxHeight;
 		this.title = title;
 		this.font = font;
 		this.textColor = textColor;
@@ -46,6 +61,9 @@ public class ListEditor extends GUISubcontext implements GUIEventListener {
 		defaultFieldContents = null;
 		defaultFieldMessage = null;
 		defaultFieldSearchStrings = null;
+		
+		// Create the listener set.
+		listeners = new HashSet<>();
 		
 		// Create the add button.
 		String addButtonString = "Add";
@@ -71,6 +89,9 @@ public class ListEditor extends GUISubcontext implements GUIEventListener {
 		subcontext.addElement(fieldBarList);
 		
 		subcontext.addAndRemoveElements();
+		
+		// Recalc the height.
+		recalcHeight();
 	}
 	
 	public String[] getFieldContents() {
@@ -81,6 +102,27 @@ public class ListEditor extends GUISubcontext implements GUIEventListener {
 			i++;
 		}
 		return out;
+	}
+	
+	private void recalcHeight() {
+		int newHeight = font.getLineHeight() * (1 + fields.size()); // Add up field heights.
+		newHeight += fieldBarList.getYSpacing() * (fields.size() - 1); // Add in the ySpacing.
+		
+		if (newHeight == height)
+			return;
+		
+		if (newHeight > maxHeight)
+			newHeight = maxHeight;
+		
+		super.setHeight(newHeight);
+		fieldBarList.setHeight(newHeight - font.getLineHeight());
+		
+		notifyListeners(new ResizeEvent(this));
+	}
+	
+	private void notifyListeners(GUIEvent<?> event) {
+		for (GUIEventListener l : listeners)
+			l.guiEvent(event);
 	}
 	
 	public void setDefaultFieldContents(String contents) {
@@ -129,6 +171,9 @@ public class ListEditor extends GUISubcontext implements GUIEventListener {
 		
 		// Add the field bar to the field bar list.
 		fieldBarList.addElement(fieldBar);
+		
+		// Recalc height.
+		recalcHeight();
 	}
 	
 	@Override
@@ -143,8 +188,8 @@ public class ListEditor extends GUISubcontext implements GUIEventListener {
 	
 	@Override
 	public void setHeight(int h) {
-		super.setHeight(h);
-		fieldBarList.setHeight(height - font.getLineHeight());
+		maxHeight = h;
+		recalcHeight();
 	}
 
 	@Override
@@ -166,6 +211,11 @@ public class ListEditor extends GUISubcontext implements GUIEventListener {
 
 	@Override
 	public void guiEvent(GUIEvent<?> event) {
+		// If the event is a resize event, recalc the height.
+		if (event instanceof ResizeEvent) {
+			recalcHeight();
+			return;
+		}
 		// If the event is from a TextButton and contains an array of a 
 		// SearchField and a HorizontalListFrame, remove the SearchField from
 		// fields, remove the HorizontalListFrame from fieldBarList.
@@ -178,12 +228,23 @@ public class ListEditor extends GUISubcontext implements GUIEventListener {
 				HorizontalListFrame fieldBar = (HorizontalListFrame)data[1];
 				fields.remove(field);
 				fieldBarList.removeElement(fieldBar);
+				recalcHeight();
 			}
 		}
 		// If the event is from the add button, add a field!
 		else if (obGen == addButton) {
 			addField();
 		}
+	}
+
+	@Override
+	public void addListener(GUIEventListener l) {
+		listeners.add(l);
+	}
+
+	@Override
+	public void removeListener(GUIEventListener l) {
+		listeners.remove(l);
 	}
 	
 }

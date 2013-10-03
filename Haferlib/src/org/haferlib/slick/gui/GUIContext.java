@@ -464,6 +464,10 @@ public class GUIContext implements KeyListener {
 		while (iterator.hasNext()) {
 			e = iterator.next();
 			if (e.dead()) {
+				if (e == clickFocus)
+					clickFocus = null;
+				if (e == hoverFocus)
+					hoverFocus = null;
 				e.destroy();
 				iterator.remove();
 			}

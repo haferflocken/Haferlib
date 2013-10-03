@@ -4,6 +4,13 @@ import org.newdawn.slick.Color;
 import org.newdawn.slick.Font;
 import org.newdawn.slick.Graphics;
 
+/**
+ * An editor for several strings. Allows autocompleting fields and uses
+ * a scroll bar for the fields if they need more room.
+ * 
+ * @author John Werner
+ */
+
 public class ArrayEditor extends GUISubcontext {
 	
 	private static final String[] EMPTY_STRING_ARRAY = {};
