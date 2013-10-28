@@ -211,11 +211,6 @@ public class ListEditor extends GUISubcontext implements GUIEventListener, GUIEv
 
 	@Override
 	public void guiEvent(GUIEvent<?> event) {
-		// If the event is a resize event, recalc the height.
-		if (event instanceof ResizeEvent) {
-			recalcHeight();
-			return;
-		}
 		// If the event is from a TextButton and contains an array of a 
 		// SearchField and a HorizontalListFrame, remove the SearchField from
 		// fields, remove the HorizontalListFrame from fieldBarList.

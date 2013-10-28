@@ -16,10 +16,11 @@ public class ScrollableFrame extends GUISubcontext implements GUIEventListener {
 
 	// Non-input fields.
 	protected boolean hasScrollBar;
-	protected int scrollStepSize;
+	protected double scrollStepSize;
 	protected int scrollBarX, scrollBarY;
 	protected int scrollBarWidth, scrollBarHeight;
 	protected int scrollBarCornerRadius;
+	protected int amountScrolled;
 	protected Color scrollBarColor;
 
 	// Input fields.
@@ -62,7 +63,7 @@ public class ScrollableFrame extends GUISubcontext implements GUIEventListener {
 		}
 
 		// Translate the elements so the top one has y = y1.
-		subcontext.translateY(y1 - topY);
+		subcontext.translateY(-amountScrolled);
 
 		// Calculate the height of the scrolling area. If it's smaller than the height, just move everything up to the top of the frame and don't show the scroll bar.
 		int scrollAreaHeight = bottomY - topY;
@@ -70,28 +71,38 @@ public class ScrollableFrame extends GUISubcontext implements GUIEventListener {
 			hasScrollBar = false;
 			return;
 		}
-
-		// Get the amount we have currently scrolled.
-		int amountScrolled = (scrollBarY - y1) * scrollStepSize;
-
+		
 		// If we will have a scroll bar, adjust the scroll area and scroll bar.
 		hasScrollBar = true;
 		scrollBarY = y1;
-		scrollBarHeight =  height * height / scrollAreaHeight; //Set the scroll bar height to the (percentage of the scroll area that is shown by the frame) * frame height
-		scrollStepSize = (int)Math.ceil((float)(scrollAreaHeight - height) / (height - scrollBarHeight)); //The amount of translation to do for every pixel the scroll bar moves.
+		scrollBarHeight =  height * height / scrollAreaHeight; // Set the scroll bar height to the (percentage of the scroll area that is shown by the frame) * frame height
+		scrollStepSize = ((double)(scrollAreaHeight - height)) / (height - scrollBarHeight); // The amount of translation to do for every pixel the scroll bar moves.
 		mouseDragging = false;
 
 		// Scroll back to where we were now that everything is all taken care of.
 		if (amountScrolled != 0) {
-			amountScrolled /= scrollStepSize;
-			scrollBarY += amountScrolled;
-			scroll(-amountScrolled);
+			int sA = (int)(amountScrolled / scrollStepSize);
+			scrollBarY -= sA;
+			amountScrolled = 0;
+			scroll(sA);
 		}
 	}
 
 	// Scroll some amount of pixels on the scroll bar.
 	public void scroll(int amount) {
-		subcontext.translateY(amount * scrollStepSize);
+		int dY = (int)(amount * scrollStepSize);
+		amountScrolled += dY;
+		subcontext.translateY(dY);
+	}
+	
+	// Set the scrolled amount.
+	public void setScrolledAmount(int amount) {
+		// Scroll to the top.
+		subcontext.translateY(-amountScrolled);
+		
+		// Scroll down by the amount.
+		amountScrolled = amount;
+		subcontext.translateY(amountScrolled);
 	}
 	
 	// Add and remove elements.
@@ -149,15 +160,12 @@ public class ScrollableFrame extends GUISubcontext implements GUIEventListener {
 		// Scroll when dragging.
 		super.update(delta);
 		if (mouseDragging) {
-			int lastScrollBarY = scrollBarY;
 			scrollBarY = mouseY + mouseDragDistFromScrollY;
 			if (scrollBarY < y1)
 				scrollBarY = y1;
 			else if (scrollBarY + scrollBarHeight > y2)
 				scrollBarY = y2 - scrollBarHeight;
-			int dScroll = lastScrollBarY - scrollBarY;
-			if (dScroll != 0)
-				scroll(dScroll);
+			setScrolledAmount((int)((y1 - scrollBarY) * scrollStepSize));
 		}
 	}
 
