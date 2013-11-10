@@ -41,31 +41,54 @@ public class NewContext {
 				SmartInput.Pointer pointer = entry.value;
 				int pointerX = pointer.getX();
 				int pointerY = pointer.getY();
-				
-				// If the element doesn't contain the pointer, skip it.
-				if (!e.pointIsWithin(pointerX, pointerY))
-					continue;
+				boolean pointerWithin = e.pointIsWithin(pointerX, pointerY);
 				
 				// For each button in the pointer, touch the element appropriately.
 				IntIntMap buttonStates = pointer.getButtonStates();
 				for (IntIntMap.Entry<?> button : buttonStates.entries()) {
 					// button.key is the id, button.value is the state
-					// If the button has already been consumed, ignore it.
-					if (consumedEvents.get(pointerId, Integer.MAX_VALUE) != Integer.MAX_VALUE)
-						continue;
-					
-					if (button.value == SmartInput.HELD_DOWN)
-						e.pointerDown(pointerX, pointerY, pointerId, button.key);
-					else if (button.value == SmartInput.JUST_PRESSED)
-						e.pointerJustPressed(pointerX, pointerY, pointerId, button.key);
-					else if (button.value == SmartInput.JUST_RELEASED)
-						e.pointerJustReleased(pointerX, pointerY, pointerId, button.key);
+					// Get if the button has been consumed.
+					boolean buttonConsumed = consumedEvents.get(pointerId, Integer.MAX_VALUE) == Integer.MAX_VALUE;
+					if (button.value == SmartInput.HELD_DOWN) {
+						if (pointerWithin) {
+							if (buttonConsumed)
+								e.pointerDownElsewhere(pointerId, button.key);
+							else
+								e.pointerDown(pointerX, pointerY, pointerId, button.key);
+						}
+						else {
+							e.pointerDownElsewhere(pointerId, button.key);
+						}
+					}
+					else if (button.value == SmartInput.JUST_PRESSED) {
+						if (pointerWithin) {
+							if (buttonConsumed)
+								e.pointerJustPressedElsewhere(pointerId, button.key);
+							else
+								e.pointerJustPressed(pointerX, pointerY, pointerId, button.key);
+						}
+						else {
+							e.pointerJustPressedElsewhere(pointerId, button.key);
+						}
+					}
+					else if (button.value == SmartInput.JUST_RELEASED) {
+						if (pointerWithin) {
+							if (buttonConsumed)
+								e.pointerJustReleasedElsewhere(pointerId, button.key);
+							else
+								e.pointerJustReleased(pointerX, pointerY, pointerId, button.key);
+						}
+						else {
+							e.pointerJustReleasedElsewhere(pointerId, button.key);
+						}
+					}
 					else
 						continue;
 					consumedEvents.put(pointerId, button.key);
 				}
 				
 				// If no buttons were pressed, hover.
+				// TODO
 				if (!consumedEvents.containsKey(pointerId)) {
 					e.pointerHovering(pointerX, pointerY, pointerId);
 					consumedEvents.put(pointerId, Integer.MIN_VALUE);

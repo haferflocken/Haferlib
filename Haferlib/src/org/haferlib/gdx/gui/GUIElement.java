@@ -42,19 +42,19 @@ public interface GUIElement {
 
 	void pointerJustPressed(int x, int y, int pointer, int button);
 
-	void pointerJustPressedElsewhere(GUIElement target, int pointer, int button);
+	void pointerJustPressedElsewhere(int pointer, int button);
 	
 	void pointerDown(int x, int y, int pointer, int button);
 
-	void pointerDownElsewhere(GUIElement target, int pointer, int button);
+	void pointerDownElsewhere(int pointer, int button);
 	
 	void pointerJustReleased(int x, int y, int pointer, int button);
 
-	void pointerJustReleasedElsewhere(GUIElement target, int pointer, int button);
+	void pointerJustReleasedElsewhere(int pointer, int button);
 
 	void pointerHovering(int x, int y, int pointer);
 	
-	void pointerHoveringElsewhere(GUIElement target, int pointer);
+	void pointerHoveringElsewhere(int pointer);
 	
 	void setDepth(int d);
 
